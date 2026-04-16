@@ -1,0 +1,57 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Bash",
+      "WebFetch",
+      "WebSearch",
+      "mcp__ide",
+      "mcp__shadcn",
+      "mcp__playwright",
+      "mcp__sequential-thinking",
+      "mcp__context7",
+      "mcp__shrimp-task-manager",
+      "Skill(docs:update-roadmap)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright",
+    "context7",
+    "sequential-thinking"
+  ],
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/slack-notify.js Notification"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/kakao-notify.js Notification"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/slack-notify.js Stop"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/kakao-notify.js Stop"
+          }
+        ]
+      }
+    ]
+  }
+}
