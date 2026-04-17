@@ -75,7 +75,14 @@ async function initApp() {
     // 3. 테마 토글 버튼 이벤트 등록
     setupThemeToggle();
 
-    // 4. Lucide 아이콘 초기화 (테마 변경 후)
+    // 4. 사이드바 네비게이션 활성화 상태 관리 설정
+    // 주의: Router 생성자에서 _handleHashChange()가 이미 실행되어
+    // routeChange 이벤트가 발행된 후이므로, 초기 active 상태를 직접 설정한다
+    setupNavigation(router);
+    // 초기 경로에 대한 active 상태를 즉시 적용
+    router.eventBus.emit('routeChange', router.getCurrentPath());
+
+    // 5. Lucide 아이콘 초기화 (테마 변경 후)
     if (window.lucide) {
       window.lucide.createIcons();
     }
@@ -115,6 +122,27 @@ function setupThemeToggle() {
   const initialTheme = themeManager.getCurrent();
   const initialLabel = initialTheme === 'light' ? 'Dark Mode' : 'Light Mode';
   themeToggleButton.setAttribute('aria-label', initialLabel);
+}
+
+/**
+ * 사이드바 네비게이션 활성화 상태 관리
+ * router.eventBus의 routeChange 이벤트를 구독하여
+ * 현재 경로에 해당하는 .nav-link에 .active 클래스를 동적으로 제어한다
+ * @param {Router} router - 라우터 인스턴스
+ */
+function setupNavigation(router) {
+  router.eventBus.on('routeChange', (path) => {
+    // 모든 .nav-link에서 .active 제거
+    document.querySelectorAll('.nav-link').forEach(link => {
+      link.classList.remove('active');
+    });
+
+    // 현재 경로에 해당하는 .nav-link에 .active 추가
+    const activeLink = document.querySelector(`[href="#${path}"]`);
+    if (activeLink) {
+      activeLink.classList.add('active');
+    }
+  });
 }
 
 // 애플리케이션 시작

@@ -7,6 +7,8 @@
  *      router.navigate('/button');
  */
 
+import { EventBus } from './EventBus.js';
+
 export default class Router {
   /**
    * 라우터 인스턴스 생성
@@ -25,6 +27,9 @@ export default class Router {
 
     // 현재 활성화된 컴포넌트 인스턴스
     this._currentComponent = null;
+
+    // 라우트 변경 이벤트를 전달하기 위한 EventBus 인스턴스
+    this.eventBus = new EventBus();
 
     // hashchange 이벤트 리스너 등록
     window.addEventListener('hashchange', () => this._handleHashChange());
@@ -113,25 +118,7 @@ export default class Router {
     this._currentComponent.mount();
     this._currentComponent.afterMount();
 
-    // 네비게이션 링크 활성화 상태 업데이트
-    this._updateActiveNav(currentPath);
-  }
-
-  /**
-   * 사이드바 네비게이션 링크의 활성화 상태 업데이트
-   * @private
-   * @param {string} currentPath - 현재 경로
-   */
-  _updateActiveNav(currentPath) {
-    // 모든 네비게이션 링크에서 활성화 클래스 제거
-    document.querySelectorAll('.nav-link').forEach(link => {
-      link.classList.remove('active');
-    });
-
-    // 현재 경로에 해당하는 링크 활성화
-    const activeLink = document.querySelector(`a[href="#${currentPath}"]`);
-    if (activeLink) {
-      activeLink.classList.add('active');
-    }
+    // routeChange 이벤트 발행: App.js 등 외부에서 네비게이션 상태 동기화에 활용
+    this.eventBus.emit('routeChange', currentPath);
   }
 }

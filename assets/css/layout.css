@@ -165,7 +165,9 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 /* 메인 컨테이너 */
 .main-container {
   display: flex;
+  /* dvh: 모바일 브라우저 주소창 높이 변화에 대응 (미지원 시 vh fallback) */
   height: calc(100vh - 56px);
+  height: calc(100dvh - 56px);
 }
 
 /* 사이드바 */
@@ -173,12 +175,32 @@ html[data-theme="dark"] .theme-toggle .icon-light {
   position: sticky;
   top: 56px;
   width: 240px;
+  /* flex-shrink: 0 으로 콘텐츠 넓어져도 사이드바 너비 유지 */
+  flex-shrink: 0;
   height: calc(100vh - 56px);
   background-color: var(--color-bg-secondary);
   border-right: 1px solid var(--color-border);
   overflow-y: auto;
   padding: var(--spacing-lg) 0;
   z-index: 90;
+}
+
+/* 사이드바 스크롤바: 브라우저 지원 범위 내 경량 스타일 */
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-border-hover);
 }
 
 .sidebar-nav {
@@ -214,6 +236,10 @@ html[data-theme="dark"] .theme-toggle .icon-light {
   transition: color var(--transition-fast), background-color var(--transition-fast);
   border-radius: var(--radius-sm);
   margin: 2px 0;
+  /* 긴 컴포넌트명 넘침 방지 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .nav-link:hover {
@@ -230,6 +256,14 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 .nav-link.active {
   background-color: var(--color-primary);
   color: white;
+  font-weight: 500;
+}
+
+/* 활성 링크 호버 시 active 상태 유지 (일반 hover 규칙 덮어쓰기 방지) */
+.nav-link.active:hover {
+  background-color: var(--color-primary);
+  color: white;
+  opacity: 0.9;
 }
 
 /* 메인 콘텐츠 */
@@ -248,6 +282,7 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 /* 반응형 디자인 */
 @media (max-width: 1023px) {
   .sidebar {
+    /* 태블릿·모바일: 사이드바 기본 숨김 (슬라이드 오버레이는 Task 011에서 구현) */
     display: none;
   }
 
@@ -271,6 +306,44 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 
   .version-badge {
     display: none;
+  }
+}
+
+/* ============================================
+   Task 011 예약: 모바일 사이드바 슬라이드 오버레이
+   현재는 구조만 선언, 실제 동작은 Task 011에서 구현
+   ============================================ */
+
+/* 오버레이 배경 (사이드바 열렸을 때 배경 딤처리) */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 95;
+  /* 접근성: 키보드 포커스 트랩과 함께 사용 */
+}
+
+/* 모바일 오버레이 사이드바 열림 상태 */
+@media (max-width: 1023px) {
+  /* .sidebar--open 클래스는 Task 011 JS에서 추가 */
+  .sidebar--open {
+    display: block;
+    position: fixed;
+    top: 56px;
+    left: 0;
+    height: calc(100vh - 56px);
+    height: calc(100dvh - 56px);
+    width: 240px;
+    z-index: 96;
+    /* 슬라이드 인 트랜지션 기반 예약 */
+    transform: translateX(0);
+  }
+
+  /* 오버레이 사이드바가 열릴 때 배경 표시 */
+  .sidebar--open ~ .sidebar-overlay,
+  .sidebar-overlay--active {
+    display: block;
   }
 }
 
