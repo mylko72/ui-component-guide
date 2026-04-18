@@ -357,14 +357,22 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 }
 
 .demo-preview {
-  padding: var(--spacing-lg);
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
+  padding: var(--spacing-2xl);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
   margin-bottom: var(--spacing-lg);
   min-height: 120px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.demo-preview button[data-variant] {
+  flex-shrink: 0 !important;
+  min-width: fit-content !important;
 }
 
 .demo-description {

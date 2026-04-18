@@ -103,8 +103,8 @@
 .demo-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
-  padding: var(--spacing-xl) 0;
+  gap: var(--spacing-xl);
+  padding: var(--spacing-2xl) 0;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -127,17 +127,31 @@
   line-height: 1.6;
 }
 
+.demo-subsection-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: var(--spacing-xl) 0 var(--spacing-md);
+  line-height: var(--line-height-tight);
+}
+
 .demo-preview {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-xl);
+  padding: var(--spacing-2xl);
   min-height: 120px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
   gap: var(--spacing-md);
+}
+
+/* 데모 섹션의 버튼: 텍스트 길이에 따라 가변 너비, 축소 방지 */
+.demo-preview button[data-variant] {
+  flex-shrink: 0;
+  min-width: fit-content;
 }
 
 /* ============================================
