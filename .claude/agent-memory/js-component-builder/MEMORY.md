@@ -1,0 +1,5 @@
+- [DOM 직접 업데이트 vs 전체 리렌더](feedback_dom_update_vs_rerender.md) — 탭 전환 등 범위 명확한 변화는 setState 대신 DOM 직접 조작
+- [Playwright ES6 모듈 CORS 문제](feedback_playwright_static_server.md) — file:// + import → 정적 서버(webServer) 필수
+- [WAI-ARIA Tabs 패턴](reference_aria_tabs_pattern.md) — role=tablist/tab/tabpanel, roving tabindex, 키보드 네비게이션 구현 레퍼런스
+- [ToastManager 싱글톤 패턴](reference_toast_singleton_pattern.md) — exit 애니메이션 중 _render 충돌 처리, aria-live 타입별 분기, 타이머 맵 관리
+- [ModalManager 싱글톤 패턴](reference_modal_singleton_pattern.md) — 포커스 트랩, 배경 aria-hidden 백업/복원, 바인딩된 핸들러로 리스너 정리

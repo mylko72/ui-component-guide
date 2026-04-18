@@ -7,6 +7,10 @@
 import Router from './core/Router.js';
 import themeManager from './core/ThemeManager.js';
 
+// UI 매니저
+import toastManager from './ui/ToastManager.js';
+import modalManager from './ui/ModalManager.js';
+
 // Pages
 import DashboardPage from './pages/DashboardPage.js';
 
@@ -42,8 +46,8 @@ async function initApp() {
     // 1. 테마 매니저 초기화
     await themeManager.init();
 
-    // 2. 라우터 생성 및 라우트 등록
-    const router = new Router('#app-content');
+    // 2. 라우터 생성 (초기화 지연)
+    const router = new Router('#app-content', false);
 
     // 대시보드 (메인 화면)
     router.register('/', DashboardPage);
@@ -72,6 +76,9 @@ async function initApp() {
     router.register('/progress', ProgressDemo);
     router.register('/skeleton', SkeletonDemo);
 
+    // 모든 라우트 등록 완료 후 초기화
+    router._handleHashChange();
+
     // 3. 테마 토글 버튼 이벤트 등록
     setupThemeToggle();
 
@@ -82,7 +89,12 @@ async function initApp() {
     // 초기 경로에 대한 active 상태를 즉시 적용
     router.eventBus.emit('routeChange', router.getCurrentPath());
 
-    // 5. Lucide 아이콘 초기화 (테마 변경 후)
+    // 5. 전역 UI 매니저 및 라우터 window 노출 (데모 페이지 및 콘솔 테스트용)
+    window.router = router;
+    window.toastManager = toastManager;
+    window.modalManager = modalManager;
+
+    // 6. Lucide 아이콘 초기화 (테마 변경 후)
     if (window.lucide) {
       window.lucide.createIcons();
     }
@@ -125,12 +137,15 @@ function setupThemeToggle() {
 }
 
 /**
- * 사이드바 네비게이션 활성화 상태 관리
+ * 사이드바 네비게이션 활성화 상태 관리 + 대시보드 시 사이드바 숨김
  * router.eventBus의 routeChange 이벤트를 구독하여
- * 현재 경로에 해당하는 .nav-link에 .active 클래스를 동적으로 제어한다
+ * 1. 현재 경로에 해당하는 .nav-link에 .active 클래스를 동적으로 제어
+ * 2. 대시보드(/)일 때 사이드바 숨김, 아니면 표시
  * @param {Router} router - 라우터 인스턴스
  */
 function setupNavigation(router) {
+  const sidebar = document.querySelector('.sidebar');
+
   router.eventBus.on('routeChange', (path) => {
     // 모든 .nav-link에서 .active 제거
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -141,6 +156,15 @@ function setupNavigation(router) {
     const activeLink = document.querySelector(`[href="#${path}"]`);
     if (activeLink) {
       activeLink.classList.add('active');
+    }
+
+    // 대시보드 경로(/)에서는 사이드바 숨김, 나머지는 표시
+    if (sidebar) {
+      if (path === '/' || path === '') {
+        sidebar.style.display = 'none';
+      } else {
+        sidebar.style.display = '';
+      }
     }
   });
 }

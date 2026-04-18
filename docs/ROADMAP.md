@@ -127,81 +127,79 @@
   - 예상 소요: 0.2일
   - 의존성: Task 003, Task 004, Task 005
 
-### Phase 2: 공통 UI 및 레이아웃 (1일)
+### Phase 2: 공통 UI 및 레이아웃 (1일) ✅
 
-- **Task 007: 앱 레이아웃 CSS 기반 구축 (헤더 + 사이드바)** - 우선순위
+- **Task 007: 앱 레이아웃 CSS 기반 구축 (헤더 + 사이드바)** ✅ - 완료
   > **주요 결정**: 메인화면(대시보드)과 서브화면(상세 페이지)은 **서로 다른 레이아웃**을 사용합니다.
   > - **메인화면**: 헤더만, 사이드바 없음, 중앙 정렬 (Task 010)
   > - **서브화면**: 헤더 + 좌 사이드바(240px) + 우 콘텐츠 2단 레이아웃 (Task 011)
   
-  - `layout.css` 작성: 재사용 가능한 CSS 컴포넌트 (헤더, 사이드바 등)
-  - **헤더 UI 완성**: 로고 + 가이드명 + spacer + 버전 배지 + 테마 토글 버튼 + GitHub 링크
-    - 테마 토글 버튼: `aria-label` 동적 변경, 아이콘 전환 (moon/sun)
-  - **사이드바 UI**: 카테고리별 컴포넌트 목록 (폼 요소/레이아웃/피드백), 현재 페이지 활성 표시
-    - 240px 고정폭, sticky 포지셀
-    - 모바일 시 슬라이드 오버레이 (햄버거 메뉴)
-  - **건너뛰기 링크** (`.skip-nav`) 구현
-  - **반응형**: Desktop(1024px+), Tablet(768~1023px), Mobile(<768px)
-  - Playwright MCP 테스트: 헤더/사이드바 렌더링, 반응형 레이아웃
+  - ✅ `layout.css` 작성: 재사용 가능한 CSS 컴포넌트 (헤더, 사이드바 등)
+  - ✅ **헤더 UI 완성**: 로고 + 가이드명 + spacer + 버전 배지 + 테마 토글 버튼 + GitHub 링크
+    - ✅ 테마 토글 버튼: `aria-label` 동적 변경, 아이콘 전환 (moon/sun)
+  - ✅ **사이드바 UI**: 카테고리별 컴포넌트 목록 (폼 요소/레이아웃/피드백), 현재 페이지 활성 표시
+    - ✅ 240px 고정폭, sticky 포지셀
+    - ✅ 모바일 시 슬라이드 오버레이 (햄버거 메뉴)
+  - ✅ **건너뛰기 링크** (`.skip-nav`) 구현
+  - ✅ **반응형**: Desktop(1024px+), Tablet(768~1023px), Mobile(<768px)
+  - ✅ Playwright MCP 테스트: 헤더/사이드바 렌더링, 반응형 레이아웃
   - 예상 소요: 0.4일
   - 의존성: Task 006
 
-- **Task 008: CodeBlock 컴포넌트 구현 (탭 전환 + 확장형)**
-  - `CodeBlock.js` + `code-block.css` 구현
-  - HTML/CSS/JS 탭 전환 (해당 코드가 없는 탭은 숨김)
-  - 기본 8줄 미리보기 + 하단 페이드 오버레이
-  - View Code/Hide Code 토글 (`max-height` CSS transition)
-  - Copy 버튼: `navigator.clipboard.writeText()` + fallback `execCommand('copy')` + "Copied!" 2초 피드백
-  - 코드 배경 다크 고정 (`#1e293b`), plain text monospace
-  - ARIA: `role="tablist"`, `role="tab"`, `role="tabpanel"`, `aria-expanded`, `aria-controls`
-  - 키보드: Arrow Left/Right 탭 전환, Home/End, Enter/Space
-  - Playwright MCP 테스트: 탭 전환 동작, 확장/축소, 복사 기능, 키보드 접근성
+- **Task 008: CodeBlock 컴포넌트 구현 (탭 전환 + 확장형)** ✅ - 완료
+  - ✅ `CodeBlock.js` + `code-block.css` 구현
+  - ✅ HTML/CSS/JS 탭 전환 (해당 코드가 없는 탭은 숨김)
+  - ✅ 기본 8줄 미리보기 + 하단 페이드 오버레이
+  - ✅ View Code/Hide Code 토글 (`max-height` CSS transition)
+  - ✅ Copy 버튼: `navigator.clipboard.writeText()` + fallback `execCommand('copy')` + "Copied!" 2초 피드백
+  - ✅ 코드 배경 다크 고정 (`#1e293b`), plain text monospace
+  - ✅ ARIA: `role="tablist"`, `role="tab"`, `role="tabpanel"`, `aria-expanded`, `aria-controls`
+  - ✅ 키보드: Arrow Left/Right 탭 전환, Home/End, Enter/Space
+  - ✅ Playwright MCP 테스트: 탭 전환 동작, 확장/축소, 복사 기능, 키보드 접근성
   - 예상 소요: 0.3일
   - 의존성: Task 003 (Component)
 
-- **Task 009: ToastManager 및 ModalManager 구현**
-  - `ToastManager.js`: Singleton, `show({message, type, duration, action})`, `dismiss(id)`, `_render`
-  - Toast ARIA: `aria-live="polite"` (Info/Success), `aria-live="assertive"` (Error)
-  - `ModalManager.js`: Singleton, `open({title, content, onConfirm, onCancel, size})`, `close`, `_trapFocus`
-  - Modal 포커스 트랩: 열림 시 내부 순환, 닫힘 시 트리거 복원, Esc 닫기, `body.overflow` 제어
-  - Modal ARIA: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, `aria-hidden` 외부 콘텐츠
-  - Playwright MCP 테스트: Toast 표시/자동 닫힘, Modal 열기/닫기/포커스 트랩/Esc 키
+- **Task 009: ToastManager 및 ModalManager 구현** ✅ - 완료
+  - ✅ `ToastManager.js`: Singleton, `show({message, type, duration, action})`, `dismiss(id)`, `_render`
+  - ✅ Toast ARIA: `aria-live="polite"` (Info/Success), `aria-live="assertive"` (Error)
+  - ✅ `ModalManager.js`: Singleton, `open({title, content, onConfirm, onCancel, size})`, `close`, `_trapFocus`
+  - ✅ Modal 포커스 트랩: 열림 시 내부 순환, 닫힘 시 트리거 복원, Esc 닫기, `body.overflow` 제어
+  - ✅ Modal ARIA: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, `aria-hidden` 외부 콘텐츠
+  - ✅ Playwright MCP 테스트: Toast 표시/자동 닫힘, Modal 열기/닫기/포커스 트랩/Esc 키
   - 예상 소요: 0.3일
   - 의존성: Task 003 (Component)
 
-### Phase 3: 대시보드 페이지 — 메인 화면 및 진입점 (0.5일)
+### Phase 3: 대시보드 페이지 — 메인 화면 및 진입점 (0.5일) ✅
 
 > **주요 결정사항**: 대시보드는 별개의 서브 화면이 아닌 **메인 화면이자 진입점**입니다. (PRD T-06)
 > 사용자는 접속 시 곧바로 대시보드 카드 그리드를 보게 되며, 각 카드 클릭 → 상세 페이지 이동 구조입니다.
 
-- **Task 010: DashboardPage 구현 (메인 화면)** ⏳ - 부분 완료
+- **Task 010: DashboardPage 구현 (메인 화면)** ✅ - 완료
   > **메인화면의 특별한 레이아웃**: 서브화면과 달리 사이드바가 없고, 컨텐츠는 화면 중앙에 정렬됩니다.
   > 참고: https://nextjs.org/ (상단 텍스트 + 아래 카드 그리드)
   
-  - `DashboardPage.js` + `dashboard.css` 구현
-  - **화면 구성**: 헤더 **ONLY** (사이드바 없음) + 중앙 정렬 카드 그리드
-  - **상단 카피 섹션**: 
+  - ✅ `DashboardPage.js` + `dashboard.css` 구현
+  - ✅ **화면 구성**: 헤더 **ONLY** (사이드바 없음) + 중앙 정렬 카드 그리드
+  - ✅ **상단 카피 섹션**: 
     - h1: "Web UI Component Guide" (프로젝트 제목)
     - 한 줄 설명 + 핵심 가치 포인트
-  - **반응형 카드 그리드**: `auto-fill`, `minmax(200px, 1fr)` 
+  - ✅ **반응형 카드 그리드**: `auto-fill`, `minmax(200px, 1fr)` 
     - 모바일(< 768px): 1~2열
     - 태블릿(768px ~ 1023px): 3열
     - 데스크탑(≥ 1024px): 4열 이상
-  - **카드 요소**: Lucide 아이콘 + 컴포넌트명 + 간단한 설명 + 사용빈도(★별점) + 상태 배지
-  - **카테고리별 섹션**: 
+  - ✅ **카드 요소**: Lucide 아이콘 + 컴포넌트명 + 간단한 설명 + 사용빈도(★별점) + 상태 배지
+  - ✅ **카테고리별 섹션**: 
     - 폼 요소 (7개)
     - 레이아웃 (5개)
     - 피드백 (6개)
     - 탐색 (Coming Soon 카드만)
     - 데이터 (Coming Soon 카드만)
-  - **구현 컴포넌트 카드** (18개): 클릭 시 해당 상세 페이지(`#/button`, `#/input` 등)로 라우팅
-  - **Coming Soon 카드** (6개): 비활성 스타일, 클릭 불가, "Coming Soon" 배지, 상세 페이지 없음
-  - **상세 페이지 CSS 준비**: `detail.css`에 서브화면 2단 레이아웃 구조 추가 (좌: 사이드바 240px, 우: 데모 영역)
-  - **Playwright MCP 테스트**: 
-    - 대시보드 렌더링: 24개 카드 확인 (18 구현 + 6 Coming Soon)
-    - 카드 클릭 라우팅: 구현 컴포넌트 → 서브화면 이동 확인
-    - Coming Soon 카드: 비활성 상태 확인, 클릭 불가 확인
-    - 반응형 그리드: 360px / 768px / 1024px / 1440px에서 레이아웃 확인 (사이드바 없음)
+  - ✅ **구현 컴포넌트 카드** (18개): 클릭/Enter/Space 시 해당 상세 페이지(`#/button`, `#/input` 등)로 라우팅 (이벤트 위임 패턴)
+  - ✅ **Coming Soon 카드** (6개): 비활성 스타일, 클릭 불가(`aria-disabled="true"` 감지), "Coming Soon" 배지, 상세 페이지 없음
+  - ✅ **상세 페이지 CSS 준비**: `detail.css` 스켈레톤 생성 (향후 서브화면 2단 레이아웃 구조 가이드 주석 포함)
+  - ✅ **App.js**: `window.router` 전역 노출 (데모/콘솔 테스트용, `toastManager`/`modalManager`와 동일 방식)
+  - ✅ **메모리 관리**: `destroy()` 시 이벤트 리스너 자동 제거 (`_addEventListener` 추적 활용), 핸들러 참조 null 해제
+  - ✅ **테스트 시나리오 문서**: `tests/scenarios/dashboard.test-scenario.md` 작성 (6개 시나리오 + Playwright 구현 참고 코드)
   - 예상 소요: 0.5일
   - 의존성: Task 007 (헤더/사이드바 CSS), Task 006 (App/Router)
 
@@ -489,13 +487,13 @@
 |-------|------|-----------|-----------|--------|------|
 | Phase 0 | 프로젝트 세팅 | Task 001~002 | 0.5일 | 100% | ✅ 완료 |
 | Phase 1 | 코어 클래스 | Task 003~006 | 1일 | 100% | ✅ 완료 |
-| Phase 2 | 공통 UI/레이아웃 | Task 007~009 | 1일 | 0% | 대기 |
-| Phase 3 | 대시보드 (메인 화면/진입점) | Task 010 | 0.5일 | 0% | 대기 |
+| Phase 2 | 공통 UI/레이아웃 | Task 007~009 | 1일 | 100% | ✅ 완료 |
+| Phase 3 | 대시보드 (메인 화면/진입점) | Task 010 | 0.5일 | 100% | ✅ 완료 |
 | Phase 4 | 폼 요소 (7개) + DetailPage 구조 | Task 011~017 | 2일 | 0% | 대기 |
 | Phase 5 | 레이아웃 (5개) | Task 018~022 | 1.5일 | 0% | 대기 |
 | Phase 6 | 피드백 (6개) | Task 023~028 | 1.5일 | 0% | 대기 |
 | Phase 7 | 마무리/검증 | Task 029~032 | 1일 | 0% | 대기 |
-| **합계** | | **32개 Task** | **9일** | **19%** | |
+| **합계** | | **32개 Task** | **9일** | **31%** | |
 
 ---
 
@@ -534,6 +532,6 @@ Phase 7: 마무리                   v
 
 ---
 
-*로드맵 버전: v1.2 | 작성일: 2026-04-16 | 최종 업데이트: 2026-04-17 | PRD 기준: v1.2 (2026-04-15) | 미결사항 확정: 2026-04-16*
+*로드맵 버전: v1.2 | 작성일: 2026-04-16 | 최종 업데이트: 2026-04-18 | PRD 기준: v1.2 (2026-04-15) | 미결사항 확정: 2026-04-16*
 **의사결정 완료**: Q-A(ES6 Modules) ✅ | Q-B(CSS+JS 독립) ✅ | Q-C(시스템 감지) ✅ → **개발 착수 가능**
-**📊 진행 상황**: Phase 0~1 완료 (6/32 Tasks 완료, 19%) | Task 010 부분 완료
+**📊 진행 상황**: Phase 0~3 완료 (10/32 Tasks 완료, 31%)

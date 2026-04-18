@@ -1,0 +1,190 @@
+/* ============================================
+   CodeBlock 컴포넌트 스타일
+   코드 뷰어: 탭 전환, 미리보기, 확장/축소
+   ============================================ */
+
+.code-block {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background-color: var(--color-bg);
+}
+
+/* 탭 헤더 */
+.code-block__header {
+  display: flex;
+  background-color: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  gap: 0;
+}
+
+/* 탭 버튼 (HTML/CSS/JS) */
+.code-block__tab {
+  flex: 1;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  background-color: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.code-block__tab:hover {
+  background-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.code-block__tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* 활성 탭 */
+.code-block__tab[aria-selected="true"] {
+  color: var(--color-primary);
+  background-color: var(--color-bg);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.code-block__tab[aria-selected="true"]:hover {
+  background-color: var(--color-bg);
+}
+
+/* 탭 패널 컨테이너 */
+.code-block__panels {
+  position: relative;
+  overflow: hidden;
+}
+
+/* 개별 탭 패널 */
+.code-block__panel {
+  display: none;
+  max-height: 10em;
+  overflow: hidden;
+  position: relative;
+  transition: max-height var(--transition-normal);
+}
+
+.code-block__panel[aria-expanded="true"] {
+  display: block;
+}
+
+/* 확장 상태 */
+.code-block__panel.expanded {
+  max-height: none;
+}
+
+/* 코드 영역 */
+.code-block__content {
+  padding: var(--spacing-lg);
+  background-color: #1e293b;
+  color: #e2e8f0;
+  font-family: monospace;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 미리보기 페이드 오버레이 (축소 상태) */
+.code-block__panel:not(.expanded)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, #1e293b);
+  pointer-events: none;
+}
+
+/* 토글 버튼 영역 */
+.code-block__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  gap: var(--spacing-md);
+}
+
+/* View Code / Hide Code 버튼 */
+.code-block__toggle {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.code-block__toggle:hover {
+  background-color: var(--color-border);
+  color: var(--color-primary);
+}
+
+.code-block__toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Copy 버튼 */
+.code-block__copy {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-primary);
+  background-color: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.code-block__copy:hover {
+  opacity: 0.9;
+}
+
+.code-block__copy:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Copy 성공 상태 */
+.code-block__copy.copied {
+  background-color: var(--color-success, #10b981);
+  border-color: var(--color-success, #10b981);
+}
+
+/* 반응형: 모바일에서 탭 버튼 크기 조정 */
+@media (max-width: 767px) {
+  .code-block__tab {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+
+  .code-block__content {
+    padding: var(--spacing-md);
+    font-size: 12px;
+  }
+
+  .code-block__footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .code-block__toggle,
+  .code-block__copy {
+    width: 100%;
+  }
+}

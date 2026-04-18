@@ -30,11 +30,26 @@
   margin: 0;
 }
 
-/* 카테고리 섹션 */
+/* 카테고리 섹션 (대시보드 카드 그룹) */
 .category-section {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+}
+
+/* 컴포넌트 카드 섹션 (category-section의 시맨틱 별칭) */
+.components-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* 컴포넌트 카드 그리드 (card-grid의 시맨틱 별칭) */
+.components-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+  width: 100%;
 }
 
 .category-title {
@@ -165,18 +180,31 @@
 }
 
 .card-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
 }
 
+/* 별 문자: 노란색 */
 .card-stars {
   color: var(--color-warning);
   letter-spacing: 2px;
+  line-height: 1;
+}
+
+/* 점수 텍스트 */
+.card-rating-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
 }
 
 /* 반응형 레이아웃 */
 @media (max-width: 1023px) {
-  .card-grid {
+  /* 태블릿: 카드 최소 너비 축소 */
+  .card-grid,
+  .components-grid {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: var(--spacing-md);
   }
@@ -187,7 +215,9 @@
 }
 
 @media (max-width: 767px) {
-  .card-grid {
+  /* 모바일: 카드 최소 너비 추가 축소 */
+  .card-grid,
+  .components-grid {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: var(--spacing-md);
   }
@@ -231,6 +261,24 @@
 
 .component-card:not(.component-card--coming-soon):hover .card-title {
   color: var(--color-primary);
+}
+
+/* ============================================
+   카드 배지 변형 클래스
+   badge-success: 구현 완료 (초록)
+   badge-gray: Coming Soon (회색)
+   ============================================ */
+
+/* 구현 완료 배지 */
+.badge-success {
+  background-color: var(--color-success);
+  color: #ffffff;
+}
+
+/* Coming Soon 배지: 비활성 회색 */
+.badge-gray {
+  background-color: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 /* ============================================

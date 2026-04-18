@@ -1,0 +1,10 @@
+[      61ms] Identifier 'Infinity' has already been declared
+[      62ms] ReferenceError: lucide is not defined
+    at http://localhost:8000/:132:5
+[      34ms] [ERROR] Router: "/" 경로의 컴포넌트를 찾을 수 없습니다. @ http://localhost:8000/assets/js/core/Router.js:104
+[    6404ms] Identifier 'Infinity' has already been declared
+[    6368ms] [ERROR] Router: "/" 경로의 컴포넌트를 찾을 수 없습니다. @ http://localhost:8000/assets/js/core/Router.js:104
+[   43894ms] Identifier 'Infinity' has already been declared
+[   43861ms] [ERROR] Router: "/" 경로의 컴포넌트를 찾을 수 없습니다. @ http://localhost:8000/assets/js/core/Router.js:104
+[ 1114254ms] Identifier 'Infinity' has already been declared
+[ 1114265ms] [ERROR] Router: "/accordion" 경로의 컴포넌트를 찾을 수 없습니다. @ http://localhost:8000/assets/js/core/Router.js:104

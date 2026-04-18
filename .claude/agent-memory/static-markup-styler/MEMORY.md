@@ -1,0 +1,1 @@
+- [대시보드 컴포넌트 카드 마크업 패턴](project_dashboard_card_pattern.md) — DashboardPage 24개 카드 구조, CSS 클래스 매핑, 접근성 수치

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeBlock 테스트 페이지</title>
+
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/code-block.css">
+
+  <style>
+    body { padding: 2rem; font-family: sans-serif; background: var(--color-bg); color: var(--color-text); }
+    #mount-target { max-width: 700px; }
+  </style>
+</head>
+<body>
+  <div id="mount-target"></div>
+
+  <script type="module">
+    import CodeBlock from '../assets/js/ui/CodeBlock.js';
+
+    const codeBlock = new CodeBlock('#mount-target', {
+      html: `<button class="btn btn--primary" type="button">\n  클릭하세요\n</button>\n<button class="btn btn--secondary" type="button">\n  취소\n</button>`,
+      css:  `.btn {\n  display: inline-flex;\n  align-items: center;\n  padding: 0.5rem 1rem;\n  border-radius: 0.375rem;\n  font-weight: 500;\n  cursor: pointer;\n}\n\n.btn--primary {\n  background-color: #3b82f6;\n  color: #fff;\n}\n\n.btn--secondary {\n  background-color: transparent;\n  border: 1px solid #d1d5db;\n}`,
+      js:   `document.querySelectorAll('.btn').forEach(btn => {\n  btn.addEventListener('click', (e) => {\n    console.log('클릭된 버튼:', e.target.textContent);\n  });\n});`,
+    });
+
+    codeBlock.mount();
+    codeBlock.afterMount();
+  </script>
+</body>
+</html>

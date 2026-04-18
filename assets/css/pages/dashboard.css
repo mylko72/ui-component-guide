@@ -1,0 +1,535 @@
+/* ============================================
+   대시보드 페이지 전용 스타일
+   파일: assets/css/pages/dashboard.css
+   의존성: assets/css/tokens.css (CSS 변수)
+
+   구조:
+   .dashboard-page
+     .hero
+     .components-section
+       .category-title (h2)
+       .components-grid
+         .component-card (article)
+           .card-header
+           .card-body
+           .card-footer
+   ============================================ */
+
+/* ============================================
+   1. 대시보드 루트 컨테이너
+   ============================================ */
+
+/* 대시보드 페이지 최상위 래퍼: 세로 플렉스 + 섹션 간 간격 */
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+  /* 페이지 최하단 여백 확보 */
+  padding-bottom: var(--spacing-2xl);
+}
+
+/* ============================================
+   2. Hero 섹션
+   ============================================ */
+
+/* 히어로 섹션: 중앙 정렬, 그래디언트 배경, 최대 너비 제한 */
+.hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  text-align: center;
+  width: 100%;
+  /* 박스 사이징: padding 포함 너비 계산 */
+  box-sizing: border-box;
+  /* 그래디언트 배경: 파란색 → 녹색 */
+  background: linear-gradient(135deg, #3b82f6 0%, #10b981 100%);
+  border-radius: var(--radius-lg);
+}
+
+/* 히어로 타이틀: 굵은 대형 제목 (흰색) */
+.hero h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 var(--spacing-md) 0;
+  line-height: var(--line-height-tight);
+}
+
+/* 히어로 부제목: 보조 설명 텍스트 (밝은 회색) */
+.hero-subtitle {
+  font-size: var(--font-size-base);
+  color: rgba(255, 255, 255, 0.9);
+  margin: var(--spacing-md) 0 0 0;
+  line-height: 1.6;
+  /* 가독성을 위한 최대 너비 제한 */
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ============================================
+   3. 카테고리 섹션
+   ============================================ */
+
+/* 카테고리별 컴포넌트 섹션 컨테이너 */
+.components-section {
+  /* 최대 너비 및 가운데 정렬 */
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-lg);
+}
+
+/* 카테고리 섹션 제목 (h2): 하단 구분선 포함 */
+.components-section h2,
+.category-title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 var(--spacing-lg) 0;
+  padding-bottom: var(--spacing-md);
+  /* 시각적 구분선: 카테고리 경계 표시 */
+  border-bottom: 2px solid var(--color-border);
+  /* 섹션 h2와 category-title 클래스가 혼용되므로 동일 스타일 적용 */
+}
+
+/* ============================================
+   4. 카드 그리드 (모바일 우선 반응형)
+   ============================================ */
+
+/* 카드 그리드: auto-fill 기반 반응형 레이아웃 */
+.components-grid,
+.card-grid {
+  display: grid;
+  /* 모바일 기본: 160px 최소 너비, 자동 열 채움 (1~2열) */
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--spacing-md);
+  /* 너비 전체 사용 */
+  width: 100%;
+}
+
+/* 태블릿 (768px 이상): 고정 3열 레이아웃 */
+@media (min-width: 768px) {
+  .components-grid,
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+  }
+}
+
+/* 데스크톱 (1024px 이상): 4열 이상, 200px 최소 너비 */
+@media (min-width: 1024px) {
+  .components-grid,
+  .card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--spacing-lg);
+  }
+}
+
+/* ============================================
+   5. 개별 카드 (.component-card)
+   ============================================ */
+
+/* 카드 기본 상태: 세로 플렉스, 배경, 테두리, 전환 효과 */
+.component-card {
+  display: flex;
+  flex-direction: column;
+  /* 자식 요소 간 간격 */
+  gap: var(--spacing-sm);
+  /* 내부 여백 */
+  padding: var(--spacing-md);
+  /* 카드 배경: 보조 배경색 사용 */
+  background-color: var(--color-bg-secondary);
+  /* 테두리: 기본 구분선 */
+  border: 1px solid var(--color-border);
+  /* 모서리 둥글림 */
+  border-radius: var(--radius-lg);
+  /* 상호작용 암시 커서 */
+  cursor: pointer;
+  /* 부드러운 상태 전환 */
+  transition: all var(--transition-normal);
+  /* 링크 스타일 초기화 */
+  text-decoration: none;
+  color: inherit;
+  /* 최소 높이: 카드 간 높이 균일성 */
+  min-height: 160px;
+  /* align-items 기본값(stretch): 카드 내부 요소 너비 통일 */
+  align-items: stretch;
+}
+
+/* 카드 호버 상태: 구현 완료 카드에만 적용 */
+.component-card:hover:not([aria-disabled="true"]):not(.component-card--coming-soon) {
+  /* 테두리 색상: primary 색상으로 강조 */
+  border-color: var(--color-primary);
+  /* 그림자: 부유 효과 */
+  box-shadow: var(--shadow-lg);
+  /* 미세 상승 애니메이션: 클릭 유도 */
+  transform: translateY(-2px);
+  /* 배경: primary 색상 극미세 투명도 */
+  background-color: var(--color-bg);
+}
+
+/* 호버 시 카드 타이틀 색상 변경 */
+.component-card:hover:not([aria-disabled="true"]):not(.component-card--coming-soon) .card-title {
+  color: var(--color-primary);
+}
+
+/* 카드 포커스 상태 (키보드 탐색): 명확한 윤곽선으로 접근성 확보 */
+.component-card:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  /* 포커스 시에도 그림자와 테두리 강조 */
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+/* Coming Soon 상태: aria-disabled 속성 기반 비활성화 */
+.component-card[aria-disabled="true"],
+.component-card.component-card--coming-soon {
+  /* 시각적 비활성화: 흐림 처리 */
+  opacity: 0.6;
+  /* 클릭 비활성화 */
+  pointer-events: none;
+  cursor: default;
+}
+
+/* Coming Soon 카드 호버 방지 (pointer-events:none 보완) */
+.component-card.component-card--coming-soon:hover {
+  border-color: var(--color-border);
+  box-shadow: none;
+  transform: none;
+  background-color: var(--color-bg-secondary);
+}
+
+/* ============================================
+   6. 카드 내부 요소
+   ============================================ */
+
+/* 카드 헤더: 아이콘 + 배지 가로 배치 */
+.card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  width: 100%;
+}
+
+/* 카드 아이콘 컨테이너: 정사각 박스, 중앙 정렬 */
+.card-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* 아이콘 배경: 보조 배경색으로 시각적 구분 */
+  background-color: var(--color-bg);
+  border-radius: var(--radius-md);
+  /* 아이콘 고정 크기: 그리드 축소 시 축소 방지 */
+  flex-shrink: 0;
+  /* 테두리로 아이콘 영역 강조 */
+  border: 1px solid var(--color-border);
+}
+
+/* 아이콘 SVG 크기: Lucide 아이콘 규격 */
+.card-icon svg,
+.card-icon i {
+  width: 20px;
+  height: 20px;
+  /* 아이콘 색상: primary 색상 */
+  color: var(--color-primary);
+}
+
+/* 카드 배지: 상태 표시 레이블 */
+.card-badge {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  /* 줄바꿈 방지 */
+  white-space: nowrap;
+  /* 텍스트 중앙 정렬 */
+  text-align: center;
+  /* 배지 고정 크기: 그리드 축소 시 축소 방지 */
+  flex-shrink: 0;
+}
+
+/* 구현 완료 배지: 초록 배경 */
+.badge-success {
+  background-color: var(--color-success);
+  color: #ffffff;
+}
+
+/* Coming Soon 배지: 회색 계열, 테두리 포함 */
+.badge-gray {
+  background-color: var(--color-bg);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+/* 카드 본문: 타이틀 + 설명 세로 정렬 */
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  /* 남은 공간 차지: 카드 높이 균일화 */
+  flex: 1;
+  /* 세로 시작 정렬: 내용이 적어도 상단 고정 */
+  justify-content: flex-start;
+}
+
+/* 카드 타이틀: 컴포넌트 이름 */
+.card-title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+  /* 줄 간격: 가독성 확보 */
+  line-height: var(--line-height-tight);
+  /* 타이틀 색상 전환 (호버 효과와 연동) */
+  transition: color var(--transition-normal);
+}
+
+/* 카드 설명: 보조 텍스트, 최대 2줄 표시 */
+.card-description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: var(--line-height-normal);
+  /* 텍스트 말줄임: 2줄 초과 시 ... 처리 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 카드 푸터: 별점 영역 */
+.card-footer {
+  width: 100%;
+  /* 푸터 상단 여백: 본문과 시각적 구분 */
+  padding-top: var(--spacing-sm);
+  /* 구분선: 본문과 별점 분리 */
+  border-top: 1px solid var(--color-border);
+  /* 푸터를 카드 최하단으로 고정 */
+  margin-top: auto;
+}
+
+/* 카드 별점: 아이콘 + 수치 가로 배치 */
+.card-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+}
+
+/* 별 문자: 노란색 (경고색 토큰 활용) */
+.card-stars {
+  color: var(--color-warning);
+  font-size: var(--font-size-base);
+  /* 자간 최소화: 별 문자 촘촘히 표시 */
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+/* 별점 수치 텍스트 */
+.card-rating-text {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   7. 대시보드 푸터
+   ============================================ */
+
+/* 대시보드 하단 정보 영역 */
+.footer-info {
+  text-align: center;
+  padding: var(--spacing-xl) 0;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.footer-info p {
+  margin: 0;
+  line-height: var(--line-height-normal);
+}
+
+/* ============================================
+   8. 반응형 미디어쿼리 (모바일 우선)
+   ============================================ */
+
+/* ---- 모바일 기본값 (< 768px) ---- */
+/* 위 기본 CSS가 모바일 스타일 (auto-fill minmax 160px) */
+
+/* 모바일에서 카드 패딩 및 레이아웃 최적화 */
+@media (max-width: 767px) {
+  /* 대시보드 루트: 섹션 간격 축소 */
+  .dashboard-page {
+    gap: var(--spacing-xl);
+    padding-bottom: var(--spacing-xl);
+  }
+
+  /* 히어로 패딩 축소: 모바일 화면 공간 절약 */
+  .hero {
+    padding: var(--spacing-xl) var(--spacing-md);
+  }
+
+  /* 히어로 타이틀: 모바일 크기 조정 */
+  .hero h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  /* 히어로 부제목: 모바일 크기 조정 */
+  .hero-subtitle {
+    font-size: var(--font-size-sm);
+  }
+
+  /* 카테고리 섹션 패딩: 모바일 여백 축소 */
+  .components-section {
+    padding: 0 var(--spacing-md);
+  }
+
+  /* 카테고리 제목: 모바일 크기 조정 */
+  .components-section h2,
+  .category-title {
+    font-size: var(--font-size-base);
+  }
+
+  /* 카드 내부 여백: 모바일 공간 절약 */
+  .component-card {
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 140px;
+  }
+
+  /* 아이콘 박스 크기: 모바일 축소 */
+  .card-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* 아이콘 SVG 크기: 모바일 축소 */
+  .card-icon svg,
+  .card-icon i {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* 카드 타이틀: 모바일 소형 크기 */
+  .card-title {
+    font-size: var(--font-size-sm);
+  }
+
+  /* 카드 설명: 모바일에서 1줄만 표시 */
+  .card-description {
+    font-size: var(--font-size-xs);
+    -webkit-line-clamp: 1;
+  }
+}
+
+/* ---- 태블릿 (768px ~ 1023px) ---- */
+/* grid-template-columns 변경: 그리드 섹션에서 정의 */
+
+/* 태블릿 hero 최적화 */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hero {
+    padding: var(--spacing-2xl) var(--spacing-xl);
+  }
+
+  /* 태블릿 카드 내부 여백 */
+  .component-card {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+}
+
+/* ---- 데스크톱 (1024px 이상) ---- */
+
+/* 데스크톱 hero 풀 패딩 */
+@media (min-width: 1024px) {
+  .hero {
+    padding: var(--spacing-2xl) var(--spacing-lg);
+  }
+
+  /* 카드 내부 여백: 데스크톱 풀 여백 */
+  .component-card {
+    padding: var(--spacing-md) var(--spacing-lg);
+  }
+
+  /* 카테고리 섹션 패딩: 데스크톱 여백 */
+  .components-section {
+    padding: 0 var(--spacing-xl);
+  }
+}
+
+/* ---- 와이드 스크린 (1400px 이상) ---- */
+@media (min-width: 1400px) {
+  /* 카테고리 섹션: 최대 너비 내에서 여백 추가 */
+  .components-section {
+    padding: 0 var(--spacing-2xl);
+  }
+}
+
+/* ============================================
+   9. 다크 모드 지원
+   CSS 변수 기반으로 자동 반영:
+   <html data-theme="dark"> 속성 설정 시 tokens.css의
+   다크 모드 변수 세트가 적용되어 자동 전환됨
+
+   별도 오버라이드 없이 --color-* 변수만으로
+   라이트/다크 모드 전환이 완성됩니다.
+   ============================================ */
+
+/* 다크 모드에서 카드 아이콘 배경 색상 보정:
+   라이트에서 --color-bg(#fff)이 아이콘 배경이었으나
+   다크에서 --color-bg(#111827)가 매우 어두우므로
+   --color-bg-secondary(#1f2937)로 보정 */
+:root[data-theme="dark"] .card-icon {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border);
+}
+
+/* 다크 모드에서 호버 시 배경 색상:
+   라이트에서는 흰색(--color-bg)으로 올라가지만
+   다크에서는 약간 밝은 bg로 상승 효과 표현 */
+:root[data-theme="dark"] .component-card:hover:not([aria-disabled="true"]):not(.component-card--coming-soon) {
+  background-color: var(--color-bg-secondary);
+}
+
+/* ============================================
+   10. 접근성 보조 스타일
+   ============================================ */
+
+/* 고대비 모드 지원: 운영체제 고대비 모드 대응 */
+@media (forced-colors: active) {
+  .component-card {
+    border: 2px solid ButtonText;
+  }
+
+  .component-card:focus-visible {
+    outline: 3px solid Highlight;
+  }
+
+  .card-badge {
+    border: 1px solid ButtonText;
+  }
+}
+
+/* 모션 감소 선호: 애니메이션/전환 효과 최소화 */
+@media (prefers-reduced-motion: reduce) {
+  .component-card {
+    transition: none;
+  }
+
+  .card-title {
+    transition: none;
+  }
+
+  /* 호버 시 translateY 이동 효과 제거 */
+  .component-card:hover:not([aria-disabled="true"]):not(.component-card--coming-soon) {
+    transform: none;
+  }
+}

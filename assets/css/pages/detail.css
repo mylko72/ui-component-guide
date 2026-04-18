@@ -1,0 +1,300 @@
+/* ============================================
+   컴포넌트 디테일 페이지 전용 스타일
+   파일: assets/css/pages/detail.css
+   의존성: assets/css/tokens.css (CSS 변수)
+
+   구조 (향후 구현 예정):
+   .detail-page
+     .detail-header          ← 컴포넌트 제목 + 설명 + 뒤로가기 버튼
+     .detail-nav             ← 섹션 내부 탭 네비게이션 (Preview / Code / Props)
+     .detail-section
+       .detail-preview       ← 라이브 컴포넌트 미리보기 영역
+       .detail-code          ← 소스코드 블록
+       .detail-props         ← Props 테이블
+     .detail-footer          ← 이전/다음 컴포넌트 네비게이션
+   ============================================ */
+
+/* ============================================
+   1. 디테일 페이지 루트 컨테이너
+   ============================================ */
+
+/* TODO: 디테일 페이지 최상위 래퍼 */
+/* .detail-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
+  padding-bottom: var(--spacing-2xl);
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 var(--spacing-lg) var(--spacing-2xl);
+} */
+
+/* ============================================
+   2. 디테일 헤더
+   ============================================ */
+
+/* TODO: 뒤로가기 버튼 + 컴포넌트 제목 + 배지 영역 */
+/* .detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-xl) 0 var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+} */
+
+/* TODO: 뒤로가기 링크 */
+/* .detail-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+.detail-back-link:hover,
+.detail-back-link:focus-visible {
+  color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+} */
+
+/* TODO: 컴포넌트 제목 */
+/* .detail-title {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  line-height: var(--line-height-tight);
+} */
+
+/* TODO: 컴포넌트 한 줄 설명 */
+/* .detail-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+} */
+
+/* ============================================
+   3. 디테일 내부 탭 네비게이션
+   ============================================ */
+
+/* TODO: Preview / Code / Props 탭 목록 */
+/* .detail-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+  overflow-x: auto;
+}
+.detail-nav-tab {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  white-space: nowrap;
+}
+.detail-nav-tab:hover {
+  color: var(--color-text);
+}
+.detail-nav-tab[aria-selected="true"] {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+.detail-nav-tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+} */
+
+/* ============================================
+   4. 미리보기 섹션 (Preview)
+   ============================================ */
+
+/* TODO: 라이브 컴포넌트 렌더링 컨테이너 */
+/* .detail-preview {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+} */
+
+/* TODO: 미리보기 배경 패턴 (선택 사항: 격자 패턴으로 투명도 강조) */
+/* .detail-preview--checkered {
+  background-image:
+    linear-gradient(45deg, var(--color-bg-subtle) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--color-bg-subtle) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--color-bg-subtle) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--color-bg-subtle) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+} */
+
+/* ============================================
+   5. 코드 블록 섹션 (Code)
+   ============================================ */
+
+/* TODO: 소스코드 표시 영역 (code-block.css와 통합 예정) */
+/* .detail-code {
+  position: relative;
+}
+.detail-code-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+.detail-code-copy-btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: var(--font-size-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+.detail-code-copy-btn:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+} */
+
+/* ============================================
+   6. Props 테이블 섹션 (Props)
+   ============================================ */
+
+/* TODO: 컴포넌트 속성 문서 테이블 */
+/* .detail-props-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-sm);
+}
+.detail-props-table th {
+  text-align: left;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-surface-alt);
+  border-bottom: 2px solid var(--color-border);
+  font-weight: 600;
+  color: var(--color-text);
+}
+.detail-props-table td {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  vertical-align: top;
+}
+.detail-props-table td:first-child {
+  font-family: var(--font-mono);
+  color: var(--color-primary);
+} */
+
+/* ============================================
+   7. 디테일 푸터: 이전/다음 컴포넌트 네비게이션
+   ============================================ */
+
+/* TODO: Prev / Next 컴포넌트 이동 버튼 영역 */
+/* .detail-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid var(--color-border);
+  gap: var(--spacing-md);
+}
+.detail-nav-btn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  max-width: 240px;
+}
+.detail-nav-btn:hover,
+.detail-nav-btn:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-surface-hover);
+  outline: none;
+}
+.detail-nav-btn--next {
+  text-align: right;
+  margin-left: auto;
+} */
+
+/* ============================================
+   8. 반응형 미디어 쿼리
+   ============================================ */
+
+/* TODO: 태블릿 이하 (768px) */
+/* @media (max-width: 768px) {
+  .detail-page {
+    padding: 0 var(--spacing-md) var(--spacing-xl);
+  }
+  .detail-title {
+    font-size: var(--font-size-xl);
+  }
+  .detail-preview {
+    padding: var(--spacing-lg);
+    min-height: 160px;
+  }
+  .detail-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .detail-nav-btn--next {
+    text-align: left;
+    margin-left: 0;
+  }
+} */
+
+/* TODO: 모바일 (480px) */
+/* @media (max-width: 480px) {
+  .detail-nav {
+    gap: 0;
+  }
+  .detail-nav-tab {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+} */
+
+/* ============================================
+   9. 다크모드 오버라이드
+   ============================================ */
+
+/* 주의: 대부분의 색상은 tokens.css의 CSS 변수가 [data-theme="dark"] 선택자에서
+   자동 전환되므로, 다크모드 전용 오버라이드는 최소화합니다.
+   필요한 경우에만 아래와 같이 작성합니다. */
+
+/* TODO: 다크모드 미리보기 체커보드 패턴 조정 */
+/* [data-theme="dark"] .detail-preview--checkered {
+  background-image:
+    linear-gradient(45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,0.03) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.03) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.03) 75%);
+} */

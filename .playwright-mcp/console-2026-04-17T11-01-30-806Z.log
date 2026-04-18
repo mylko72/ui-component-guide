@@ -1,0 +1,6 @@
+[     619ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8000/assets/css/code-block.css:0
+[    1034ms] Identifier 'Infinity' has already been declared
+[    1035ms] ReferenceError: lucide is not defined
+    at http://localhost:8000/:132:5
+[    1334ms] [ERROR] Router: "/" 경로의 컴포넌트를 찾을 수 없습니다. @ http://localhost:8000/assets/js/core/Router.js:104
+[    1340ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:8000/favicon.ico:0

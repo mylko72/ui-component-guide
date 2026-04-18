@@ -13,8 +13,9 @@ export default class Router {
   /**
    * 라우터 인스턴스 생성
    * @param {string} rootSelector - 콘텐츠를 렌더링할 루트 엘리먼트 선택자
+   * @param {boolean} autoInit - 자동 초기화 여부 (기본값: true)
    */
-  constructor(rootSelector) {
+  constructor(rootSelector, autoInit = true) {
     // 루트 엘리먼트
     this.rootElement = document.querySelector(rootSelector);
     if (!this.rootElement) {
@@ -34,8 +35,10 @@ export default class Router {
     // hashchange 이벤트 리스너 등록
     window.addEventListener('hashchange', () => this._handleHashChange());
 
-    // 초기 로드 시 현재 해시 처리
-    this._handleHashChange();
+    // 자동 초기화 (false면 나중에 수동으로 호출)
+    if (autoInit) {
+      this._handleHashChange();
+    }
   }
 
   /**

@@ -1,0 +1,13 @@
+[     208ms] Identifier 'Infinity' has already been declared
+[     317ms] [ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://localhost:5174/favicon.ico:0
+[ 1034878ms] Identifier 'Infinity' has already been declared
+[ 1538997ms] Identifier 'Infinity' has already been declared
+[ 1540101ms] Identifier 'Infinity' has already been declared
+[ 1540527ms] Identifier 'Infinity' has already been declared
+[ 1540773ms] Identifier 'Infinity' has already been declared
+[ 1545606ms] Identifier 'Infinity' has already been declared
+[ 1561727ms] Identifier 'Infinity' has already been declared
+[ 2042406ms] Identifier 'Infinity' has already been declared
+[ 2042444ms] [WARNING] DashboardPage: window.router가 없습니다. 카드 클릭 이벤트를 등록할 수 없습니다. @ http://localhost:5174/assets/js/pages/DashboardPage.js:690
+[ 2042919ms] Identifier 'Infinity' has already been declared
+[ 2042920ms] [WARNING] DashboardPage: window.router가 없습니다. 카드 클릭 이벤트를 등록할 수 없습니다. @ http://localhost:5174/assets/js/pages/DashboardPage.js:690
