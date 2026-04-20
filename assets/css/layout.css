@@ -3,6 +3,16 @@
    헤더, 사이드바, 메인 콘텐츠
    ============================================ */
 
+/* ============================================
+   HTML/BODY: 윈도우 스크롤 제거
+   모든 스크롤은 .main 내부에서만 처리
+   ============================================ */
+html,
+body {
+  overflow: hidden;
+  height: 100%;
+}
+
 /* 접근성: 건너뛰기 링크 */
 .skip-nav {
   position: absolute;
@@ -238,8 +248,11 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 .main {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--spacing-xl);
   background-color: var(--color-bg);
+  /* 윈도우 스크롤 방지: 자식 요소 완벽 제약 */
+  contain: layout style paint;
 }
 
 #app-content {

@@ -30,6 +30,10 @@
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
+  /* .main 컨테이너 내 높이 제약: 윈도우 스크롤 제거 */
+  max-height: 100%;
+  height: 100%;
+  overflow: hidden;
   /* 데스크탑: 좌우 충분한 패딩 */
   padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
 }
@@ -113,6 +117,11 @@
   /* 사이드바와 메인 사이 간격 */
   gap: var(--spacing-xl);
   align-items: flex-start;
+  /* .detail-page 내에서 flex로 확장 */
+  flex: 1;
+  /* 높이 제약 (오버플로우 방지) */
+  height: 100%;
+  min-height: 0;
 }
 
 /* ============================================
