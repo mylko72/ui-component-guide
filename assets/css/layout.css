@@ -347,32 +347,28 @@ html[data-theme="dark"] .theme-toggle .icon-light {
   }
 }
 
-/* 데모 섹션 기본 스타일 */
-.demo-section {
-  margin-bottom: var(--spacing-xl);
-  padding: var(--spacing-lg);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  background-color: var(--color-bg);
-}
+/* ============================================
+   데모 섹션 공통 기반 스타일
+   상세 페이지(detail.css)와 데모 페이지(button-demo.html)
+   모두에서 사용하는 공통 규칙만 유지
+   페이지별 override는 각 페이지 CSS에서 처리
+   ============================================ */
 
+/* .demo-preview 공통 기반: 플렉스 컨테이너 구조 */
 .demo-preview {
-  padding: var(--spacing-2xl);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--spacing-lg);
-  min-height: 120px;
   display: flex;
   align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
+  /* 버튼 간 간격: --spacing-md = 1rem (16px) */
   gap: var(--spacing-md);
+  min-height: 80px;
 }
 
+/* .demo-preview 내 버튼: flex-shrink 방지 (버튼이 찌그러지지 않도록) */
 .demo-preview button[data-variant] {
-  flex-shrink: 0 !important;
-  min-width: fit-content !important;
+  flex-shrink: 0;
+  min-width: fit-content;
 }
 
 .demo-description {

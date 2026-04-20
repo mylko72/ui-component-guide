@@ -111,7 +111,8 @@
     /* 섹션 컨테이너 */
     .demo-section {
       margin-bottom: var(--spacing-xl);
-      padding: var(--spacing-lg);
+      /* 좌우 padding을 demo-preview와 일치시켜 들여쓰기 일관성 확보 */
+      padding: var(--spacing-lg) var(--spacing-xl);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-lg);
       background-color: var(--color-bg);
@@ -122,7 +123,8 @@
       font-size: var(--font-size-lg);
       font-weight: 600;
       color: var(--color-text);
-      margin: 0 0 var(--spacing-sm) 0;
+      /* 하단 margin: 타이틀 → description/preview 간격 = --spacing-md(1rem) */
+      margin: 0 0 var(--spacing-md) 0;
       padding-bottom: var(--spacing-sm);
       border-bottom: 2px solid var(--color-border);
     }
@@ -131,7 +133,8 @@
     .demo-description {
       font-size: var(--font-size-sm);
       color: var(--color-text-secondary);
-      margin: var(--spacing-sm) 0 var(--spacing-md) 0;
+      /* 상단 간격 없애고 하단만 --spacing-lg(1.5rem)로 description→preview 간격 확보 */
+      margin: 0 0 var(--spacing-lg) 0;
       line-height: var(--line-height-normal);
     }
 
@@ -150,8 +153,11 @@
       display: flex;
       flex-wrap: wrap;
       align-items: center;
+      /* 버튼 간 간격: --spacing-md = 1rem(16px) */
       gap: var(--spacing-md);
-      padding: var(--spacing-lg);
+      /* 상하: --spacing-xl(2rem=32px), 좌우: --spacing-2xl(3rem=48px) */
+      /* detail.css 와 동일한 좌우 여백 값으로 통일 */
+      padding: var(--spacing-xl) var(--spacing-2xl);
       background-color: var(--color-bg-secondary);
       border-radius: var(--radius-md);
       min-height: 80px;
@@ -175,12 +181,22 @@
       }
 
       .demo-preview {
+        /* 태블릿: 상하 var(--spacing-md), 좌우 var(--spacing-lg) = 1.5rem(24px) */
         gap: var(--spacing-sm);
-        padding: var(--spacing-md);
+        padding: var(--spacing-md) var(--spacing-lg);
       }
 
       .demo-header {
         padding: var(--spacing-sm) var(--spacing-md);
+      }
+    }
+
+    /* 반응형: 모바일 */
+    @media (max-width: 480px) {
+      .demo-preview {
+        /* 모바일: 상하 var(--spacing-sm), 좌우 var(--spacing-md) = 1rem(16px) */
+        padding: var(--spacing-sm) var(--spacing-md);
+        justify-content: center;
       }
     }
   </style>
