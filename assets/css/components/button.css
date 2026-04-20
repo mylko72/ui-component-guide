@@ -129,26 +129,24 @@ button[data-size="sm"] svg { width: 1em; height: 1em; }
 button[data-size="lg"] svg { width: 1em; height: 1em; }
 
 /* ============================================
-   아이콘+텍스트 조합: size별 padding 명시적 설정
-   아이콘이 있으면서 텍스트도 있는 경우
+   아이콘+텍스트 조합: padding 명시적 설정
+   아이콘 전용 규칙(padding:0)을 override
    ============================================ */
 
-/* 아이콘+텍스트: sm 크기 */
-button[data-variant][data-size="sm"]:has(> i:not(:only-child)),
-button[data-variant][data-size="sm"]:has(> svg:not(:only-child)) {
-  padding: 8px 16px;
+/* button[data-size="*"] 규칙이 기본 padding 제공
+   아이콘 전용 규칙이 padding:0으로 override하므로
+   여기서 다시 override하여 정상 padding 복원 */
+
+button[data-variant][data-size="sm"]:not(:has(> i:only-child)):not(:has(> svg:only-child)) {
+  padding: 8px 16px !important;
 }
 
-/* 아이콘+텍스트: md 크기 */
-button[data-variant][data-size="md"]:has(> i:not(:only-child)),
-button[data-variant][data-size="md"]:has(> svg:not(:only-child)) {
-  padding: 12px 20px;
+button[data-variant][data-size="md"]:not(:has(> i:only-child)):not(:has(> svg:only-child)) {
+  padding: 12px 20px !important;
 }
 
-/* 아이콘+텍스트: lg 크기 */
-button[data-variant][data-size="lg"]:has(> i:not(:only-child)),
-button[data-variant][data-size="lg"]:has(> svg:not(:only-child)) {
-  padding: 16px 24px;
+button[data-variant][data-size="lg"]:not(:has(> i:only-child)):not(:has(> svg:only-child)) {
+  padding: 16px 24px !important;
 }
 
 /* ============================================
