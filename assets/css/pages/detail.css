@@ -2,73 +2,98 @@
    컴포넌트 디테일 페이지 전용 스타일
    파일: assets/css/pages/detail.css
    의존성: assets/css/tokens.css (CSS 변수)
+   접근성: WCAG 2.2 AA 기준 준수
+   반응형: 모바일(<768px) → 태블릿(768~1023px) → 데스크탑(1024px+)
 
    구조:
    .detail-page
-     .detail-header          ← 컴포넌트 제목 + 설명 + 뒤로가기 버튼
+     .detail-header          ← 컴포넌트 제목 + 설명 + 뒤로 가기 링크
      .detail-content         ← 2단 레이아웃 컨테이너
-       .detail-sidebar       ← 사이드바 (목차, 향후 구현)
-       .detail-main          ← 메인 콘텐츠 (demo-section들)
-     .detail-footer          ← 이전/다음 컴포넌트 네비게이션
+       .detail-sidebar       ← 목차 사이드바 (sticky)
+       .detail-main          ← 데모 섹션 메인 콘텐츠
+     .detail-footer          ← 이전/다음 컴포넌트 푸터 네비게이션
    ============================================ */
+
 
 /* ============================================
    1. 디테일 페이지 루트 컨테이너
+   max-width 1200px, 수평 중앙 정렬
    ============================================ */
 
 .detail-page {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-2xl);
-  padding-bottom: var(--spacing-2xl);
-  max-width: 1200px;
+  /* 섹션 간 수직 간격 */
+  gap: var(--spacing-xl);
+  /* 최대 너비 제한 및 중앙 정렬 (대시보드와 동일한 1400px) */
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
   box-sizing: border-box;
-  padding: 0 var(--spacing-lg) var(--spacing-2xl);
+  /* 데스크탑: 좌우 충분한 패딩 */
+  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
 }
+
 
 /* ============================================
    2. 디테일 헤더
+   제목 + 설명 + 뒤로 가기 링크를 수직 스택으로 배치
    ============================================ */
 
 .detail-header {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  padding: var(--spacing-xl) 0 var(--spacing-lg);
+  gap: var(--spacing-sm);
+  padding-bottom: var(--spacing-lg);
   border-bottom: 1px solid var(--color-border);
 }
 
+/* 뒤로 가기 링크: 최소 44px 터치 타겟 확보 */
 .detail-back-link {
   display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
+  /* 최소 터치 타겟: 44px 높이 */
+  min-height: 44px;
+  padding: 0 var(--spacing-sm);
+  width: fit-content;
   font-size: var(--font-size-sm);
+  font-weight: 500;
   color: var(--color-text-secondary);
   text-decoration: none;
-  transition: color var(--transition-fast);
-  width: fit-content;
-  padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
+  /* GPU 가속 가능한 속성만 전환 */
+  transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
-.detail-back-link:hover,
-.detail-back-link:focus-visible {
+.detail-back-link:hover {
   color: var(--color-primary);
-  background-color: var(--color-bg-subtle);
+  background-color: var(--color-bg-secondary);
+}
+
+/* WCAG 2.2: focus-visible 포커스 링 */
+.detail-back-link:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+  color: var(--color-primary);
 }
 
+/* 아이콘: 화살표 기호 aria-hidden 처리는 HTML 레벨에서 수행 */
+.detail-back-link [aria-hidden="true"] {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+/* h1: 컴포넌트 이름 */
 .detail-title {
-  font-size: var(--font-size-2xl);
+  font-size: 2rem;       /* 명시적 px 대신 rem으로 사용자 설정 존중 */
   font-weight: 700;
   color: var(--color-text);
   margin: 0;
   line-height: var(--line-height-tight);
 }
 
+/* 컴포넌트 설명 문구 */
 .detail-description {
   font-size: var(--font-size-base);
   color: var(--color-text-secondary);
@@ -76,164 +101,175 @@
   line-height: 1.6;
 }
 
+
 /* ============================================
    3. 2단 컨텐츠 레이아웃
+   좌: 사이드바(240px 고정) / 우: 메인(flex:1)
    ============================================ */
 
 .detail-content {
   display: flex;
-  gap: var(--spacing-2xl);
+  flex-direction: row;
+  /* 사이드바와 메인 사이 간격 */
+  gap: var(--spacing-xl);
   align-items: flex-start;
 }
 
+/* ============================================
+   3-1. 사이드바: 컴포넌트 목록 목차
+   sticky 포지셔닝으로 스크롤 시 위치 고정
+   ============================================ */
+
 .detail-sidebar {
+  /* 너비 고정: 사이드바 축소 방지 */
   flex-shrink: 0;
   width: 240px;
+  /* 헤더(56px) + 상단 여백 확보 */
+  position: sticky;
+  top: calc(56px + var(--spacing-lg));
+  /* 뷰포트 높이 초과 시 사이드바 자체 스크롤 */
+  max-height: calc(100vh - 56px - var(--spacing-lg) * 2);
+  overflow-y: auto;
+  /* 사이드바 내부 간격 */
+  padding: var(--spacing-sm) 0;
 }
 
-.detail-main {
-  flex: 1;
-  min-width: 0;
+/* 사이드바 내부 스크롤바: 경량 스타일 */
+.detail-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.detail-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.detail-sidebar::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 4px;
+}
+
+.detail-sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-border-hover);
 }
 
 /* ============================================
-   4. Demo 섹션 (미리보기 + 코드블록)
+   3-2. 메인 콘텐츠 영역
+   flex:1로 사이드바 외 전체 너비 차지
+   min-width:0 으로 flex 오버플로우 방지
+   ============================================ */
+
+.detail-main {
+  flex: 1;
+  /* flex 자식의 오버플로우 방지: min-width 필수 */
+  min-width: 0;
+  /* 외곽 패딩 없이 섹션 내부 패딩으로 처리 */
+  padding: 0;
+}
+
+
+/* ============================================
+   4. 데모 섹션 (.demo-section)
+   각 컴포넌트 변형 하나당 섹션 한 개
    ============================================ */
 
 .demo-section {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xl);
-  padding: var(--spacing-2xl) 0;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-xl) 0;
   border-bottom: 1px solid var(--color-border);
 }
 
+/* 마지막 섹션 구분선 제거 */
 .demo-section:last-child {
   border-bottom: none;
+  /* 마지막 섹션 하단 여백 제거 */
+  padding-bottom: 0;
 }
 
+/* h2: 섹션 제목 */
 .demo-section-title {
-  font-size: var(--font-size-xl);
+  font-size: 1.5rem;
   font-weight: 600;
   color: var(--color-text);
   margin: 0;
   line-height: var(--line-height-tight);
 }
 
+/* 섹션 설명 문구 */
 .demo-description {
-  font-size: var(--font-size-sm);
+  font-size: 0.95rem;
   color: var(--color-text-secondary);
-  margin: 0;
+  margin: 0 0 var(--spacing-md);
   line-height: 1.6;
 }
 
+/* h3: 하위 섹션 제목 (섹션 내부 그룹 구분) */
 .demo-subsection-title {
   font-size: var(--font-size-lg);
   font-weight: 600;
   color: var(--color-text);
-  margin: var(--spacing-xl) 0 var(--spacing-md);
+  /* 위쪽 간격은 섹션 gap으로 처리, 아래만 명시 */
+  margin: var(--spacing-md) 0 var(--spacing-sm);
   line-height: var(--line-height-tight);
 }
 
+/* ============================================
+   4-1. 데모 미리보기 박스 (.demo-preview)
+   컴포넌트를 실제로 보여주는 영역
+   ============================================ */
+
 .demo-preview {
-  background: var(--color-surface);
+  /* 배경을 미묘하게 다르게 설정해 콘텐츠 구분 강조 */
+  background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  /* 상하: --spacing-xl(2rem=32px), 좌우: --spacing-2xl(3rem=48px) */
-  /* 좌우 여백을 충분히 확보하여 버튼이 박스 경계에 붙지 않도록 */
+  /* 상하: --spacing-xl(2rem), 좌우: --spacing-2xl(3rem) */
   padding: var(--spacing-xl) var(--spacing-2xl);
   min-height: 120px;
+  /* 플렉스 컨테이너로 버튼 등 인라인 요소 정렬 */
   display: flex;
   align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
-  /* 버튼 간 간격: 1rem (16px) */
+  /* 자식 요소 간 기본 간격 */
   gap: var(--spacing-md);
+  /* 내부 코드/긴 문자열 수평 스크롤 허용 */
+  overflow: auto;
 }
 
-/* 데모 섹션의 버튼: 텍스트 길이에 따라 가변 너비, 축소 방지 */
-.demo-preview button[data-variant] {
+/* 데모 미리보기 내 버튼: 텍스트 길이에 따라 가변 너비, 축소 방지 */
+.demo-preview button[data-variant],
+.demo-preview [role="button"] {
   flex-shrink: 0;
   min-width: fit-content;
 }
 
+
 /* ============================================
-   5. 반응형 미디어 쿼리
+   5. 코드 블록 연동 (.code-block)
+   code-block.css에서 기본 스타일 제공,
+   detail.css에서 위치·간격만 보완
    ============================================ */
 
-@media (max-width: 768px) {
-  .detail-page {
-    padding: 0 var(--spacing-md) var(--spacing-xl);
-  }
-
-  .detail-content {
-    flex-direction: column;
-    gap: var(--spacing-xl);
-  }
-
-  .detail-sidebar {
-    width: 100%;
-  }
-
-  .detail-title {
-    font-size: var(--font-size-xl);
-  }
-
-  .demo-preview {
-    /* 태블릿: 상하 var(--spacing-md), 좌우 var(--spacing-lg) = 1.5rem(24px) */
-    padding: var(--spacing-md) var(--spacing-lg);
-    min-height: 100px;
-    /* 버튼 간 간격도 약간 축소 */
-    gap: var(--spacing-sm);
-  }
-
-  .detail-footer {
-    flex-direction: column;
-    align-items: stretch;
-  }
+/* 데모 미리보기 아래 코드 블록 상단 여백 */
+.demo-section .code-block {
+  margin-top: var(--spacing-md);
 }
 
-@media (max-width: 480px) {
-  .detail-page {
-    padding: 0 var(--spacing-sm) var(--spacing-lg);
-    gap: var(--spacing-xl);
-  }
-
-  .detail-header {
-    padding: var(--spacing-lg) 0 var(--spacing-md);
-    gap: var(--spacing-sm);
-  }
-
-  .detail-title {
-    font-size: var(--font-size-lg);
-  }
-
-  .demo-section {
-    padding: var(--spacing-lg) 0;
-  }
-
-  .demo-preview {
-    /* 모바일: 상하 var(--spacing-sm), 좌우 var(--spacing-md) = 1rem(16px) */
-    padding: var(--spacing-sm) var(--spacing-md);
-    min-height: 80px;
-    justify-content: center;
-    gap: var(--spacing-sm);
-  }
-}
 
 /* ============================================
-   6. 푸터 네비게이션
+   6. 푸터 네비게이션 (.detail-footer)
+   이전/다음 컴포넌트 링크
    ============================================ */
 
 .detail-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-top: var(--spacing-xl);
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
   border-top: 1px solid var(--color-border);
-  gap: var(--spacing-md);
 }
 
+/* 이전/다음 링크를 가로로 배치 */
 .detail-footer-nav {
   display: flex;
   width: 100%;
@@ -241,32 +277,199 @@
   gap: var(--spacing-md);
 }
 
+/* 이전/다음 카드 링크 */
 .detail-footer-link {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
+  /* 최소 터치 타겟 확보 */
+  min-height: 44px;
   padding: var(--spacing-md) var(--spacing-lg);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--color-bg-secondary);
   color: var(--color-text);
   text-decoration: none;
-  cursor: pointer;
-  transition: border-color var(--transition-fast), background var(--transition-fast);
+  /* flex:1로 이전·다음 카드 동등한 너비 */
   flex: 1;
   text-align: center;
+  /* GPU 가속 가능한 속성만 전환 */
+  transition: border-color var(--transition-fast),
+              background-color var(--transition-fast);
 }
 
-.detail-footer-link:hover,
-.detail-footer-link:focus-visible {
+.detail-footer-link:hover {
   border-color: var(--color-primary);
-  background: var(--color-surface-hover);
+  background-color: var(--color-bg);
+}
+
+/* WCAG 2.2: 포커스 링 */
+.detail-footer-link:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+  border-color: var(--color-primary);
 }
 
+/* 이전/다음 레이블 ("이전", "다음" 텍스트) */
 .detail-footer-label {
   font-size: var(--font-size-sm);
   font-weight: 500;
   color: var(--color-text-secondary);
+}
+
+/* 컴포넌트 이름 텍스트 */
+.detail-footer-link > span:last-child {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+
+/* ============================================
+   7. 반응형 디자인
+   모바일 우선(Mobile First) 접근:
+   기본값 = 모바일, 미디어 쿼리로 확장
+   ============================================ */
+
+/* ─── 태블릿: 768px ~ 1023px ─── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .detail-page {
+    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-xl);
+  }
+
+  .detail-content {
+    gap: var(--spacing-lg);
+  }
+
+  /* 태블릿: 사이드바 너비 축소 */
+  .detail-sidebar {
+    width: 200px;
+  }
+
+  .demo-preview {
+    /* 태블릿: 좌우 패딩 축소 */
+    padding: var(--spacing-lg) var(--spacing-xl);
+  }
+}
+
+/* ─── 데스크탑: 1024px 이상 ─── */
+@media (min-width: 1024px) {
+  .detail-page {
+    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+  }
+
+  .detail-sidebar {
+    width: 240px;
+  }
+}
+
+/* ─── 모바일: 767px 이하 ─── */
+@media (max-width: 767px) {
+  .detail-page {
+    padding: 0 var(--spacing-md) var(--spacing-xl);
+    gap: var(--spacing-lg);
+  }
+
+  .detail-header {
+    padding-bottom: var(--spacing-md);
+    gap: var(--spacing-xs);
+  }
+
+  /* 모바일: h1 폰트 크기 축소 */
+  .detail-title {
+    font-size: var(--font-size-xl);
+  }
+
+  /* 모바일: 사이드바 숨김 (전체 너비 메인 사용) */
+  .detail-content {
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+
+  .detail-sidebar {
+    /* 모바일 사이드바 숨김: 슬라이드 오버레이는 layout.css에서 처리 */
+    display: none;
+  }
+
+  .detail-main {
+    width: 100%;
+  }
+
+  .demo-section {
+    padding: var(--spacing-lg) 0;
+    gap: var(--spacing-md);
+  }
+
+  .demo-section-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .demo-preview {
+    /* 모바일: 패딩 축소 */
+    padding: var(--spacing-md) var(--spacing-lg);
+    min-height: 80px;
+    /* 모바일: 요소 중앙 정렬 */
+    justify-content: center;
+    gap: var(--spacing-sm);
+  }
+
+  /* 푸터 링크: 모바일에서 세로 스택 */
+  .detail-footer-nav {
+    flex-direction: column;
+  }
+
+  .detail-footer-link {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* ─── 소형 모바일: 480px 이하 ─── */
+@media (max-width: 480px) {
+  .detail-page {
+    padding: 0 var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .detail-header {
+    padding: var(--spacing-lg) 0 var(--spacing-md);
+  }
+
+  .detail-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .demo-preview {
+    /* 소형 모바일: 최소 패딩 */
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-height: 64px;
+  }
+}
+
+
+/* ============================================
+   8. 접근성: 모션 감소 설정 존중
+   prefers-reduced-motion: 전환 효과 제거
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-back-link,
+  .detail-footer-link {
+    transition: none;
+  }
+}
+
+
+/* ============================================
+   9. 다크/라이트 모드
+   모든 색상 값은 tokens.css CSS 변수 사용
+   — 별도 오버라이드 불필요:
+     [data-theme="dark"] 값이 tokens.css에서 제공됨
+   ============================================ */
+
+/* 다크 모드에서 데모 미리보기 배경 약간 밝게 처리
+   (라이트 모드의 bg-secondary와 대비 유지) */
+:root[data-theme="dark"] .demo-preview {
+  /* 다크 모드: --color-bg-secondary(#1f2937)는 이미 충분한 대비
+     추가 override 없이 변수 자동 적용 */
+  background: var(--color-bg-secondary);
 }

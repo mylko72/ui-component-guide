@@ -76,6 +76,9 @@ async function initApp() {
     router.register('/progress', ProgressDemo);
     router.register('/skeleton', SkeletonDemo);
 
+    // 전역 라우터 설정 (DashboardPage.afterMount() 이전에 필요)
+    window.router = router;
+
     // 모든 라우트 등록 완료 후 초기화
     router._handleHashChange();
 
@@ -89,8 +92,7 @@ async function initApp() {
     // 초기 경로에 대한 active 상태를 즉시 적용
     router.eventBus.emit('routeChange', router.getCurrentPath());
 
-    // 5. 전역 UI 매니저 및 라우터 window 노출 (데모 페이지 및 콘솔 테스트용)
-    window.router = router;
+    // 5. 전역 UI 매니저 window 노출 (데모 페이지 및 콘솔 테스트용)
     window.toastManager = toastManager;
     window.modalManager = modalManager;
 
@@ -158,13 +160,9 @@ function setupNavigation(router) {
       activeLink.classList.add('active');
     }
 
-    // 대시보드 경로(/)에서는 사이드바 숨김, 나머지는 표시
+    // DetailPage가 자체 사이드바(detail-sidebar)를 렌더링하므로 항상 숨김
     if (sidebar) {
-      if (path === '/' || path === '') {
-        sidebar.style.display = 'none';
-      } else {
-        sidebar.style.display = '';
-      }
+      sidebar.style.display = 'none';
     }
   });
 }
