@@ -139,15 +139,13 @@ function setupThemeToggle() {
 }
 
 /**
- * 사이드바 네비게이션 활성화 상태 관리 + 대시보드 시 사이드바 숨김
+ * 사이드바 네비게이션 활성화 상태 관리
  * router.eventBus의 routeChange 이벤트를 구독하여
- * 1. 현재 경로에 해당하는 .nav-link에 .active 클래스를 동적으로 제어
- * 2. 대시보드(/)일 때 사이드바 숨김, 아니면 표시
+ * 현재 경로에 해당하는 .nav-link에 .active 클래스를 동적으로 제어
+ * (DetailPage가 자체 detail-sidebar를 렌더링하므로 별도 display 제어 불필요)
  * @param {Router} router - 라우터 인스턴스
  */
 function setupNavigation(router) {
-  const sidebar = document.querySelector('.sidebar');
-
   router.eventBus.on('routeChange', (path) => {
     // 모든 .nav-link에서 .active 제거
     document.querySelectorAll('.nav-link').forEach(link => {
@@ -158,11 +156,6 @@ function setupNavigation(router) {
     const activeLink = document.querySelector(`[href="#${path}"]`);
     if (activeLink) {
       activeLink.classList.add('active');
-    }
-
-    // DetailPage가 자체 사이드바(detail-sidebar)를 렌더링하므로 항상 숨김
-    if (sidebar) {
-      sidebar.style.display = 'none';
     }
   });
 }

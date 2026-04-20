@@ -170,39 +170,7 @@ html[data-theme="dark"] .theme-toggle .icon-light {
   height: calc(100dvh - 56px);
 }
 
-/* 사이드바 */
-.sidebar {
-  position: sticky;
-  top: 56px;
-  width: 240px;
-  /* flex-shrink: 0 으로 콘텐츠 넓어져도 사이드바 너비 유지 */
-  flex-shrink: 0;
-  height: calc(100vh - 56px);
-  background-color: var(--color-bg-secondary);
-  border-right: 1px solid var(--color-border);
-  overflow-y: auto;
-  padding: var(--spacing-lg) 0;
-  z-index: 90;
-}
-
-/* 사이드바 스크롤바: 브라우저 지원 범위 내 경량 스타일 */
-.sidebar::-webkit-scrollbar {
-  width: 4px;
-}
-
-.sidebar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-  background-color: var(--color-border);
-  border-radius: 4px;
-}
-
-.sidebar::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-border-hover);
-}
-
+/* 네비게이션 스타일 (DetailPage detail-sidebar에서 사용) */
 .sidebar-nav {
   display: flex;
   flex-direction: column;
@@ -281,11 +249,6 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 
 /* 반응형 디자인 */
 @media (max-width: 1023px) {
-  .sidebar {
-    /* 태블릿·모바일: 사이드바 기본 숨김 (슬라이드 오버레이는 Task 011에서 구현) */
-    display: none;
-  }
-
   .main {
     padding: var(--spacing-lg);
   }
