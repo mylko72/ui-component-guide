@@ -1,1 +1,436 @@
-/* Checkbox 컴포넌트 스타일 */
+/* ============================================
+   Checkbox 컴포넌트 스타일
+   tokens.css CSS 변수만 사용 (외부 의존 없음)
+   WCAG 2.2 접근성 준수
+   커스텀 체크박스: label::before(박스) + label::after(체크마크)
+   ============================================ */
+
+/* ============================================
+   네이티브 input[type="checkbox"] 시각적 숨김
+   display:none 대신 SR-전용 기법으로 숨겨
+   포커스 이벤트는 label이 대신 처리
+   ============================================ */
+input[type="checkbox"][data-checkbox] {
+  /* 시각적으로 숨기되 접근성 트리에서는 제거하지 않음 */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   Checkbox 래퍼: label 요소
+   체크박스+텍스트를 수평 배치하는 컨테이너
+   최소 44px × 44px 터치 타겟 확보 (WCAG 2.5.5)
+   ============================================ */
+label[data-checkbox-label] {
+  /* 수평 배치: ::before 박스 + 텍스트 */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  /* 타이포그래피 */
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+
+  /* 클릭 커서 */
+  cursor: pointer;
+
+  /* 터치 타겟: 최소 44px 높이 확보 */
+  min-height: 44px;
+
+  /* 사용자 선택 방지 (더블클릭 텍스트 선택 억제) */
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* 상대 위치: ::after 체크마크 절대 배치의 기준 */
+  position: relative;
+}
+
+/* ============================================
+   ::before: 체크박스 박스(외형)
+   18×18px 사각형, 1px 테두리, border-radius 3px
+   ============================================ */
+label[data-checkbox-label]::before {
+  content: '';
+
+  /* 고정 크기: 요구사항 18×18px */
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+
+  /* 박스 모델 */
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-hover);
+  border-radius: 3px;
+
+  /* 배경: 기본값은 빈 상자 (--color-bg) */
+  background-color: var(--color-bg);
+
+  /* 전환 효과: 체크 상태 변경 시 시각 피드백 */
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+/* ============================================
+   ::after: 체크마크(✓) 표시
+   기본값: 비표시 → 체크 시 표시
+   CSS border trick으로 체크마크 형태 구현
+   ============================================ */
+label[data-checkbox-label]::after {
+  content: '';
+
+  /* 절대 위치: ::before 박스 내부에 정확히 배치 */
+  position: absolute;
+
+  /* ::before 박스 좌측 기준 (gap: --spacing-sm = 0.5rem = 8px) 고려 */
+  /* 박스 중앙: left = gap 없음, ::before가 inline이므로 left를 0으로 */
+  left: 0;
+  top: 50%;
+
+  /* 체크마크 크기: 18px 박스 내부에 맞게 조정 */
+  width: 5px;
+  height: 9px;
+
+  /* CSS border trick 체크마크:
+     우측 + 하단 테두리를 흰색으로 그린 뒤 45도 회전 */
+  border: 2px solid transparent;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+  border-top: none;
+  border-left: none;
+
+  /* 박스 내부 중앙 정렬:
+     translateX: 박스 중앙(9px) - 체크마크 절반(2.5px) = 6.5px
+     translateY: 세로 중앙 보정 (-50% + 체크마크 기울기 보정) */
+  transform: translateX(6px) translateY(calc(-50% - 1px)) rotate(45deg);
+
+  /* 기본값: 투명 (미체크 상태) */
+  opacity: 0;
+
+  /* 전환 효과 */
+  transition: opacity var(--transition-fast);
+}
+
+/* ============================================
+   Hover 상태 (미체크 + 활성 상태)
+   테두리 색상 강화로 상호작용 암시
+   ============================================ */
+input[type="checkbox"][data-checkbox]:not(:checked):not(:disabled) + label[data-checkbox-label]:hover::before {
+  border-color: var(--color-primary);
+  /* 연한 primary 배경: hover 시 미리보기 효과 */
+  background-color: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg));
+}
+
+/* ============================================
+   Checked 상태
+   ::before: primary 배경 + primary 테두리
+   ::after: 체크마크 표시
+   ============================================ */
+input[type="checkbox"][data-checkbox]:checked + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+input[type="checkbox"][data-checkbox]:checked + label[data-checkbox-label]::after {
+  /* 체크 상태에서만 체크마크 표시 */
+  opacity: 1;
+}
+
+/* ============================================
+   포커스 상태 (WCAG 2.2 Focus Visible)
+   input이 숨겨져 있으므로 label::before에 포커스 링 표현
+   2px outline + 2px offset (요구사항 준수)
+   ============================================ */
+input[type="checkbox"][data-checkbox]:focus-visible + label[data-checkbox-label]::before {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  /* 포커스 감지성 강화: box-shadow 이중 처리 */
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+/* ============================================
+   Disabled 상태
+   WCAG: opacity 0.5 + cursor not-allowed
+   ============================================ */
+input[type="checkbox"][data-checkbox]:disabled + label[data-checkbox-label] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  /* pointer-events: none → 마우스 이벤트 차단 */
+  pointer-events: none;
+}
+
+/* disabled 상태에서도 체크마크는 표시 유지 (상태 인지 보장) */
+input[type="checkbox"][data-checkbox]:disabled:checked + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* ============================================
+   Indeterminate(불확정) 상태
+   aria-checked="mixed" 속성 사용 시 대시(-) 표시
+   부분 선택 상태 (예: 트리 체크박스 부모 노드)
+   ============================================ */
+
+/* 불확정 상태: ::before 박스를 primary 배경으로 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"] + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* 불확정 상태: ::after를 대시(-) 형태로 재정의 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"] + label[data-checkbox-label]::after {
+  /* 체크마크 대신 수평 대시 */
+  width: 10px;
+  height: 2px;
+
+  /* 대시: 하단 테두리만 사용하여 수평선 표현 */
+  border: none;
+  background-color: #ffffff;
+  border-radius: 1px;
+
+  /* 수평 대시 중앙 정렬:
+     translateX: 박스 중앙(9px) - 대시 절반(5px) = 4px
+     translateY: 세로 정중앙 */
+  transform: translateX(4px) translateY(-50%);
+
+  /* 불확정 상태에서 표시 */
+  opacity: 1;
+}
+
+/* ============================================
+   크기(size) 변형
+   sm / md(기본) / lg 세 단계
+   button.css, input.css 크기 체계와 동일하게 정렬
+   ============================================ */
+
+/* --- 소형(sm): 보조 폼, 테이블 인라인 등 --- */
+label[data-checkbox-label][data-size="sm"] {
+  font-size: var(--font-size-sm);
+  gap: 6px;
+  min-height: 32px;
+}
+
+label[data-checkbox-label][data-size="sm"]::before {
+  width: 14px;
+  height: 14px;
+}
+
+/* sm 체크마크 크기 조정 */
+label[data-checkbox-label][data-size="sm"]::after {
+  width: 4px;
+  height: 7px;
+  transform: translateX(5px) translateY(calc(-50% - 1px)) rotate(45deg);
+}
+
+/* sm indeterminate 대시 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"] + label[data-checkbox-label][data-size="sm"]::after {
+  width: 8px;
+  height: 2px;
+  transform: translateX(3px) translateY(-50%);
+  border: none;
+  background-color: #ffffff;
+}
+
+/* --- 대형(lg): 주요 선택 폼, 설정 화면 등 --- */
+label[data-checkbox-label][data-size="lg"] {
+  font-size: var(--font-size-lg);
+  gap: 10px;
+  min-height: 52px;
+}
+
+label[data-checkbox-label][data-size="lg"]::before {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+}
+
+/* lg 체크마크 크기 조정 */
+label[data-checkbox-label][data-size="lg"]::after {
+  width: 6px;
+  height: 11px;
+  transform: translateX(8px) translateY(calc(-50% - 1px)) rotate(45deg);
+}
+
+/* lg indeterminate 대시 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"] + label[data-checkbox-label][data-size="lg"]::after {
+  width: 12px;
+  height: 2px;
+  transform: translateX(5px) translateY(-50%);
+  border: none;
+  background-color: #ffffff;
+}
+
+/* ============================================
+   다크 모드 대응
+   tokens.css [data-theme="dark"] 변수가 대부분 자동 처리
+   박스 배경 + 포커스 glow + 하드코딩 값만 보완
+   ============================================ */
+
+/* 다크 모드: 기본 박스 테두리 가시성 보강 */
+:root[data-theme="dark"] label[data-checkbox-label]::before {
+  border-color: var(--color-border-hover);
+  background-color: var(--color-bg-secondary);
+}
+
+/* 다크 모드: hover 상태 배경 색 보정 */
+:root[data-theme="dark"] input[type="checkbox"][data-checkbox]:not(:checked):not(:disabled) + label[data-checkbox-label]:hover::before {
+  background-color: color-mix(in srgb, var(--color-primary) 15%, var(--color-bg-secondary));
+  border-color: var(--color-primary);
+}
+
+/* 다크 모드: 포커스 glow 색상 보정 */
+:root[data-theme="dark"] input[type="checkbox"][data-checkbox]:focus-visible + label[data-checkbox-label]::before {
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+}
+
+/* 다크 모드: checked 상태 (primary 색상은 dark 토큰으로 자동 전환) */
+:root[data-theme="dark"] input[type="checkbox"][data-checkbox]:checked + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* 다크 모드: indeterminate 박스 배경 */
+:root[data-theme="dark"] input[type="checkbox"][data-checkbox][aria-checked="mixed"] + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* ============================================
+   반응형: 모바일(767px 이하)
+   터치 타겟 최소 44px 확보 (WCAG 2.5.5)
+   360px~767px 뷰포트 범위 대응
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일: 모든 크기 최소 44px 터치 타겟 확보 */
+  label[data-checkbox-label] {
+    min-height: 44px;
+  }
+
+  /* 모바일 sm: 터치 타겟 44px로 통일, 박스 크기는 유지 */
+  label[data-checkbox-label][data-size="sm"] {
+    min-height: 44px;
+    font-size: var(--font-size-base);
+  }
+
+  /* 모바일 lg: 터치 영역 더 넓게 */
+  label[data-checkbox-label][data-size="lg"] {
+    min-height: 52px;
+  }
+}
+
+/* ============================================
+   반응형: 태블릿(768px~1023px)
+   기본 스타일 유지 + 세밀한 보정
+   ============================================ */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* 태블릿: 기본 44px 터치 타겟 유지 */
+  label[data-checkbox-label] {
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   동작 감소 설정 대응 (prefers-reduced-motion)
+   KWCAG 2.2 / WCAG 2.1 SC 2.3.3
+   전정 장애·전간증 사용자 배려
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* 모든 체크박스 전환 효과 즉시 처리 */
+  label[data-checkbox-label]::before,
+  label[data-checkbox-label]::after {
+    transition: none;
+  }
+}
+
+/* ============================================
+   체크박스 그룹 레이아웃
+   여러 체크박스를 수직 또는 수평으로 배치
+   ============================================ */
+
+/* 수직 그룹 (기본) */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 수평 그룹 */
+.checkbox-group--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* ============================================
+   그룹 레이블 (체크박스 그룹 제목)
+   fieldset + legend 또는 div + p 구조 지원
+   ============================================ */
+.checkbox-group-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* 필수 표시 */
+.checkbox-group-label .checkbox-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+}
+
+/* ============================================
+   헬퍼/에러 메시지 (그룹 수준)
+   ============================================ */
+.checkbox-helper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.checkbox-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  line-height: var(--line-height-normal);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}
+
+/* 에러 메시지 아이콘 크기 (input.css 패턴 일치) */
+.checkbox-error-msg svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   모바일: 그룹 반응형 보정
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일: 수평 그룹도 수직으로 전환 */
+  .checkbox-group--inline {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}

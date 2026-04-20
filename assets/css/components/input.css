@@ -1,1 +1,472 @@
-/* Input 컴포넌트 스타일 */
+/* ============================================
+   Input 컴포넌트 스타일
+   tokens.css CSS 변수만 사용 (외부 의존 없음)
+   WCAG 2.2 접근성 준수
+   ============================================ */
+
+/* ============================================
+   number input 스피너 UI 제거
+   브라우저 기본 스피너 버튼 숨김 처리
+   ============================================ */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  display: none;
+}
+
+/* Firefox: number input 스피너 제거 */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* ============================================
+   베이스 input 스타일
+   [data-input] 속성으로 컴포넌트 식별
+   모든 텍스트 계열 input에 공통 적용
+   ============================================ */
+input[data-input] {
+  /* 레이아웃: 블록 요소로 너비 100% 점유 */
+  display: block;
+  width: 100%;
+
+  /* 박스 모델 */
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  /* 타이포그래피 */
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+
+  /* 배경 */
+  background-color: var(--color-bg);
+
+  /* 전환 효과: 호버/포커스 시 시각 피드백 */
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+
+  /* outline 초기화: 포커스 스타일은 아래에서 별도 정의 */
+  outline: none;
+
+  /* 최소 높이: 터치 타겟 기준 */
+  min-height: 44px;
+
+  /* 텍스트 오버플로 방지 */
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   Placeholder 스타일
+   보조 텍스트 색상으로 구분감 확보
+   ============================================ */
+input[data-input]::placeholder {
+  color: var(--color-text-secondary);
+  /* placeholder는 italic 처리 안 함 — 가독성 우선 */
+  opacity: 1;
+}
+
+/* ============================================
+   크기(size) 변형
+   sm / md / lg 세 단계
+   button.css 크기 체계와 동일하게 정렬
+   ============================================ */
+
+/* 소형: 보조 폼, 테이블 인라인 필터 등 */
+input[data-input][data-size="sm"] {
+  padding: 6px 10px;
+  font-size: var(--font-size-sm);
+  min-height: 32px;
+  border-radius: var(--radius-sm);
+}
+
+/* 중형: 기본값 (대부분의 폼 UI) */
+input[data-input][data-size="md"] {
+  padding: 10px 14px;
+  font-size: var(--font-size-base);
+  min-height: 44px;
+}
+
+/* 대형: 주요 검색창, 히어로 입력 등 */
+input[data-input][data-size="lg"] {
+  padding: 14px 18px;
+  font-size: var(--font-size-lg);
+  min-height: 52px;
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================
+   Hover 상태
+   마우스 오버 시 테두리 색상 강화로 상호작용 암시
+   ============================================ */
+input[data-input]:hover:not(:disabled):not([data-error="true"]) {
+  border-color: var(--color-border-hover);
+}
+
+/* ============================================
+   Focus 상태 (WCAG 2.2 Focus Visible)
+   outline 2px solid + box-shadow 이중 처리
+   키보드·마우스 모두 포커스 링 표시 (input은 :focus-visible 불가)
+   ============================================ */
+input[data-input]:focus:not(:disabled) {
+  /* 2px 포커스 링: 요구사항 준수 */
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+  /* 테두리 색상도 primary로 전환 */
+  border-color: var(--color-primary);
+  /* 내부 glow: 포커스 감지성 강화 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ============================================
+   Error 상태 (data-error="true")
+   유효성 검증 실패 시 빨간 계열로 시각 경고
+   ============================================ */
+input[data-input][data-error="true"] {
+  border-color: var(--color-danger);
+  /* 연한 빨간 배경: 에러 상태를 배경으로도 암시 */
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+/* Error + hover: 테두리 색상 유지 */
+input[data-input][data-error="true"]:hover:not(:disabled) {
+  border-color: var(--color-danger);
+}
+
+/* Error + focus: 포커스 링을 danger 색상으로 */
+input[data-input][data-error="true"]:focus:not(:disabled) {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 0;
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* ============================================
+   Disabled 상태
+   WCAG: opacity 0.5 + cursor not-allowed + pointer-events none
+   ============================================ */
+input[data-input]:disabled,
+input[data-input][disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  /* 마우스 이벤트 차단 */
+  pointer-events: none;
+  /* disabled 배경: 보조 배경색으로 입력 불가 암시 */
+  background-color: var(--color-bg-secondary);
+}
+
+/* ============================================
+   Read-only 상태
+   편집 불가 + 배경으로 구분
+   ============================================ */
+input[data-input]:read-only:not(:disabled) {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  cursor: default;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================
+   다크 모드 대응
+   tokens.css [data-theme="dark"] 변수가 대부분 자동 처리
+   color-mix 배경색 보완만 별도 선언
+   ============================================ */
+
+/* 다크 모드: 포커스 glow — 어두운 배경에서 청색 번짐 조정 */
+:root[data-theme="dark"] input[data-input]:focus:not(:disabled) {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+/* 다크 모드: error 배경 — color-mix 지원 여부 관계없이 명시적 폴백 */
+:root[data-theme="dark"] input[data-input][data-error="true"] {
+  /* 다크 배경(#111827) 위 에러 배경: 불투명도 낮게 유지 */
+  background-color: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg));
+}
+
+/* 다크 모드: error focus glow */
+:root[data-theme="dark"] input[data-input][data-error="true"]:focus:not(:disabled) {
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+/* ============================================
+   반응형: 모바일(767px 이하)
+   터치 타겟 최소 44px 확보 (WCAG 2.5.5)
+   360px~767px 뷰포트 범위 대응
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일 터치 타겟: sm 크기도 44px로 통일 */
+  input[data-input][data-size="sm"] {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: var(--font-size-base);
+  }
+
+  /* md/lg: 그대로 유지하되 padding 좌우를 약간 줄여 좁은 화면 대응 */
+  input[data-input][data-size="md"] {
+    padding: 10px 12px;
+  }
+
+  input[data-input][data-size="lg"] {
+    padding: 12px 14px;
+  }
+}
+
+/* ============================================
+   반응형: 태블릿(768px~1023px)
+   데스크톱 스타일로 점진적 전환
+   ============================================ */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* 태블릿: 기본 스타일 그대로 유지
+     특별한 크기 변경 없이 데스크톱과 동일 패딩 적용 */
+  input[data-input] {
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   동작 감소 설정 대응 (prefers-reduced-motion)
+   KWCAG 2.2 / WCAG 2.1 SC 2.3.3
+   전정 장애·전간증 사용자 배려
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* 모든 input 전환 효과 즉시 처리 */
+  input[data-input] {
+    transition: none;
+  }
+}
+
+/* ============================================
+   입력 필드 그룹 레이아웃
+   라벨 + 입력 + 헬퍼/에러 메시지 수직 배치
+   ============================================ */
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ============================================
+   라벨 스타일
+   ============================================ */
+.input-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+/* 필수 입력 표시 (*) */
+.input-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   헬퍼 텍스트
+   ============================================ */
+.input-helper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
+/* 성공 상태 헬퍼 */
+.input-helper--success {
+  color: var(--color-success);
+}
+
+/* ============================================
+   에러 메시지
+   role="alert"으로 스크린리더에 즉시 전달
+   ============================================ */
+.input-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
+/* 에러 메시지 아이콘 크기 */
+.input-error-msg svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   아이콘 입력 래퍼
+   아이콘을 절대 위치로 배치하기 위한 컨테이너
+   ============================================ */
+.input-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* .input-icon-wrap 내부 input: 너비 100% 점유 */
+.input-icon-wrap input[data-input] {
+  width: 100%;
+}
+
+/* ============================================
+   아이콘 공통 스타일
+   장식용 → pointer-events: none
+   ============================================ */
+.input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  /* 마우스·터치 이벤트 무시 (장식 아이콘) */
+  pointer-events: none;
+  color: var(--color-text-secondary);
+  /* lucide SVG 크기 고정 */
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   Leading Icon (좌측 아이콘)
+   ============================================ */
+.input-icon--leading {
+  left: 12px;
+}
+
+/* 좌측 아이콘 입력: padding-left 확장으로 겹침 방지 */
+input[data-input][data-icon="leading"] {
+  padding-left: 38px;
+}
+
+/* 크기별 leading 여백 조정 */
+input[data-input][data-size="sm"][data-icon="leading"] {
+  padding-left: 32px;
+}
+
+input[data-input][data-size="lg"][data-icon="leading"] {
+  padding-left: 44px;
+}
+
+/* ============================================
+   Trailing Icon (우측 아이콘)
+   ============================================ */
+.input-icon--trailing {
+  right: 12px;
+}
+
+/* 우측 아이콘 입력: padding-right 확장으로 겹침 방지 */
+input[data-input][data-icon="trailing"] {
+  padding-right: 38px;
+}
+
+/* 크기별 trailing 여백 조정 */
+input[data-input][data-size="sm"][data-icon="trailing"] {
+  padding-right: 32px;
+}
+
+input[data-input][data-size="lg"][data-icon="trailing"] {
+  padding-right: 44px;
+}
+
+/* 성공 상태 아이콘 색상 */
+.input-icon--success {
+  color: var(--color-success);
+}
+
+/* ============================================
+   비밀번호 토글 버튼
+   우측 trailing 위치에 배치하되 클릭 가능
+   ============================================ */
+.input-pw-toggle {
+  /* 절대 위치로 input 우측 안쪽에 배치 */
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  /* 버튼 리셋 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+
+  /* 색상 및 커서 */
+  color: var(--color-text-secondary);
+  cursor: pointer;
+
+  /* 전환 효과 */
+  transition:
+    color var(--transition-fast),
+    background-color var(--transition-fast);
+
+  /* pointer-events 허용 (아이콘과 달리 클릭 가능) */
+  pointer-events: auto;
+}
+
+/* 비밀번호 토글 내부 SVG 크기 */
+.input-pw-toggle svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* 호버: 색상 강조 + 배경 */
+.input-pw-toggle:hover {
+  color: var(--color-text);
+  background-color: var(--color-bg-secondary);
+}
+
+/* 포커스 링 (WCAG 2.1) */
+.input-pw-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* 표시 중 상태: primary 색상으로 활성 암시 */
+.input-pw-toggle[aria-pressed="true"] {
+  color: var(--color-primary);
+}
+
+/* 다크 모드: 비밀번호 토글 호버 */
+:root[data-theme="dark"] .input-pw-toggle:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+/* ============================================
+   반응형: 모바일(767px 이하) 보조 요소 조정
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일: 비밀번호 토글 터치 타겟 확장 (WCAG 2.5.5) */
+  .input-pw-toggle {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* ============================================
+   동작 감소: 보조 요소 전환 효과 제거
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .input-pw-toggle {
+    transition: none;
+  }
+}

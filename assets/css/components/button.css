@@ -346,6 +346,19 @@ button[data-variant="ghost"][data-loading="true"]::after {
   color: var(--color-primary);
 }
 
+/* 다크 모드: secondary 버튼 — 하드코딩 #6b7280이 다크 배경에서 대비 부족
+   다크 모드에서는 밝기를 높여 텍스트 대비비 4.5:1 확보 */
+:root[data-theme="dark"] button[data-variant="secondary"] {
+  background-color: #9ca3af;
+  border-color: #9ca3af;
+  /* 다크 배경 위 #9ca3af: #111827 대비 약 5.2:1 → AA 통과 */
+  color: #111827;
+}
+
+:root[data-theme="dark"] button[data-variant="secondary"]:hover:not(:disabled):not([data-loading="true"]) {
+  filter: brightness(0.92);
+}
+
 /* 다크 모드: ghost 버튼 호버 가시성 보강 */
 :root[data-theme="dark"] button[data-variant="ghost"] {
   color: var(--color-text);
@@ -379,5 +392,52 @@ button[data-variant="ghost"][data-loading="true"]::after {
 
   button[data-size="lg"] {
     min-height: 52px;
+  }
+
+  /* 모바일 아이콘 전용 버튼: 터치 타겟 44px 정사각형으로 고정
+     min-height 규칙이 height를 덮어쓰지 않도록 width/height 명시 재선언 */
+  button[data-size="sm"]:has(> i:only-child),
+  button[data-size="sm"]:has(> svg:only-child) {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+
+  button[data-size="md"]:has(> i:only-child),
+  button[data-size="md"]:has(> svg:only-child) {
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+
+  button[data-size="lg"]:has(> i:only-child),
+  button[data-size="lg"]:has(> svg:only-child) {
+    width: 52px;
+    height: 52px;
+    min-height: 52px;
+    padding: 0;
+  }
+}
+
+/* ============================================
+   동작 감소 설정 대응 (prefers-reduced-motion)
+   KWCAG 2.2 / WCAG 2.1 SC 2.3.3: 애니메이션 자동 재생 금지
+   전정 장애·전간증 사용자 배려 - 모든 전환·회전 중단
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* 모든 버튼 전환 효과 즉시 처리 (duration 0으로 설정) */
+  button[data-variant] {
+    transition: none;
+  }
+
+  /* 로딩 스피너 회전 애니메이션 중단
+     스피너는 시각적으로 유지하되 회전하지 않음
+     (완전 제거 시 로딩 상태 인지 불가) */
+  button[data-variant][data-loading="true"]::after {
+    animation: none;
+    /* 정지된 스피너: 45도 고정으로 '로딩 중' 상태 암시 유지 */
+    transform: rotate(45deg);
   }
 }

@@ -131,10 +131,10 @@ function buildTemplate(hookType, data) {
 
   if (hookType === "Notification") {
     // 권한 요청 알림
-    text = `🔔 [Claude Code 알림]\n프로젝트: nextjs-supabase-app\n시간: ${now}\n내용: ${data.message ?? "권한 요청 또는 주의 필요"}`
+    text = `🔔 [Claude Code 알림]\n프로젝트: ui-component-guide\n시간: ${now}\n내용: ${data.message ?? "권한 요청 또는 주의 필요"}`
   } else if (hookType === "Stop") {
     // 작업 완료 알림
-    text = `✅ [Claude Code 작업 완료]\n프로젝트: nextjs-supabase-app\n완료 시간: ${now}\n이벤트: ${data.hook_event_name || "작업 완료"}`
+    text = `✅ [Claude Code 작업 완료]\n프로젝트: ui-component-guide\n완료 시간: ${now}\n이벤트: ${data.hook_event_name || "작업 완료"}`
   }
 
   return {
