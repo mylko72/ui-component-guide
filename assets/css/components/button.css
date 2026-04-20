@@ -25,6 +25,7 @@ button[data-variant] {
   text-decoration: none;
 
   /* 기본 박스 모델 */
+  padding: 12px 20px;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
@@ -79,7 +80,7 @@ button[data-size="lg"] {
    정사각형 치수로 압축
    ============================================ */
 
-/* 아이콘만 있는 버튼: 패딩을 균일하게 축소 */
+/* 아이콘만 있는 버튼: 패딩을 0으로 설정하여 정사각형 유지 */
 button[data-variant]:has(> i:only-child),
 button[data-variant]:has(> svg:only-child) {
   padding: 0;
@@ -126,6 +127,29 @@ button[data-variant] svg {
 
 button[data-size="sm"] svg { width: 1em; height: 1em; }
 button[data-size="lg"] svg { width: 1em; height: 1em; }
+
+/* ============================================
+   아이콘+텍스트 조합: size별 padding 명시적 설정
+   아이콘이 있으면서 텍스트도 있는 경우
+   ============================================ */
+
+/* 아이콘+텍스트: sm 크기 */
+button[data-variant][data-size="sm"]:has(> i:not(:only-child)),
+button[data-variant][data-size="sm"]:has(> svg:not(:only-child)) {
+  padding: 8px 16px;
+}
+
+/* 아이콘+텍스트: md 크기 */
+button[data-variant][data-size="md"]:has(> i:not(:only-child)),
+button[data-variant][data-size="md"]:has(> svg:not(:only-child)) {
+  padding: 12px 20px;
+}
+
+/* 아이콘+텍스트: lg 크기 */
+button[data-variant][data-size="lg"]:has(> i:not(:only-child)),
+button[data-variant][data-size="lg"]:has(> svg:not(:only-child)) {
+  padding: 16px 24px;
+}
 
 /* ============================================
    색상(variant) 변형
