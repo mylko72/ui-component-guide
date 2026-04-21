@@ -29,6 +29,10 @@
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+  /* 높이 제약: 부모(.main) 컨테이너를 초과하지 않도록 */
+  max-height: 100%;
+  /* 오버플로우 방지 (내부 스크롤은 .detail-main에서 처리) */
+  overflow: hidden;
   box-sizing: border-box;
   /* 데스크탑: 좌우 충분한 패딩 */
   padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
