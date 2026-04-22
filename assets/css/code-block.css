@@ -3,6 +3,8 @@
    코드 뷰어: 탭 전환, 미리보기, 확장/축소
    ============================================ */
 
+/* DEPRECATED: 2026-04-22 부터 assets/css/common.css로 통합됨 */
+
 .code-block {
   display: flex;
   flex-direction: column;

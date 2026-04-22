@@ -3,6 +3,8 @@
    헤더, 사이드바, 메인 콘텐츠
    ============================================ */
 
+/* DEPRECATED: 2026-04-22 부터 assets/css/common.css로 통합됨 */
+
 /* 접근성: 건너뛰기 링크 */
 .skip-nav {
   position: absolute;

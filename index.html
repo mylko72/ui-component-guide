@@ -14,33 +14,10 @@
   <meta name="description" content="순수 HTML/CSS/ES6 기반 한국형 웹접근성(KWCAG 2.2) 준수 UI 컴포넌트 가이드">
   <title>Web UI Component Guide</title>
 
-  <!-- CSS 로드 (로드 순서: tokens → reset → layout → components) -->
+  <!-- CSS 로드 (공통 레이아웃 CSS만 로드 - 컴포넌트 CSS는 컴포넌트 페이지에서 로드) -->
   <link rel="stylesheet" href="assets/css/tokens.css">
   <link rel="stylesheet" href="assets/css/reset.css">
-  <link rel="stylesheet" href="assets/css/layout.css">
-  <link rel="stylesheet" href="assets/css/code-block.css">
-  <link rel="stylesheet" href="assets/css/dashboard.css">
-  <!-- 페이지별 스타일 -->
-  <link rel="stylesheet" href="assets/css/pages/dashboard.css">
-  <link rel="stylesheet" href="assets/css/pages/detail.css">
-  <link rel="stylesheet" href="assets/css/components/button.css">
-  <link rel="stylesheet" href="assets/css/components/input.css">
-  <link rel="stylesheet" href="assets/css/components/checkbox.css">
-  <link rel="stylesheet" href="assets/css/components/radio.css">
-  <link rel="stylesheet" href="assets/css/components/switch.css">
-  <link rel="stylesheet" href="assets/css/components/select.css">
-  <link rel="stylesheet" href="assets/css/components/textarea.css">
-  <link rel="stylesheet" href="assets/css/components/card.css">
-  <link rel="stylesheet" href="assets/css/components/accordion.css">
-  <link rel="stylesheet" href="assets/css/components/tabs.css">
-  <link rel="stylesheet" href="assets/css/components/modal.css">
-  <link rel="stylesheet" href="assets/css/components/dropdown.css">
-  <link rel="stylesheet" href="assets/css/components/toast.css">
-  <link rel="stylesheet" href="assets/css/components/alert.css">
-  <link rel="stylesheet" href="assets/css/components/badge.css">
-  <link rel="stylesheet" href="assets/css/components/tooltip.css">
-  <link rel="stylesheet" href="assets/css/components/progress.css">
-  <link rel="stylesheet" href="assets/css/components/skeleton.css">
+  <link rel="stylesheet" href="assets/css/common.css">
 </head>
 <body>
   <!-- 접근성: 건너뛰기 링크 -->
@@ -51,7 +28,7 @@
     <div class="header-container">
       <!-- 로고 및 가이드명 -->
       <div class="header-brand">
-        <a href="#/" class="logo">UI</a>
+        <a href="index.html" class="logo">UI</a>
         <h1 class="guide-title">Web UI Component Guide</h1>
       </div>
 
@@ -78,8 +55,414 @@
   <div class="main-container">
     <!-- 메인 콘텐츠 -->
     <main id="main" class="main">
-      <div id="app-content">
-        <!-- 라우터에 의해 페이지 렌더링됨 -->
+      <div class="dashboard-page">
+
+        <!-- =============================================
+             Hero 섹션: 프로젝트 소개
+             ============================================= -->
+        <section class="hero" aria-labelledby="hero-title">
+          <h1 id="hero-title">Web UI Component Guide</h1>
+          <p class="hero-subtitle">
+            순수 HTML/CSS/ES6 기반 한국형 웹접근성(KWCAG 2.2) 준수 UI 컴포넌트 라이브러리<br>
+            <strong>18개 구현 완료</strong>
+          </p>
+        </section>
+
+        <!-- =============================================
+             폼 요소 카테고리 섹션 (7개 카드)
+             ============================================= -->
+        <section class="components-section" aria-labelledby="section-form">
+          <h2 id="section-form" class="category-title">폼 요소</h2>
+          <div class="components-grid card-grid" role="list">
+
+            <!-- Button 카드 -->
+            <a href="pages/button.html" class="component-card" role="article" aria-label="Button 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="square"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Button</h3>
+                <p class="card-description">다양한 변형과 크기의 버튼 컴포넌트. 아이콘, 로딩 상태 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 5점">
+                  <span class="card-stars" aria-hidden="true">★★★★★</span>
+                  <span class="card-rating-text">5.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Input 카드 -->
+            <a href="pages/input.html" class="component-card" role="article" aria-label="Input 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="type"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Input</h3>
+                <p class="card-description">텍스트 입력 필드. 유효성 검사, 아이콘, 에러 상태 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 5점">
+                  <span class="card-stars" aria-hidden="true">★★★★★</span>
+                  <span class="card-rating-text">5.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Checkbox 카드 -->
+            <a href="pages/checkbox.html" class="component-card" role="article" aria-label="Checkbox 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="square-check"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Checkbox</h3>
+                <p class="card-description">단일/그룹 체크박스. 중간 상태(indeterminate) 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 4점">
+                  <span class="card-stars" aria-hidden="true">★★★★☆</span>
+                  <span class="card-rating-text">4.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Radio 카드 -->
+            <a href="pages/radio.html" class="component-card" role="article" aria-label="Radio 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="circle-dot"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Radio</h3>
+                <p class="card-description">라디오 버튼 그룹. 단일 선택, 키보드 화살표 탐색 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 4점">
+                  <span class="card-stars" aria-hidden="true">★★★★☆</span>
+                  <span class="card-rating-text">4.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Switch 카드 -->
+            <a href="pages/switch.html" class="component-card" role="article" aria-label="Switch 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="toggle-left"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Switch</h3>
+                <p class="card-description">토글 스위치. ON/OFF 상태 전환, aria-checked 접근성 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 4점">
+                  <span class="card-stars" aria-hidden="true">★★★★☆</span>
+                  <span class="card-rating-text">4.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Select 카드 -->
+            <a href="pages/select.html" class="component-card" role="article" aria-label="Select 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="list"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Select</h3>
+                <p class="card-description">드롭다운 선택 필드. 그룹화, 비활성화 옵션 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 4점">
+                  <span class="card-stars" aria-hidden="true">★★★★☆</span>
+                  <span class="card-rating-text">4.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Textarea 카드 -->
+            <a href="pages/textarea.html" class="component-card" role="article" aria-label="Textarea 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="align-left"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Textarea</h3>
+                <p class="card-description">다중 줄 텍스트 입력. 자동 높이 조절, 글자 수 카운터 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 3점">
+                  <span class="card-stars" aria-hidden="true">★★★☆☆</span>
+                  <span class="card-rating-text">3.0</span>
+                </div>
+              </div>
+            </a>
+
+          </div>
+        </section>
+
+        <!-- =============================================
+             레이아웃 카테고리 섹션 (5개 카드)
+             ============================================= -->
+        <section class="components-section" aria-labelledby="section-layout">
+          <h2 id="section-layout" class="category-title">레이아웃</h2>
+          <div class="components-grid card-grid" role="list">
+
+            <!-- Card 카드 -->
+            <a href="pages/card.html" class="component-card" role="article" aria-label="Card 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="layout-grid"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Card</h3>
+                <p class="card-description">콘텐츠 카드 컨테이너. 헤더, 푸터, 이미지 슬롯 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 5점">
+                  <span class="card-stars" aria-hidden="true">★★★★★</span>
+                  <span class="card-rating-text">5.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Accordion 카드 -->
+            <a href="pages/accordion.html" class="component-card" role="article" aria-label="Accordion 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="chevrons-down"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Accordion</h3>
+                <p class="card-description">접기/펼치기 패널. 단일/다중 열림, aria-expanded 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 4점">
+                  <span class="card-stars" aria-hidden="true">★★★★☆</span>
+                  <span class="card-rating-text">4.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Tabs 카드 -->
+            <a href="pages/tabs.html" class="component-card" role="article" aria-label="Tabs 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="layout-panel-top"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Tabs</h3>
+                <p class="card-description">탭 패널 전환. role="tablist" WAI-ARIA 패턴 준수</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 5점">
+                  <span class="card-stars" aria-hidden="true">★★★★★</span>
+                  <span class="card-rating-text">5.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Modal 카드 -->
+            <a href="pages/modal.html" class="component-card" role="article" aria-label="Modal 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="square-dashed"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Modal</h3>
+                <p class="card-description">다이얼로그 모달. 포커스 트랩, ESC 닫기, 다크 모드 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 5점">
+                  <span class="card-stars" aria-hidden="true">★★★★★</span>
+                  <span class="card-rating-text">5.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Dropdown 카드 -->
+            <a href="pages/dropdown.html" class="component-card" role="article" aria-label="Dropdown 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="menu"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Dropdown</h3>
+                <p class="card-description">컨텍스트 메뉴 드롭다운. 위치 자동 조정, 키보드 탐색</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 4점">
+                  <span class="card-stars" aria-hidden="true">★★★★☆</span>
+                  <span class="card-rating-text">4.0</span>
+                </div>
+              </div>
+            </a>
+
+          </div>
+        </section>
+
+        <!-- =============================================
+             피드백 카테고리 섹션 (6개 카드)
+             ============================================= -->
+        <section class="components-section" aria-labelledby="section-feedback">
+          <h2 id="section-feedback" class="category-title">피드백</h2>
+          <div class="components-grid card-grid" role="list">
+
+            <!-- Toast 카드 -->
+            <a href="pages/toast.html" class="component-card" role="article" aria-label="Toast 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="bell"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Toast</h3>
+                <p class="card-description">일시적 알림 메시지. 자동 소멸, 스택 관리, 4가지 타입</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 4점">
+                  <span class="card-stars" aria-hidden="true">★★★★☆</span>
+                  <span class="card-rating-text">4.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Alert 카드 -->
+            <a href="pages/alert.html" class="component-card" role="article" aria-label="Alert 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="alert-circle"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Alert</h3>
+                <p class="card-description">인라인 경고/정보 메시지. role="alert" 라이브 리전 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 5점">
+                  <span class="card-stars" aria-hidden="true">★★★★★</span>
+                  <span class="card-rating-text">5.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Badge 카드 -->
+            <a href="pages/badge.html" class="component-card" role="article" aria-label="Badge 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="tag"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Badge</h3>
+                <p class="card-description">상태 표시 뱃지. 색상 변형, 아이콘, 숫자 카운트 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 3점">
+                  <span class="card-stars" aria-hidden="true">★★★☆☆</span>
+                  <span class="card-rating-text">3.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Tooltip 카드 -->
+            <a href="pages/tooltip.html" class="component-card" role="article" aria-label="Tooltip 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="help-circle"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Tooltip</h3>
+                <p class="card-description">호버/포커스 툴팁. 4방향 위치, aria-describedby 연결</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 3점">
+                  <span class="card-stars" aria-hidden="true">★★★☆☆</span>
+                  <span class="card-rating-text">3.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Progress 카드 -->
+            <a href="pages/progress.html" class="component-card" role="article" aria-label="Progress 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="activity"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Progress</h3>
+                <p class="card-description">진행률 표시바. role="progressbar", 애니메이션 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 4점">
+                  <span class="card-stars" aria-hidden="true">★★★★☆</span>
+                  <span class="card-rating-text">4.0</span>
+                </div>
+              </div>
+            </a>
+
+            <!-- Skeleton 카드 -->
+            <a href="pages/skeleton.html" class="component-card" role="article" aria-label="Skeleton 컴포넌트">
+              <div class="card-header">
+                <div class="card-icon" aria-hidden="true">
+                  <i data-lucide="loader"></i>
+                </div>
+                <span class="card-badge badge badge-success" role="status">Implemented</span>
+              </div>
+              <div class="card-body">
+                <h3 class="card-title">Skeleton</h3>
+                <p class="card-description">콘텐츠 로딩 플레이스홀더. 펄스 애니메이션, aria-busy 지원</p>
+              </div>
+              <div class="card-footer">
+                <div class="card-rating" aria-label="평점 5점 만점에 3점">
+                  <span class="card-stars" aria-hidden="true">★★★☆☆</span>
+                  <span class="card-rating-text">3.0</span>
+                </div>
+              </div>
+            </a>
+
+          </div>
+        </section>
+
+        <!-- 대시보드 푸터 -->
+        <footer class="footer-info" role="contentinfo">
+          <p>© 2026 Web UI Component Guide. 순수 HTML/CSS/ES6 기반 웹 컴포넌트 라이브러리</p>
+        </footer>
+
       </div>
     </main>
   </div>
@@ -87,7 +470,7 @@
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
-  <!-- ES6 모듈 진입점 -->
-  <script type="module" src="assets/js/App.js"></script>
+  <!-- 공통 유틸리티 JS (테마, 사이드바, CodeBlock, 아이콘) -->
+  <script src="assets/js/common.js"></script>
 </body>
 </html>

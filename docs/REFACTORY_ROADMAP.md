@@ -1,10 +1,12 @@
 # Web UI Component Guide — 리팩토링 로드맵
 
 > **문서 정보**
-> - 버전: v1.0
+> - 버전: v1.0 (Phase 1 완료)
 > - 작성일: 2026-04-21
+> - 최종 업데이트: 2026-04-22
 > - 기반 PRD: `docs/Refactory_PRD.md` v1.0
 > - 기반 ROADMAP: `docs/ROADMAP.md` v1.2
+> - 진행 상황: Phase 1 완료 (4/4 Tasks) ✅ → Phase 2 준비
 
 ---
 
@@ -77,11 +79,11 @@ ui-component-guide/
 
 ---
 
-## Phase 1: 인프라 구축
+## Phase 1: 인프라 구축 ✅
 
 > **왜 먼저 하는가**: 모든 정적 HTML 페이지가 공유하는 공통 레이아웃 CSS와 유틸리티 JS가 없으면 이후 어떤 컴포넌트 페이지도 만들 수 없습니다. 인프라가 확정되어야 각 컴포넌트 페이지가 일관된 구조를 가질 수 있습니다.
 
-### Task 1-01: `assets/css/common.css` 생성
+### Task 1-01: `assets/css/common.css` 생성 ✅
 
 **[R-02, R-03]**
 
@@ -146,14 +148,14 @@ ui-component-guide/
 
 **완료 기준 (Acceptance Criteria)**
 
-- [ ] `assets/css/common.css` 파일이 생성된다
-- [ ] 헤더, 사이드바, 상세 페이지 2단 레이아웃, CodeBlock, 건너뛰기 링크 스타일이 포함된다
-- [ ] 기존 4개 CSS 파일에 DEPRECATED 주석이 추가된다
-- [ ] `common.css`만으로 상세 페이지 레이아웃이 정상 표시된다 (브라우저 확인)
+- [x] `assets/css/common.css` 파일이 생성된다
+- [x] 헤더, 사이드바, 상세 페이지 2단 레이아웃, CodeBlock, 건너뛰기 링크 스타일이 포함된다
+- [x] 기존 4개 CSS 파일에 DEPRECATED 주석이 추가된다
+- [x] `common.css`만으로 상세 페이지 레이아웃이 정상 표시된다 (브라우저 확인)
 
 ---
 
-### Task 1-02: `assets/js/common.js` 생성
+### Task 1-02: `assets/js/common.js` 생성 ✅
 
 **[R-02, R-04]**
 
@@ -222,15 +224,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 **완료 기준 (Acceptance Criteria)**
 
-- [ ] `assets/js/common.js` 파일이 생성된다
-- [ ] `initTheme()`, `initSidebarNav()`, `initCodeBlocks()`, `initIcons()` 함수가 포함된다
-- [ ] `DOMContentLoaded` 이벤트에서 위 4개 함수가 순서대로 호출된다
-- [ ] ES6 모듈 문법(`import`/`export`) 없이 일반 스크립트로 작성된다 (`file://` 프로토콜 호환)
-- [ ] 테마 토글 버튼 클릭 시 `data-theme` 속성이 변경되고 `localStorage`에 저장된다
+- [x] `assets/js/common.js` 파일이 생성된다
+- [x] `initTheme()`, `initSidebarNav()`, `initCodeBlocks()`, `initIcons()` 함수가 포함된다
+- [x] `DOMContentLoaded` 이벤트에서 위 4개 함수가 순서대로 호출된다
+- [x] ES6 모듈 문법(`import`/`export`) 없이 일반 스크립트로 작성된다 (`file://` 프로토콜 호환)
+- [x] 테마 토글 버튼 클릭 시 `data-theme` 속성이 변경되고 `localStorage`에 저장된다
 
 ---
 
-### Task 1-03: `assets/js/components/` 디렉토리 및 `code-block.js` 생성
+### Task 1-03: `assets/js/components/` 디렉토리 및 `code-block.js` 생성 ✅
 
 **[R-03, R-04]**
 
@@ -282,15 +284,15 @@ document.addEventListener('DOMContentLoaded', () => CodeBlock.init());
 
 **완료 기준 (Acceptance Criteria)**
 
-- [ ] `assets/js/components/` 디렉토리가 생성된다
-- [ ] `assets/js/components/code-block.js`에 `CodeBlock.init(container?)` public API가 구현된다
-- [ ] `data-initialized` 속성으로 중복 초기화가 방지된다
-- [ ] 일반 스크립트로 작성되어 `file://` 프로토콜에서 동작한다
-- [ ] `<script src="../assets/js/components/code-block.js">` 로드 후 콘솔에서 `CodeBlock.init()` 호출이 가능하다
+- [x] `assets/js/components/` 디렉토리가 생성된다
+- [x] `assets/js/components/code-block.js`에 `CodeBlock.init(container?)` public API가 구현된다
+- [x] `data-initialized` 속성으로 중복 초기화가 방지된다
+- [x] 일반 스크립트로 작성되어 `file://` 프로토콜에서 동작한다
+- [x] `<script src="../assets/js/components/code-block.js">` 로드 후 콘솔에서 `CodeBlock.init()` 호출이 가능하다
 
 ---
 
-### Task 1-04: `pages/` 디렉토리 및 `index.html` 정적 변환
+### Task 1-04: `pages/` 디렉토리 및 `index.html` 정적 변환 ✅
 
 **[R-01, R-02]**
 
@@ -360,23 +362,23 @@ document.addEventListener('DOMContentLoaded', () => CodeBlock.init());
 
 **완료 기준 (Acceptance Criteria)**
 
-- [ ] `pages/` 디렉토리가 생성된다
-- [ ] `index.html`이 JS 없이도 카드 그리드 레이아웃이 표시된다
-- [ ] `index.html`에 18개 구현 컴포넌트 카드 링크(`pages/button.html` 등)가 포함된다
-- [ ] 테마 토글 버튼이 동작한다
-- [ ] FOUC(깜박임) 없이 저장된 테마가 즉시 적용된다
+- [x] `pages/` 디렉토리가 생성된다
+- [x] `index.html`이 JS 없이도 카드 그리드 레이아웃이 표시된다
+- [x] `index.html`에 18개 구현 컴포넌트 카드 링크(`pages/button.html` 등)가 포함된다
+- [x] 테마 토글 버튼이 동작한다
+- [x] FOUC(깜박임) 없이 저장된 테마가 즉시 적용된다
 
 ---
 
-### M1 마일스톤 체크리스트 — 인프라 완료
+### M1 마일스톤 체크리스트 — 인프라 완료 ✅
 
 ```
-[ ] assets/css/common.css 생성 완료 (기존 4개 CSS 통합)
-[ ] assets/js/common.js 생성 완료 (테마, 사이드바, CodeBlock, Lucide)
-[ ] assets/js/components/ 디렉토리 생성 완료
-[ ] assets/js/components/code-block.js public init() API 완성
-[ ] pages/ 디렉토리 생성 완료
-[ ] index.html 정적 변환 완료 (JS 비활성화 시 카드 그리드 표시)
+[x] assets/css/common.css 생성 완료 (기존 4개 CSS 통합)
+[x] assets/js/common.js 생성 완료 (테마, 사이드바, CodeBlock, Lucide)
+[x] assets/js/components/ 디렉토리 생성 완료
+[x] assets/js/components/code-block.js public init() API 완성
+[x] pages/ 디렉토리 생성 완료
+[x] index.html 정적 변환 완료 (JS 비활성화 시 카드 그리드 표시)
 ```
 
 ---
