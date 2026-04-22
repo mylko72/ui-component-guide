@@ -985,7 +985,7 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 
 .detail-page {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: var(--spacing-xl);
   max-width: 1400px;
   margin: 0 auto;

@@ -1,3 +1,4 @@
 - [대시보드 컴포넌트 카드 마크업 패턴](project_dashboard_card_pattern.md) — DashboardPage 24개 카드 구조, CSS 클래스 매핑, 접근성 수치
 - [Button 컴포넌트 CSS 구현 패턴](project_button_css_patterns.md) — data-attribute 선택자, 아이콘 버튼, 다크 모드 예외, prefers-reduced-motion, 터치 타겟
 - [Input 컴포넌트 CSS 구현 패턴](project_input_css_patterns.md) — data-attribute 선택자, error 상태 color-mix 배경, :focus 포커스 링, number 스피너 제거
+- [Detail Page 구조 패턴](project_detail_page_structure.md) — pages/*.html 표준 레이아웃, CSS/JS 로드 순서, CodeBlock 마크업, 사이드바 nav 패턴

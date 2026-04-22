@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Input 컴포넌트: 기본 입력, 라벨·헬퍼 텍스트, 에러 상태, 아이콘, 비밀번호 토글, 비활성화 7가지 패턴. WCAG 2.1 접근성 준수">
+  <title>Input — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → input (컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/input.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       button.html 헤더와 동일한 구조 유지
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: input.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: input.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Input 컴포넌트 데모 7개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Input</h1>
+              <p class="detail-description">
+                사용자 텍스트 입력을 받는 기본 폼 요소입니다.
+                <code>data-input</code> 속성으로 컴포넌트를 식별하고,
+                <code>data-size</code>로 sm / md / lg 크기를 지정합니다.
+                라벨·헬퍼·에러 메시지, 아이콘 삽입, 비밀번호 토글, 비활성 상태를 지원합니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: Default Input
+                 data-input 속성으로 컴포넌트 식별
+                 data-size="sm|md|lg" 크기 변형
+                 ============================================ -->
+            <section class="demo-section" id="section-default" aria-labelledby="heading-default">
+              <h2 id="heading-default" class="demo-section-title">Default Input</h2>
+              <p class="demo-description">
+                기본 텍스트 입력 필드입니다.
+                <code>data-size</code> 속성으로 sm / md / lg 크기를 지정합니다.
+              </p>
+
+              <!-- 데모 미리보기: sm / md / lg 크기 비교 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 12px; max-width: 400px;"
+                role="group"
+                aria-label="Default Input 크기 데모"
+              >
+                <!-- sm: 소형 입력 필드 (32px) -->
+                <input
+                  data-input
+                  data-size="sm"
+                  type="text"
+                  id="default-sm"
+                  placeholder="Small input"
+                  aria-label="소형 텍스트 입력 예시"
+                />
+
+                <!-- md: 기본 크기 입력 필드 (44px, 기본값) -->
+                <input
+                  data-input
+                  data-size="md"
+                  type="text"
+                  id="default-md"
+                  placeholder="Medium input"
+                  aria-label="중형 텍스트 입력 예시"
+                />
+
+                <!-- lg: 대형 입력 필드 (52px) -->
+                <input
+                  data-input
+                  data-size="lg"
+                  type="text"
+                  id="default-lg"
+                  placeholder="Large input"
+                  aria-label="대형 텍스트 입력 예시"
+                />
+              </div>
+
+              <!-- CodeBlock: code-block.js가 [data-code-block] 속성을 감지하여 자동 초기화 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 기본 텍스트 입력 (크기: sm / md / lg) --&gt;
+&lt;input
+  data-input data-size="sm"
+  type="text"
+  placeholder="Small input"
+  aria-label="소형 입력"
+/&gt;
+&lt;input
+  data-input data-size="md"
+  type="text"
+  placeholder="Medium input"
+  aria-label="중형 입력"
+/&gt;
+&lt;input
+  data-input data-size="lg"
+  type="text"
+  placeholder="Large input"
+  aria-label="대형 입력"
+/&gt;'
+                data-css='/* 베이스 input 스타일 */
+input[data-input] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  min-height: 44px;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+/* 크기 변형 */
+input[data-input][data-size="sm"] { padding: 6px 10px;  font-size: var(--font-size-sm);   min-height: 32px; }
+input[data-input][data-size="md"] { padding: 10px 14px; font-size: var(--font-size-base); min-height: 44px; }
+input[data-input][data-size="lg"] { padding: 14px 18px; font-size: var(--font-size-lg);   min-height: 52px; }
+
+/* 포커스 링 (WCAG 2.1) */
+input[data-input]:focus:not(:disabled) {
+  outline: 2px solid var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}'
+                data-js='// 입력값 변경 감지 예시
+const input = document.querySelector("[data-input]");
+input.addEventListener("input", (e) => {
+  console.log("입력값:", e.target.value);
+});'
+                aria-label="Default Input 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-default-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-default-css"
+                    >CSS</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="js"
+                      aria-selected="false"
+                      aria-controls="cb-default-js"
+                    >JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-default-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- 기본 텍스트 입력 (크기: sm / md / lg) --&gt;
+&lt;input
+  data-input data-size="sm"
+  type="text"
+  placeholder="Small input"
+  aria-label="소형 입력"
+/&gt;
+&lt;input
+  data-input data-size="md"
+  type="text"
+  placeholder="Medium input"
+  aria-label="중형 입력"
+/&gt;
+&lt;input
+  data-input data-size="lg"
+  type="text"
+  placeholder="Large input"
+  aria-label="대형 입력"
+/&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-default-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* 베이스 input 스타일 */
+input[data-input] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  outline: none;
+  min-height: 44px;
+}
+
+/* 크기 변형 */
+input[data-input][data-size="sm"] { padding: 6px 10px;  min-height: 32px; }
+input[data-input][data-size="md"] { padding: 10px 14px; min-height: 44px; }
+input[data-input][data-size="lg"] { padding: 14px 18px; min-height: 52px; }
+
+/* 포커스 링 (WCAG 2.1) */
+input[data-input]:focus:not(:disabled) {
+  outline: 2px solid var(--color-primary);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}</pre>
+                    </div>
+                    <div
+                      id="cb-default-js"
+                      class="code-block__panel"
+                      data-code-block-panel="js"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">// 입력값 변경 감지 예시
+const input = document.querySelector('[data-input]');
+input.addEventListener('input', (e) =&gt; {
+  console.log('입력값:', e.target.value);
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: With Label & Helper
+                 <label for> — input id 연결: 클릭 영역 확대 + 스크린리더 연동
+                 aria-describedby — 헬퍼 텍스트를 추가 설명으로 연결
+                 ============================================ -->
+            <section class="demo-section" id="section-label" aria-labelledby="heading-label">
+              <h2 id="heading-label" class="demo-section-title">With Label &amp; Helper</h2>
+              <p class="demo-description">
+                <code>&lt;label for&gt;</code>로 레이블을 연결하고,
+                <code>aria-describedby</code>로 헬퍼 텍스트를 스크린리더에 전달합니다.
+              </p>
+
+              <!-- 데모 미리보기: 이메일 + 사용자명 라벨·헬퍼 패턴 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 20px; max-width: 400px;"
+                role="group"
+                aria-label="Label과 Helper Text 데모"
+              >
+                <!-- 이메일 입력: 라벨 + 헬퍼 텍스트 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-email">
+                    이메일 주소
+                  </label>
+                  <input
+                    data-input
+                    data-size="md"
+                    type="email"
+                    id="demo-email"
+                    name="email"
+                    placeholder="example@domain.com"
+                    aria-describedby="demo-email-helper"
+                    autocomplete="email"
+                  />
+                  <p class="input-helper" id="demo-email-helper">
+                    가입 시 사용한 이메일 주소를 입력하세요.
+                  </p>
+                </div>
+
+                <!-- 사용자명 입력: 라벨 + 필수(required) + 헬퍼 텍스트 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-username">
+                    사용자명
+                    <!-- aria-hidden: 스크린리더는 "필수" 대신 aria-required로 인식 -->
+                    <span class="input-required" aria-hidden="true">*</span>
+                  </label>
+                  <input
+                    data-input
+                    data-size="md"
+                    type="text"
+                    id="demo-username"
+                    name="username"
+                    placeholder="영문·숫자 조합 4~20자"
+                    aria-describedby="demo-username-helper"
+                    aria-required="true"
+                    autocomplete="username"
+                  />
+                  <p class="input-helper" id="demo-username-helper">
+                    영문, 숫자, 언더스코어(_)만 사용할 수 있습니다.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 라벨 + 헬퍼 텍스트 패턴 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="email"&gt;
+    이메일 주소
+  &lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    type="email" id="email"
+    placeholder="example@domain.com"
+    aria-describedby="email-helper"
+    autocomplete="email"
+  /&gt;
+  &lt;p class="input-helper" id="email-helper"&gt;
+    가입 시 사용한 이메일 주소를 입력하세요.
+  &lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- 필수 입력 (*) --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="username"&gt;
+    사용자명
+    &lt;span class="input-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    type="text" id="username"
+    aria-required="true"
+    aria-describedby="username-helper"
+  /&gt;
+  &lt;p class="input-helper" id="username-helper"&gt;
+    영문, 숫자, 언더스코어(_)만 사용할 수 있습니다.
+  &lt;/p&gt;
+&lt;/div&gt;'
+                data-css='/* 입력 필드 그룹 */
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 레이블 */
+.input-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+/* 필수 표시 */
+.input-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+}
+
+/* 헬퍼 텍스트 */
+.input-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}'
+                data-js='// 필수 입력 유효성 검사 예시
+const form = document.querySelector("form");
+form.addEventListener("submit", (e) => {
+  const input = form.querySelector("[aria-required=\"true\"]");
+  if (!input.value.trim()) {
+    e.preventDefault();
+    input.setAttribute("aria-invalid", "true");
+    input.setAttribute("data-error", "true");
+    input.focus();
+  }
+});'
+                aria-label="Label과 Helper Text 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 라벨 + 헬퍼 텍스트 패턴 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="email"&gt;
+    이메일 주소
+  &lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    type="email" id="email"
+    placeholder="example@domain.com"
+    aria-describedby="email-helper"
+    autocomplete="email"
+  /&gt;
+  &lt;p class="input-helper" id="email-helper"&gt;
+    가입 시 사용한 이메일 주소를 입력하세요.
+  &lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- 필수 입력 (*) --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="username"&gt;
+    사용자명
+    &lt;span class="input-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    type="text" id="username"
+    aria-required="true"
+    aria-describedby="username-helper"
+  /&gt;
+  &lt;p class="input-helper" id="username-helper"&gt;
+    영문, 숫자, 언더스코어(_)만 사용할 수 있습니다.
+  &lt;/p&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 입력 필드 그룹 */
+.input-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 레이블 */
+.input-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+/* 필수 표시 */
+.input-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+}
+
+/* 헬퍼 텍스트 */
+.input-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 필수 입력 유효성 검사 예시
+const form = document.querySelector('form');
+form.addEventListener('submit', (e) =&gt; {
+  const input = form.querySelector('[aria-required="true"]');
+  if (!input.value.trim()) {
+    e.preventDefault();
+    input.setAttribute('aria-invalid', 'true');
+    input.setAttribute('data-error', 'true');
+    input.focus();
+  }
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: Error State
+                 data-error="true": CSS 선택자로 빨간 테두리 적용
+                 aria-invalid="true": 스크린리더에 유효성 실패 전달
+                 aria-describedby → 에러 메시지 id 연결
+                 role="alert": 에러 메시지를 즉시 읽어줌
+                 ============================================ -->
+            <section class="demo-section" id="section-error" aria-labelledby="heading-error">
+              <h2 id="heading-error" class="demo-section-title">Error State</h2>
+              <p class="demo-description">
+                유효성 검사 실패 시 <code>data-error="true"</code>와
+                <code>aria-invalid="true"</code>, 에러 메시지를 함께 제공합니다.
+              </p>
+
+              <!-- 데모 미리보기: 이메일 에러 + 비밀번호 에러 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 20px; max-width: 400px;"
+                role="group"
+                aria-label="Error State 데모"
+              >
+                <!-- 이메일 에러 예시 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-error-email">
+                    이메일 주소
+                  </label>
+                  <input
+                    data-input
+                    data-size="md"
+                    data-error="true"
+                    type="email"
+                    id="demo-error-email"
+                    name="error-email"
+                    value="invalid-email"
+                    aria-invalid="true"
+                    aria-describedby="demo-error-email-msg"
+                  />
+                  <p class="input-error-msg" id="demo-error-email-msg" role="alert">
+                    <i data-lucide="alert-circle" aria-hidden="true"></i>
+                    올바른 이메일 형식으로 입력해 주세요.
+                  </p>
+                </div>
+
+                <!-- 비밀번호 에러 예시 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-error-pw">
+                    비밀번호
+                  </label>
+                  <input
+                    data-input
+                    data-size="md"
+                    data-error="true"
+                    type="password"
+                    id="demo-error-pw"
+                    name="error-password"
+                    value="abc"
+                    aria-invalid="true"
+                    aria-describedby="demo-error-pw-msg"
+                  />
+                  <p class="input-error-msg" id="demo-error-pw-msg" role="alert">
+                    <i data-lucide="alert-circle" aria-hidden="true"></i>
+                    비밀번호는 8자 이상이어야 합니다.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 에러 상태: data-error + aria-invalid + role="alert" --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="error-email"&gt;이메일 주소&lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    data-error="true"
+    type="email" id="error-email"
+    value="invalid-email"
+    aria-invalid="true"
+    aria-describedby="error-email-msg"
+  /&gt;
+  &lt;p class="input-error-msg" id="error-email-msg" role="alert"&gt;
+    &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+    올바른 이메일 형식으로 입력해 주세요.
+  &lt;/p&gt;
+&lt;/div&gt;'
+                data-css='/* 에러 상태: 빨간 테두리 + 연한 배경 */
+input[data-input][data-error="true"] {
+  border-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+input[data-input][data-error="true"]:focus:not(:disabled) {
+  outline: 2px solid var(--color-danger);
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* 에러 메시지 */
+.input-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin: 0;
+}'
+                data-js='// 실시간 유효성 검사 예시
+const emailInput = document.querySelector("#error-email");
+const errorMsg   = document.querySelector("#error-email-msg");
+
+emailInput.addEventListener("blur", () => {
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+  emailInput.setAttribute("aria-invalid", String(!valid));
+  emailInput.dataset.error = valid ? "false" : "true";
+  errorMsg.hidden = valid;
+});'
+                aria-label="Error State 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 에러 상태: data-error + aria-invalid + role="alert" --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="error-email"&gt;이메일 주소&lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    data-error="true"
+    type="email" id="error-email"
+    value="invalid-email"
+    aria-invalid="true"
+    aria-describedby="error-email-msg"
+  /&gt;
+  &lt;p class="input-error-msg" id="error-email-msg" role="alert"&gt;
+    &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+    올바른 이메일 형식으로 입력해 주세요.
+  &lt;/p&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 에러 상태: 빨간 테두리 + 연한 배경 */
+input[data-input][data-error="true"] {
+  border-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+input[data-input][data-error="true"]:focus:not(:disabled) {
+  outline: 2px solid var(--color-danger);
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* 에러 메시지 */
+.input-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin: 0;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 실시간 유효성 검사 예시
+const emailInput = document.querySelector('#error-email');
+const errorMsg   = document.querySelector('#error-email-msg');
+
+emailInput.addEventListener('blur', () =&gt; {
+  const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value);
+  emailInput.setAttribute('aria-invalid', String(!valid));
+  emailInput.dataset.error = valid ? 'false' : 'true';
+  errorMsg.hidden = valid;
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: Leading Icon
+                 .input-icon-wrap: 상대 위치 컨테이너
+                 .input-icon--leading: 절대 위치로 좌측 아이콘 배치
+                 data-icon="leading": input padding-left 확장
+                 ============================================ -->
+            <section class="demo-section" id="section-leading" aria-labelledby="heading-leading">
+              <h2 id="heading-leading" class="demo-section-title">Leading Icon</h2>
+              <p class="demo-description">
+                입력 필드 좌측에 아이콘을 배치합니다.
+                아이콘은 장식용(<code>aria-hidden="true"</code>)으로 처리합니다.
+              </p>
+
+              <!-- 데모 미리보기: 검색 / 이름 / 이메일 leading icon -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 16px; max-width: 400px;"
+                role="group"
+                aria-label="Leading Icon 데모"
+              >
+                <!-- 검색 입력 (돋보기 아이콘) -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-search">검색</label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon input-icon--leading" data-lucide="search" aria-hidden="true"></i>
+                    <input
+                      data-input
+                      data-size="md"
+                      data-icon="leading"
+                      type="search"
+                      id="demo-search"
+                      name="search"
+                      placeholder="검색어를 입력하세요"
+                    />
+                  </div>
+                </div>
+
+                <!-- 사용자 이름 입력 (사람 아이콘) -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-user-leading">이름</label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon input-icon--leading" data-lucide="user" aria-hidden="true"></i>
+                    <input
+                      data-input
+                      data-size="md"
+                      data-icon="leading"
+                      type="text"
+                      id="demo-user-leading"
+                      name="user-name"
+                      placeholder="이름을 입력하세요"
+                    />
+                  </div>
+                </div>
+
+                <!-- 이메일 입력 (메일 아이콘) -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-mail-leading">이메일</label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon input-icon--leading" data-lucide="mail" aria-hidden="true"></i>
+                    <input
+                      data-input
+                      data-size="md"
+                      data-icon="leading"
+                      type="email"
+                      id="demo-mail-leading"
+                      name="mail-leading"
+                      placeholder="example@domain.com"
+                      autocomplete="email"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 좌측 아이콘 (Leading Icon) --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="search"&gt;검색&lt;/label&gt;
+  &lt;div class="input-icon-wrap"&gt;
+    &lt;i class="input-icon input-icon--leading"
+       data-lucide="search" aria-hidden="true"&gt;&lt;/i&gt;
+    &lt;input
+      data-input data-size="md"
+      data-icon="leading"
+      type="search" id="search"
+      placeholder="검색어를 입력하세요"
+    /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* 아이콘 배치용 상대 위치 컨테이너 */
+.input-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 공통 아이콘 스타일 */
+.input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* 장식용: 이벤트 무시 */
+  color: var(--color-text-secondary);
+  width: 16px;
+  height: 16px;
+}
+
+/* 좌측 아이콘 */
+.input-icon--leading { left: 12px; }
+
+/* 좌측 아이콘 여백 확보 */
+input[data-input][data-icon="leading"] { padding-left: 38px; }'
+                data-js='// 검색 입력 예시
+const searchInput = document.querySelector("#search");
+searchInput.addEventListener("input", (e) => {
+  console.log("검색어:", e.target.value.trim());
+});'
+                aria-label="Leading Icon 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 좌측 아이콘 (Leading Icon) --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="search"&gt;검색&lt;/label&gt;
+  &lt;div class="input-icon-wrap"&gt;
+    &lt;i class="input-icon input-icon--leading"
+       data-lucide="search" aria-hidden="true"&gt;&lt;/i&gt;
+    &lt;input
+      data-input data-size="md"
+      data-icon="leading"
+      type="search" id="search"
+      placeholder="검색어를 입력하세요"
+    /&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 아이콘 배치용 상대 위치 컨테이너 */
+.input-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* 공통 아이콘 스타일 */
+.input-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-text-secondary);
+  width: 16px;
+  height: 16px;
+}
+
+/* 좌측 아이콘 */
+.input-icon--leading { left: 12px; }
+
+/* 좌측 아이콘 여백 확보 */
+input[data-input][data-icon="leading"] { padding-left: 38px; }</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 검색 입력 예시
+const searchInput = document.querySelector('#search');
+searchInput.addEventListener('input', (e) =&gt; {
+  console.log('검색어:', e.target.value.trim());
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 5: Trailing Icon
+                 .input-icon--trailing: 절대 위치로 우측 아이콘 배치
+                 data-icon="trailing": input padding-right 확장
+                 ============================================ -->
+            <section class="demo-section" id="section-trailing" aria-labelledby="heading-trailing">
+              <h2 id="heading-trailing" class="demo-section-title">Trailing Icon</h2>
+              <p class="demo-description">
+                입력 필드 우측에 아이콘을 배치합니다.
+                상태 표시나 부가 기능 힌트에 활용합니다.
+              </p>
+
+              <!-- 데모 미리보기: URL / 날짜 / 성공 상태 trailing icon -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 16px; max-width: 400px;"
+                role="group"
+                aria-label="Trailing Icon 데모"
+              >
+                <!-- URL 입력 (외부 링크 아이콘) -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-url-trailing">웹사이트 URL</label>
+                  <div class="input-icon-wrap">
+                    <input
+                      data-input
+                      data-size="md"
+                      data-icon="trailing"
+                      type="url"
+                      id="demo-url-trailing"
+                      name="website-url"
+                      placeholder="https://example.com"
+                      autocomplete="url"
+                    />
+                    <i class="input-icon input-icon--trailing" data-lucide="external-link" aria-hidden="true"></i>
+                  </div>
+                </div>
+
+                <!-- 날짜 입력 (캘린더 아이콘) -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-date-trailing">날짜</label>
+                  <div class="input-icon-wrap">
+                    <input
+                      data-input
+                      data-size="md"
+                      data-icon="trailing"
+                      type="text"
+                      id="demo-date-trailing"
+                      name="date-trailing"
+                      placeholder="YYYY-MM-DD"
+                    />
+                    <i class="input-icon input-icon--trailing" data-lucide="calendar" aria-hidden="true"></i>
+                  </div>
+                </div>
+
+                <!-- 검증 완료 (체크 아이콘) — 성공 상태 힌트 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-valid-trailing">닉네임</label>
+                  <div class="input-icon-wrap">
+                    <input
+                      data-input
+                      data-size="md"
+                      data-icon="trailing"
+                      type="text"
+                      id="demo-valid-trailing"
+                      name="nickname-trailing"
+                      value="awesome_user"
+                      aria-describedby="demo-valid-trailing-helper"
+                    />
+                    <i class="input-icon input-icon--trailing input-icon--success" data-lucide="check-circle" aria-hidden="true"></i>
+                  </div>
+                  <p class="input-helper input-helper--success" id="demo-valid-trailing-helper">
+                    사용 가능한 닉네임입니다.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 우측 아이콘 (Trailing Icon) --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="website"&gt;웹사이트 URL&lt;/label&gt;
+  &lt;div class="input-icon-wrap"&gt;
+    &lt;input
+      data-input data-size="md"
+      data-icon="trailing"
+      type="url" id="website"
+      placeholder="https://example.com"
+    /&gt;
+    &lt;i class="input-icon input-icon--trailing"
+       data-lucide="external-link" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 성공 상태 트레일링 아이콘 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="nickname"&gt;닉네임&lt;/label&gt;
+  &lt;div class="input-icon-wrap"&gt;
+    &lt;input
+      data-input data-size="md"
+      data-icon="trailing"
+      type="text" id="nickname"
+      value="awesome_user"
+      aria-describedby="nickname-helper"
+    /&gt;
+    &lt;i class="input-icon input-icon--trailing input-icon--success"
+       data-lucide="check-circle" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;/div&gt;
+  &lt;p class="input-helper input-helper--success" id="nickname-helper"&gt;
+    사용 가능한 닉네임입니다.
+  &lt;/p&gt;
+&lt;/div&gt;'
+                data-css='/* 우측 아이콘 */
+.input-icon--trailing { right: 12px; }
+
+/* 우측 아이콘 여백 확보 */
+input[data-input][data-icon="trailing"] { padding-right: 38px; }
+
+/* 성공 상태 아이콘·헬퍼 */
+.input-icon--success   { color: var(--color-success); }
+.input-helper--success { color: var(--color-success); }'
+                data-js='// 성공 상태 동적 적용 예시
+const input   = document.querySelector("#nickname");
+const checkEl = document.querySelector(".input-icon--success");
+
+input.addEventListener("blur", () => {
+  const valid = input.value.length >= 4;
+  checkEl.style.display = valid ? "block" : "none";
+});'
+                aria-label="Trailing Icon 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 우측 아이콘 (Trailing Icon) --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="website"&gt;웹사이트 URL&lt;/label&gt;
+  &lt;div class="input-icon-wrap"&gt;
+    &lt;input
+      data-input data-size="md"
+      data-icon="trailing"
+      type="url" id="website"
+      placeholder="https://example.com"
+    /&gt;
+    &lt;i class="input-icon input-icon--trailing"
+       data-lucide="external-link" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 성공 상태 트레일링 아이콘 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="nickname"&gt;닉네임&lt;/label&gt;
+  &lt;div class="input-icon-wrap"&gt;
+    &lt;input
+      data-input data-size="md"
+      data-icon="trailing"
+      type="text" id="nickname"
+      value="awesome_user"
+      aria-describedby="nickname-helper"
+    /&gt;
+    &lt;i class="input-icon input-icon--trailing input-icon--success"
+       data-lucide="check-circle" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;/div&gt;
+  &lt;p class="input-helper input-helper--success" id="nickname-helper"&gt;
+    사용 가능한 닉네임입니다.
+  &lt;/p&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 우측 아이콘 */
+.input-icon--trailing { right: 12px; }
+
+/* 우측 아이콘 여백 확보 */
+input[data-input][data-icon="trailing"] { padding-right: 38px; }
+
+/* 성공 상태 아이콘·헬퍼 */
+.input-icon--success   { color: var(--color-success); }
+.input-helper--success { color: var(--color-success); }</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 성공 상태 동적 적용 예시
+const input   = document.querySelector('#nickname');
+const checkEl = document.querySelector('.input-icon--success');
+
+input.addEventListener('blur', () =&gt; {
+  const valid = input.value.length &gt;= 4;
+  checkEl.style.display = valid ? 'block' : 'none';
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 6: Password Toggle
+                 토글 버튼: aria-pressed 상태 + aria-label 동적 변경
+                 입력 type 속성: "password" ↔ "text" 교체 (JS 필요)
+                 정적 표시: type="password" 고정, 토글 버튼은 시각적 표시만
+                 ============================================ -->
+            <section class="demo-section" id="section-password" aria-labelledby="heading-password">
+              <h2 id="heading-password" class="demo-section-title">Password Toggle</h2>
+              <p class="demo-description">
+                눈 아이콘 버튼으로 비밀번호 표시/숨김을 전환합니다.
+                <code>aria-pressed</code>로 현재 상태를 스크린리더에 전달합니다.
+                (전환 기능은 JS 로드 시 동작합니다.)
+              </p>
+
+              <!-- 데모 미리보기: 비밀번호 1 + 비밀번호 확인 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 20px; max-width: 400px;"
+                role="group"
+                aria-label="Password Toggle 데모"
+              >
+                <!-- 비밀번호 입력 1: 기본 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-password-1">비밀번호</label>
+                  <div class="input-icon-wrap">
+                    <input
+                      data-input
+                      data-size="md"
+                      data-icon="trailing"
+                      type="password"
+                      id="demo-password-1"
+                      name="password-1"
+                      placeholder="비밀번호를 입력하세요"
+                      autocomplete="current-password"
+                      aria-describedby="demo-password-1-helper"
+                    />
+                    <!-- 토글 버튼: data-pw-toggle 속성으로 common.js가 감지 -->
+                    <button
+                      class="input-pw-toggle"
+                      type="button"
+                      data-pw-toggle
+                      data-target="demo-password-1"
+                      aria-label="비밀번호 표시"
+                      aria-pressed="false"
+                    >
+                      <i data-lucide="eye" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                  <p class="input-helper" id="demo-password-1-helper">
+                    8자 이상, 대소문자·숫자·특수문자 조합을 권장합니다.
+                  </p>
+                </div>
+
+                <!-- 비밀번호 입력 2: 비밀번호 확인 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-password-2">비밀번호 확인</label>
+                  <div class="input-icon-wrap">
+                    <input
+                      data-input
+                      data-size="md"
+                      data-icon="trailing"
+                      type="password"
+                      id="demo-password-2"
+                      name="password-2"
+                      placeholder="비밀번호를 다시 입력하세요"
+                      autocomplete="new-password"
+                    />
+                    <button
+                      class="input-pw-toggle"
+                      type="button"
+                      data-pw-toggle
+                      data-target="demo-password-2"
+                      aria-label="비밀번호 표시"
+                      aria-pressed="false"
+                    >
+                      <i data-lucide="eye" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 비밀번호 표시/숨김 토글 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="password"&gt;비밀번호&lt;/label&gt;
+  &lt;div class="input-icon-wrap"&gt;
+    &lt;input
+      data-input data-size="md"
+      data-icon="trailing"
+      type="password" id="password"
+      placeholder="비밀번호를 입력하세요"
+      autocomplete="current-password"
+    /&gt;
+    &lt;!-- data-target: 연결할 input의 id --&gt;
+    &lt;button
+      class="input-pw-toggle"
+      type="button"
+      data-target="password"
+      aria-label="비밀번호 표시"
+      aria-pressed="false"
+    &gt;
+      &lt;i data-lucide="eye" aria-hidden="true"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* 비밀번호 토글 버튼 */
+.input-pw-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.input-pw-toggle:hover {
+  color: var(--color-text);
+  background-color: var(--color-bg-secondary);
+}
+
+.input-pw-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* 표시 중 상태: 아이콘 primary 색상으로 강조 */
+.input-pw-toggle[aria-pressed="true"] {
+  color: var(--color-primary);
+}'
+                data-js='// 비밀번호 표시/숨김 토글
+const toggleBtn = document.querySelector(".input-pw-toggle");
+const pwInput   = document.querySelector("#password");
+
+toggleBtn.addEventListener("click", () => {
+  const isVisible = pwInput.type === "text";
+
+  // type 전환
+  pwInput.type = isVisible ? "password" : "text";
+
+  // 접근성 상태 업데이트
+  toggleBtn.setAttribute("aria-pressed", String(!isVisible));
+  toggleBtn.setAttribute(
+    "aria-label",
+    isVisible ? "비밀번호 표시" : "비밀번호 숨김"
+  );
+
+  // 아이콘 교체 (eye ↔ eye-off)
+  const icon = toggleBtn.querySelector("i");
+  icon.setAttribute("data-lucide", isVisible ? "eye" : "eye-off");
+  if (window.lucide) lucide.createIcons();
+});'
+                aria-label="Password Toggle 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 비밀번호 표시/숨김 토글 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="password"&gt;비밀번호&lt;/label&gt;
+  &lt;div class="input-icon-wrap"&gt;
+    &lt;input
+      data-input data-size="md"
+      data-icon="trailing"
+      type="password" id="password"
+      placeholder="비밀번호를 입력하세요"
+      autocomplete="current-password"
+    /&gt;
+    &lt;!-- data-target: 연결할 input의 id --&gt;
+    &lt;button
+      class="input-pw-toggle"
+      type="button"
+      data-target="password"
+      aria-label="비밀번호 표시"
+      aria-pressed="false"
+    &gt;
+      &lt;i data-lucide="eye" aria-hidden="true"&gt;&lt;/i&gt;
+    &lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 비밀번호 토글 버튼 */
+.input-pw-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.input-pw-toggle:hover {
+  color: var(--color-text);
+  background-color: var(--color-bg-secondary);
+}
+
+.input-pw-toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* 표시 중 상태: primary 색상으로 강조 */
+.input-pw-toggle[aria-pressed="true"] {
+  color: var(--color-primary);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 비밀번호 표시/숨김 토글
+const toggleBtn = document.querySelector('.input-pw-toggle');
+const pwInput   = document.querySelector('#password');
+
+toggleBtn.addEventListener('click', () =&gt; {
+  const isVisible = pwInput.type === 'text';
+
+  // type 전환
+  pwInput.type = isVisible ? 'password' : 'text';
+
+  // 접근성 상태 업데이트
+  toggleBtn.setAttribute('aria-pressed', String(!isVisible));
+  toggleBtn.setAttribute(
+    'aria-label',
+    isVisible ? '비밀번호 표시' : '비밀번호 숨김'
+  );
+
+  // 아이콘 교체 (eye ↔ eye-off)
+  const icon = toggleBtn.querySelector('i');
+  icon.setAttribute('data-lucide', isVisible ? 'eye' : 'eye-off');
+  if (window.lucide) lucide.createIcons();
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 7: Disabled Input
+                 HTML disabled 속성: opacity 0.5 + cursor: not-allowed
+                 스크린리더: disabled 입력 자동으로 비활성 상태 안내
+                 ============================================ -->
+            <section class="demo-section" id="section-disabled" aria-labelledby="heading-disabled">
+              <h2 id="heading-disabled" class="demo-section-title">Disabled Input</h2>
+              <p class="demo-description">
+                <code>disabled</code> 속성 추가 시 반투명 처리되고 입력이 차단됩니다.
+                스크린리더가 비활성 상태를 자동으로 안내합니다.
+              </p>
+
+              <!-- 데모 미리보기: 단순 비활성 / 값 있는 비활성 / 아이콘 포함 비활성 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 20px; max-width: 400px;"
+                role="group"
+                aria-label="Disabled Input 데모"
+              >
+                <!-- 단순 비활성 입력 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-disabled-basic">
+                    기본 비활성
+                  </label>
+                  <input
+                    data-input
+                    data-size="md"
+                    type="text"
+                    id="demo-disabled-basic"
+                    name="disabled-basic"
+                    placeholder="입력할 수 없습니다"
+                    disabled
+                  />
+                </div>
+
+                <!-- 값이 있는 비활성 입력 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-disabled-value">
+                    값이 있는 비활성
+                  </label>
+                  <input
+                    data-input
+                    data-size="md"
+                    type="text"
+                    id="demo-disabled-value"
+                    name="disabled-value"
+                    value="읽기 전용 값"
+                    disabled
+                  />
+                  <p class="input-helper">이 필드는 수정할 수 없습니다.</p>
+                </div>
+
+                <!-- 아이콘이 있는 비활성 입력 -->
+                <div class="input-field">
+                  <label class="input-label" for="demo-disabled-icon">
+                    아이콘 포함 비활성
+                  </label>
+                  <div class="input-icon-wrap">
+                    <i class="input-icon input-icon--leading" data-lucide="lock" aria-hidden="true"></i>
+                    <input
+                      data-input
+                      data-size="md"
+                      data-icon="leading"
+                      type="text"
+                      id="demo-disabled-icon"
+                      name="disabled-icon"
+                      value="잠긴 필드"
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 비활성 입력 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="disabled-basic"&gt;비활성 입력&lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    type="text" id="disabled-basic"
+    placeholder="입력할 수 없습니다"
+    disabled
+  /&gt;
+&lt;/div&gt;
+
+&lt;!-- 값이 있는 비활성 입력 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="disabled-value"&gt;읽기 전용 값&lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    type="text" id="disabled-value"
+    value="변경 불가 값"
+    disabled
+  /&gt;
+&lt;/div&gt;'
+                data-css='/* 비활성 상태 */
+input[data-input]:disabled,
+input[data-input][disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: var(--color-bg-secondary);
+}'
+                data-js='// 조건부 비활성화 예시
+const input  = document.querySelector("#disabled-basic");
+const toggle = document.querySelector("#toggle-btn");
+
+toggle.addEventListener("click", () => {
+  input.disabled = !input.disabled;
+  toggle.textContent = input.disabled ? "활성화" : "비활성화";
+});'
+                aria-label="Disabled Input 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 비활성 입력 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="disabled-basic"&gt;비활성 입력&lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    type="text" id="disabled-basic"
+    placeholder="입력할 수 없습니다"
+    disabled
+  /&gt;
+&lt;/div&gt;
+
+&lt;!-- 값이 있는 비활성 입력 --&gt;
+&lt;div class="input-field"&gt;
+  &lt;label class="input-label" for="disabled-value"&gt;읽기 전용 값&lt;/label&gt;
+  &lt;input
+    data-input data-size="md"
+    type="text" id="disabled-value"
+    value="변경 불가 값"
+    disabled
+  /&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 비활성 상태 */
+input[data-input]:disabled,
+input[data-input][disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: var(--color-bg-secondary);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 조건부 비활성화 예시
+const input  = document.querySelector('#disabled-basic');
+const toggle = document.querySelector('#toggle-btn');
+
+toggle.addEventListener('click', () =&gt; {
+  input.disabled = !input.disabled;
+  toggle.textContent = input.disabled ? '활성화' : '비활성화';
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Button 컴포넌트 -->
+                <a href="./button.html" class="detail-footer-link" aria-label="Button 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Button</span>
+                </a>
+                <!-- 다음: Checkbox 컴포넌트 -->
+                <a href="./checkbox.html" class="detail-footer-link" aria-label="Checkbox 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Checkbox</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS/JS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>

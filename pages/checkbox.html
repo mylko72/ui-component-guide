@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Checkbox 컴포넌트: 기본 크기 변형, 라벨·헬퍼 텍스트, 에러 상태, 비활성화, Indeterminate 5가지 패턴. WCAG 2.2 접근성 준수">
+  <title>Checkbox — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → checkbox (컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/checkbox.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       input.html 헤더와 동일한 구조 유지
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: checkbox.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: checkbox.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Checkbox 컴포넌트 데모 5개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Checkbox</h1>
+              <p class="detail-description">
+                사용자가 항목을 선택하거나 해제하는 체크박스 컴포넌트입니다.
+                <code>data-checkbox</code> 속성을 숨겨진 <code>input[type="checkbox"]</code>에 지정하고,
+                인접한 <code>label[data-checkbox-label]</code>의 <code>::before</code>/<code>::after</code>
+                가상 요소로 커스텀 박스와 체크마크를 렌더링합니다.
+                <code>data-size</code>로 sm / md / lg 크기를 지정하며,
+                에러 상태, 비활성화, Indeterminate(불확정) 상태를 지원합니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: Default Checkbox
+                 data-checkbox 속성으로 네이티브 input 숨김
+                 data-size="sm|md|lg"로 크기 변형
+                 label[data-checkbox-label]이 시각적 체크박스 역할
+                 ============================================ -->
+            <section class="demo-section" id="section-default" aria-labelledby="heading-default">
+              <h2 id="heading-default" class="demo-section-title">Default Checkbox</h2>
+              <p class="demo-description">
+                기본 체크박스입니다.
+                <code>data-size</code> 속성으로 sm(32px) / md(44px) / lg(52px) 크기를 지정합니다.
+                언체크·체크 두 가지 상태를 모두 확인할 수 있습니다.
+              </p>
+
+              <!-- 데모 미리보기: sm / md / lg 미체크 + 체크 비교 -->
+              <div class="demo-preview" role="group" aria-label="Default Checkbox 크기 데모">
+
+                <!-- 소형(sm): 미체크 -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-sm-unchecked"
+                    name="demo-sm-unchecked"
+                  />
+                  <label data-checkbox-label data-size="sm" for="demo-sm-unchecked">
+                    Small
+                  </label>
+                </div>
+
+                <!-- 소형(sm): 체크 -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-sm-checked"
+                    name="demo-sm-checked"
+                    checked
+                  />
+                  <label data-checkbox-label data-size="sm" for="demo-sm-checked">
+                    Small (checked)
+                  </label>
+                </div>
+
+                <!-- 중형(md): 미체크 -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-md-unchecked"
+                    name="demo-md-unchecked"
+                  />
+                  <label data-checkbox-label for="demo-md-unchecked">
+                    Medium
+                  </label>
+                </div>
+
+                <!-- 중형(md): 체크 -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-md-checked"
+                    name="demo-md-checked"
+                    checked
+                  />
+                  <label data-checkbox-label for="demo-md-checked">
+                    Medium (checked)
+                  </label>
+                </div>
+
+                <!-- 대형(lg): 미체크 -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-lg-unchecked"
+                    name="demo-lg-unchecked"
+                  />
+                  <label data-checkbox-label data-size="lg" for="demo-lg-unchecked">
+                    Large
+                  </label>
+                </div>
+
+                <!-- 대형(lg): 체크 -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-lg-checked"
+                    name="demo-lg-checked"
+                    checked
+                  />
+                  <label data-checkbox-label data-size="lg" for="demo-lg-checked">
+                    Large (checked)
+                  </label>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: code-block.js가 [data-code-block] 속성을 감지하여 자동 초기화 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 기본 체크박스 (크기: sm / md / lg) --&gt;
+&lt;!-- input[data-checkbox] + label[data-checkbox-label] 인접 쌍 --&gt;
+
+&lt;!-- sm: 소형 (min-height 32px) --&gt;
+&lt;input type="checkbox" data-checkbox id="cb-sm" name="cb-sm" /&gt;
+&lt;label data-checkbox-label data-size="sm" for="cb-sm"&gt;Small&lt;/label&gt;
+
+&lt;!-- md: 기본(default) 크기 (min-height 44px) --&gt;
+&lt;input type="checkbox" data-checkbox id="cb-md" name="cb-md" /&gt;
+&lt;label data-checkbox-label for="cb-md"&gt;Medium&lt;/label&gt;
+
+&lt;!-- lg: 대형 (min-height 52px) --&gt;
+&lt;input type="checkbox" data-checkbox id="cb-lg" name="cb-lg" /&gt;
+&lt;label data-checkbox-label data-size="lg" for="cb-lg"&gt;Large&lt;/label&gt;
+
+&lt;!-- checked 상태: checked 속성 추가 --&gt;
+&lt;input type="checkbox" data-checkbox id="cb-md-c" name="cb-md-c" checked /&gt;
+&lt;label data-checkbox-label for="cb-md-c"&gt;Medium (checked)&lt;/label&gt;'
+                data-css='/* 네이티브 체크박스 시각적 숨김 (접근성 트리 유지) */
+input[type="checkbox"][data-checkbox] {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
+
+/* 커스텀 체크박스 레이블: 수평 배치 + 터치 타겟 */
+label[data-checkbox-label] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-height: 44px;  /* WCAG 2.5.5: 최소 44px */
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+/* ::before: 체크박스 박스(외형) — 18×18px */
+label[data-checkbox-label]::before {
+  content: "";
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-hover);
+  border-radius: 3px;
+  background-color: var(--color-bg);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+/* ::after: 체크마크(✓) — 기본값 숨김 */
+label[data-checkbox-label]::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%;
+  width: 5px; height: 9px;
+  border: 2px solid transparent;
+  border-right-color: #ffffff;
+  border-bottom-color: #ffffff;
+  border-top: none; border-left: none;
+  transform: translateX(6px) translateY(calc(-50% - 1px)) rotate(45deg);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+/* 체크 상태: primary 배경 + 체크마크 표시 */
+input[type="checkbox"][data-checkbox]:checked + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+input[type="checkbox"][data-checkbox]:checked + label[data-checkbox-label]::after {
+  opacity: 1;
+}
+
+/* 크기 변형 */
+label[data-checkbox-label][data-size="sm"] { font-size: var(--font-size-sm); min-height: 32px; gap: 6px; }
+label[data-checkbox-label][data-size="sm"]::before { width: 14px; height: 14px; }
+label[data-checkbox-label][data-size="lg"] { font-size: var(--font-size-lg); min-height: 52px; gap: 10px; }
+label[data-checkbox-label][data-size="lg"]::before { width: 22px; height: 22px; border-radius: 4px; }'
+                data-js='// 체크 상태 변경 감지 예시
+const checkbox = document.querySelector("[data-checkbox]");
+checkbox.addEventListener("change", (e) => {
+  console.log("체크 상태:", e.target.checked);
+});'
+                aria-label="Default Checkbox 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-default-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-default-css"
+                    >CSS</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="js"
+                      aria-selected="false"
+                      aria-controls="cb-default-js"
+                    >JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-default-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- 기본 체크박스 (크기: sm / md / lg) --&gt;
+&lt;!-- input[data-checkbox] + label[data-checkbox-label] 인접 쌍 --&gt;
+
+&lt;!-- sm: 소형 (min-height 32px) --&gt;
+&lt;input type="checkbox" data-checkbox id="cb-sm" name="cb-sm" /&gt;
+&lt;label data-checkbox-label data-size="sm" for="cb-sm"&gt;Small&lt;/label&gt;
+
+&lt;!-- md: 기본(default) 크기 (min-height 44px) --&gt;
+&lt;input type="checkbox" data-checkbox id="cb-md" name="cb-md" /&gt;
+&lt;label data-checkbox-label for="cb-md"&gt;Medium&lt;/label&gt;
+
+&lt;!-- lg: 대형 (min-height 52px) --&gt;
+&lt;input type="checkbox" data-checkbox id="cb-lg" name="cb-lg" /&gt;
+&lt;label data-checkbox-label data-size="lg" for="cb-lg"&gt;Large&lt;/label&gt;
+
+&lt;!-- checked 상태: checked 속성 추가 --&gt;
+&lt;input type="checkbox" data-checkbox id="cb-md-c" name="cb-md-c" checked /&gt;
+&lt;label data-checkbox-label for="cb-md-c"&gt;Medium (checked)&lt;/label&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-default-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* 네이티브 체크박스 시각적 숨김 (접근성 트리 유지) */
+input[type="checkbox"][data-checkbox] {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
+
+/* 커스텀 체크박스 레이블: 수평 배치 + 터치 타겟 */
+label[data-checkbox-label] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-height: 44px; /* WCAG 2.5.5 */
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+/* ::before: 체크박스 박스(외형) */
+label[data-checkbox-label]::before {
+  content: "";
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--color-border-hover);
+  border-radius: 3px;
+  background-color: var(--color-bg);
+}
+
+/* 체크 상태 */
+input[type="checkbox"][data-checkbox]:checked + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+input[type="checkbox"][data-checkbox]:checked + label[data-checkbox-label]::after {
+  opacity: 1;
+}
+
+/* 크기 변형 */
+label[data-checkbox-label][data-size="sm"] { font-size: var(--font-size-sm); min-height: 32px; }
+label[data-checkbox-label][data-size="sm"]::before { width: 14px; height: 14px; }
+label[data-checkbox-label][data-size="lg"] { font-size: var(--font-size-lg); min-height: 52px; }
+label[data-checkbox-label][data-size="lg"]::before { width: 22px; height: 22px; border-radius: 4px; }</pre>
+                    </div>
+                    <div
+                      id="cb-default-js"
+                      class="code-block__panel"
+                      data-code-block-panel="js"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">// 체크 상태 변경 감지 예시
+const checkbox = document.querySelector('[data-checkbox]');
+checkbox.addEventListener('change', (e) =&gt; {
+  console.log('체크 상태:', e.target.checked);
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: With Label & Helper
+                 aria-describedby로 헬퍼 텍스트를 스크린리더에 전달
+                 fieldset + legend: 관련 체크박스 그룹 묶음
+                 필수 항목: aria-required="true" + .checkbox-required 표시
+                 ============================================ -->
+            <section class="demo-section" id="section-label" aria-labelledby="heading-label">
+              <h2 id="heading-label" class="demo-section-title">With Label &amp; Helper</h2>
+              <p class="demo-description">
+                <code>aria-describedby</code>로 헬퍼 텍스트를 스크린리더에 전달합니다.
+                관련 항목을 그룹화할 때는 <code>fieldset</code> + <code>legend</code>를 사용합니다.
+              </p>
+
+              <!-- 데모 미리보기: 단일 헬퍼 + 그룹 체크박스 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 24px;"
+                role="group"
+                aria-label="Label과 Helper Text 데모"
+              >
+
+                <!-- 단일 체크박스: 헬퍼 텍스트 패턴 -->
+                <div>
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-terms"
+                    name="demo-terms"
+                    aria-describedby="demo-terms-helper"
+                  />
+                  <label data-checkbox-label for="demo-terms">
+                    이용약관에 동의합니다
+                    <!-- aria-hidden: 스크린리더는 aria-required로 인식 -->
+                    <span class="checkbox-required" aria-hidden="true">*</span>
+                  </label>
+                  <p class="checkbox-helper" id="demo-terms-helper">
+                    서비스 이용을 위해 약관 동의가 필요합니다.
+                  </p>
+                </div>
+
+                <!-- 그룹 체크박스: fieldset + legend 구조 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="checkbox-group-label">
+                    관심 분야
+                    <span class="checkbox-required" aria-hidden="true">*</span>
+                  </legend>
+                  <div class="checkbox-group" style="margin-top: 8px;" aria-describedby="demo-interest-helper">
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        id="demo-interest-dev"
+                        name="demo-interest"
+                        value="dev"
+                      />
+                      <label data-checkbox-label for="demo-interest-dev">
+                        개발
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        id="demo-interest-design"
+                        name="demo-interest"
+                        value="design"
+                        checked
+                      />
+                      <label data-checkbox-label for="demo-interest-design">
+                        디자인
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        id="demo-interest-pm"
+                        name="demo-interest"
+                        value="pm"
+                      />
+                      <label data-checkbox-label for="demo-interest-pm">
+                        기획
+                      </label>
+                    </div>
+                  </div>
+                  <p class="checkbox-helper" id="demo-interest-helper">
+                    하나 이상 선택해 주세요.
+                  </p>
+                </fieldset>
+
+                <!-- 수평 그룹: .checkbox-group--inline -->
+                <div>
+                  <p class="checkbox-group-label">알림 설정</p>
+                  <div class="checkbox-group checkbox-group--inline" style="margin-top: 8px;">
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        id="demo-notify-email"
+                        name="demo-notify"
+                        value="email"
+                        checked
+                      />
+                      <label data-checkbox-label for="demo-notify-email">이메일</label>
+                    </div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        id="demo-notify-sms"
+                        name="demo-notify"
+                        value="sms"
+                      />
+                      <label data-checkbox-label for="demo-notify-sms">SMS</label>
+                    </div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        id="demo-notify-push"
+                        name="demo-notify"
+                        value="push"
+                        checked
+                      />
+                      <label data-checkbox-label for="demo-notify-push">푸시</label>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 단일 체크박스: 헬퍼 텍스트 + aria-describedby --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  id="terms" name="terms"
+  aria-describedby="terms-helper"
+/&gt;
+&lt;label data-checkbox-label for="terms"&gt;
+  이용약관에 동의합니다
+  &lt;span class="checkbox-required" aria-hidden="true"&gt;*&lt;/span&gt;
+&lt;/label&gt;
+&lt;p class="checkbox-helper" id="terms-helper"&gt;
+  서비스 이용을 위해 약관 동의가 필요합니다.
+&lt;/p&gt;
+
+&lt;!-- 그룹 체크박스: fieldset + legend (접근성 필수) --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="checkbox-group-label"&gt;관심 분야&lt;/legend&gt;
+  &lt;div class="checkbox-group" aria-describedby="interest-helper"&gt;
+    &lt;div&gt;
+      &lt;input type="checkbox" data-checkbox id="dev" name="interest" value="dev" /&gt;
+      &lt;label data-checkbox-label for="dev"&gt;개발&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="checkbox" data-checkbox id="design" name="interest" value="design" checked /&gt;
+      &lt;label data-checkbox-label for="design"&gt;디자인&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p class="checkbox-helper" id="interest-helper"&gt;하나 이상 선택해 주세요.&lt;/p&gt;
+&lt;/fieldset&gt;
+
+&lt;!-- 수평 그룹: .checkbox-group--inline --&gt;
+&lt;div class="checkbox-group checkbox-group--inline"&gt;
+  &lt;div&gt;
+    &lt;input type="checkbox" data-checkbox id="email" name="notify" checked /&gt;
+    &lt;label data-checkbox-label for="email"&gt;이메일&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="checkbox" data-checkbox id="sms" name="notify" /&gt;
+    &lt;label data-checkbox-label for="sms"&gt;SMS&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* 수직 체크박스 그룹 */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 수평 체크박스 그룹 */
+.checkbox-group--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* 그룹 레이블 */
+.checkbox-group-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* 필수 표시 */
+.checkbox-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+}
+
+/* 헬퍼 텍스트 */
+.checkbox-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}'
+                data-js='// 그룹 체크박스 선택 값 수집 예시
+const interestBoxes = document.querySelectorAll("[name=\"interest\"]");
+interestBoxes.forEach((cb) =&gt; {
+  cb.addEventListener("change", () =&gt; {
+    const selected = [...interestBoxes]
+      .filter((c) =&gt; c.checked)
+      .map((c) =&gt; c.value);
+    console.log("선택된 관심 분야:", selected);
+  });
+});'
+                aria-label="Label과 Helper Text 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 단일 체크박스: 헬퍼 텍스트 + aria-describedby --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  id="terms" name="terms"
+  aria-describedby="terms-helper"
+/&gt;
+&lt;label data-checkbox-label for="terms"&gt;
+  이용약관에 동의합니다
+  &lt;span class="checkbox-required" aria-hidden="true"&gt;*&lt;/span&gt;
+&lt;/label&gt;
+&lt;p class="checkbox-helper" id="terms-helper"&gt;
+  서비스 이용을 위해 약관 동의가 필요합니다.
+&lt;/p&gt;
+
+&lt;!-- 그룹 체크박스: fieldset + legend (접근성 필수) --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="checkbox-group-label"&gt;관심 분야&lt;/legend&gt;
+  &lt;div class="checkbox-group" aria-describedby="interest-helper"&gt;
+    &lt;div&gt;
+      &lt;input type="checkbox" data-checkbox id="dev" name="interest" value="dev" /&gt;
+      &lt;label data-checkbox-label for="dev"&gt;개발&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="checkbox" data-checkbox id="design" name="interest" value="design" checked /&gt;
+      &lt;label data-checkbox-label for="design"&gt;디자인&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p class="checkbox-helper" id="interest-helper"&gt;하나 이상 선택해 주세요.&lt;/p&gt;
+&lt;/fieldset&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 수직 체크박스 그룹 */
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 수평 체크박스 그룹 */
+.checkbox-group--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* 그룹 레이블 */
+.checkbox-group-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* 헬퍼 텍스트 */
+.checkbox-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 그룹 체크박스 선택 값 수집 예시
+const interestBoxes = document.querySelectorAll('[name="interest"]');
+interestBoxes.forEach((cb) =&gt; {
+  cb.addEventListener('change', () =&gt; {
+    const selected = [...interestBoxes]
+      .filter((c) =&gt; c.checked)
+      .map((c) =&gt; c.value);
+    console.log('선택된 관심 분야:', selected);
+  });
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: Error State
+                 data-error="true": CSS 선택자로 빨간 테두리·배경 적용
+                 aria-invalid="true": 스크린리더에 유효성 실패 전달
+                 aria-describedby → 에러 메시지 id 연결
+                 role="alert": 에러 메시지를 즉시 읽어줌
+                 ============================================ -->
+            <section class="demo-section" id="section-error" aria-labelledby="heading-error">
+              <h2 id="heading-error" class="demo-section-title">Error State</h2>
+              <p class="demo-description">
+                필수 항목 미선택 등 유효성 검사 실패 시
+                <code>data-error="true"</code>와 <code>aria-invalid="true"</code>,
+                에러 메시지를 함께 제공합니다.
+              </p>
+
+              <!-- 데모 미리보기: 단일 에러 + 그룹 에러 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 24px;"
+                role="group"
+                aria-label="Error State 데모"
+              >
+
+                <!-- 단일 체크박스 에러 -->
+                <div>
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    data-error="true"
+                    id="demo-error-terms"
+                    name="demo-error-terms"
+                    aria-invalid="true"
+                    aria-describedby="demo-error-terms-msg"
+                  />
+                  <label data-checkbox-label for="demo-error-terms">
+                    이용약관에 동의합니다
+                    <span class="checkbox-required" aria-hidden="true">*</span>
+                  </label>
+                  <!-- role="alert": 에러 메시지를 스크린리더가 즉시 읽음 -->
+                  <p class="checkbox-error-msg" id="demo-error-terms-msg" role="alert">
+                    <i data-lucide="alert-circle" aria-hidden="true"></i>
+                    필수 약관에 동의해 주세요.
+                  </p>
+                </div>
+
+                <!-- 그룹 체크박스 에러 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="checkbox-group-label">
+                    알림 수신 방법
+                    <span class="checkbox-required" aria-hidden="true">*</span>
+                  </legend>
+                  <div
+                    class="checkbox-group"
+                    style="margin-top: 8px;"
+                    aria-describedby="demo-error-notify-msg"
+                    aria-invalid="true"
+                  >
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        data-error="true"
+                        id="demo-error-notify-email"
+                        name="demo-error-notify"
+                        value="email"
+                        aria-invalid="true"
+                      />
+                      <label data-checkbox-label for="demo-error-notify-email">이메일</label>
+                    </div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        data-error="true"
+                        id="demo-error-notify-sms"
+                        name="demo-error-notify"
+                        value="sms"
+                        aria-invalid="true"
+                      />
+                      <label data-checkbox-label for="demo-error-notify-sms">SMS</label>
+                    </div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        data-error="true"
+                        id="demo-error-notify-push"
+                        name="demo-error-notify"
+                        value="push"
+                        aria-invalid="true"
+                      />
+                      <label data-checkbox-label for="demo-error-notify-push">푸시</label>
+                    </div>
+                  </div>
+                  <p class="checkbox-error-msg" id="demo-error-notify-msg" role="alert">
+                    <i data-lucide="alert-circle" aria-hidden="true"></i>
+                    알림 수신 방법을 하나 이상 선택해 주세요.
+                  </p>
+                </fieldset>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 에러 상태: data-error + aria-invalid + role="alert" --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  data-error="true"
+  id="error-terms" name="terms"
+  aria-invalid="true"
+  aria-describedby="error-terms-msg"
+/&gt;
+&lt;label data-checkbox-label for="error-terms"&gt;
+  이용약관에 동의합니다
+  &lt;span class="checkbox-required" aria-hidden="true"&gt;*&lt;/span&gt;
+&lt;/label&gt;
+&lt;p class="checkbox-error-msg" id="error-terms-msg" role="alert"&gt;
+  &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+  필수 약관에 동의해 주세요.
+&lt;/p&gt;
+
+&lt;!-- 그룹 에러: fieldset 내 모든 체크박스에 data-error 적용 --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="checkbox-group-label"&gt;알림 수신 방법 *&lt;/legend&gt;
+  &lt;div class="checkbox-group" aria-describedby="error-notify-msg" aria-invalid="true"&gt;
+    &lt;div&gt;
+      &lt;input type="checkbox" data-checkbox data-error="true"
+        id="err-email" name="notify" aria-invalid="true" /&gt;
+      &lt;label data-checkbox-label for="err-email"&gt;이메일&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;!-- 나머지 체크박스도 동일하게 data-error="true" + aria-invalid="true" --&gt;
+  &lt;/div&gt;
+  &lt;p class="checkbox-error-msg" id="error-notify-msg" role="alert"&gt;
+    &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+    하나 이상 선택해 주세요.
+  &lt;/p&gt;
+&lt;/fieldset&gt;'
+                data-css='/* 에러 상태: ::before 박스에 빨간 테두리 적용 */
+input[type="checkbox"][data-checkbox][data-error="true"] + label[data-checkbox-label]::before {
+  border-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+/* 에러 + 체크 상태: 빨간 배경 */
+input[type="checkbox"][data-checkbox][data-error="true"]:checked + label[data-checkbox-label]::before {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+/* 에러 메시지 */
+.checkbox-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.checkbox-error-msg svg {
+  width: 14px; height: 14px;
+  flex-shrink: 0;
+}'
+                data-js='// 폼 제출 시 필수 체크박스 유효성 검사
+const form = document.querySelector("form");
+form.addEventListener("submit", (e) => {
+  const termsBox = document.querySelector("#error-terms");
+  const errorMsg = document.querySelector("#error-terms-msg");
+
+  if (!termsBox.checked) {
+    e.preventDefault();
+    termsBox.dataset.error = "true";
+    termsBox.setAttribute("aria-invalid", "true");
+    errorMsg.hidden = false;
+    termsBox.focus();
+  } else {
+    delete termsBox.dataset.error;
+    termsBox.setAttribute("aria-invalid", "false");
+    errorMsg.hidden = true;
+  }
+});'
+                aria-label="Error State 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 에러 상태: data-error + aria-invalid + role="alert" --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  data-error="true"
+  id="error-terms" name="terms"
+  aria-invalid="true"
+  aria-describedby="error-terms-msg"
+/&gt;
+&lt;label data-checkbox-label for="error-terms"&gt;
+  이용약관에 동의합니다
+  &lt;span class="checkbox-required" aria-hidden="true"&gt;*&lt;/span&gt;
+&lt;/label&gt;
+&lt;p class="checkbox-error-msg" id="error-terms-msg" role="alert"&gt;
+  &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+  필수 약관에 동의해 주세요.
+&lt;/p&gt;
+
+&lt;!-- 그룹 에러: fieldset 내 모든 체크박스에 data-error 적용 --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="checkbox-group-label"&gt;알림 수신 방법 *&lt;/legend&gt;
+  &lt;div class="checkbox-group" aria-describedby="error-notify-msg" aria-invalid="true"&gt;
+    &lt;div&gt;
+      &lt;input type="checkbox" data-checkbox data-error="true"
+        id="err-email" name="notify" aria-invalid="true" /&gt;
+      &lt;label data-checkbox-label for="err-email"&gt;이메일&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p class="checkbox-error-msg" id="error-notify-msg" role="alert"&gt;
+    &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+    하나 이상 선택해 주세요.
+  &lt;/p&gt;
+&lt;/fieldset&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 에러 상태: ::before 박스에 빨간 테두리 적용 */
+input[type="checkbox"][data-checkbox][data-error="true"]
+  + label[data-checkbox-label]::before {
+  border-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+/* 에러 + 체크 상태: 빨간 배경 */
+input[type="checkbox"][data-checkbox][data-error="true"]:checked
+  + label[data-checkbox-label]::before {
+  background-color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+/* 에러 메시지 */
+.checkbox-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 폼 제출 시 필수 체크박스 유효성 검사
+const form = document.querySelector('form');
+form.addEventListener('submit', (e) =&gt; {
+  const termsBox = document.querySelector('#error-terms');
+  const errorMsg = document.querySelector('#error-terms-msg');
+
+  if (!termsBox.checked) {
+    e.preventDefault();
+    termsBox.dataset.error = 'true';
+    termsBox.setAttribute('aria-invalid', 'true');
+    errorMsg.hidden = false;
+    termsBox.focus();
+  } else {
+    delete termsBox.dataset.error;
+    termsBox.setAttribute('aria-invalid', 'false');
+    errorMsg.hidden = true;
+  }
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: Disabled Checkbox
+                 HTML disabled 속성: opacity 0.5 + cursor not-allowed
+                 비활성 + 미체크 / 비활성 + 체크 두 가지 변형
+                 스크린리더: disabled 상태 자동 안내
+                 ============================================ -->
+            <section class="demo-section" id="section-disabled" aria-labelledby="heading-disabled">
+              <h2 id="heading-disabled" class="demo-section-title">Disabled Checkbox</h2>
+              <p class="demo-description">
+                <code>disabled</code> 속성 추가 시 반투명 처리되고 클릭이 차단됩니다.
+                스크린리더가 비활성 상태를 자동으로 안내합니다.
+                비활성 + 체크 상태는 현재 선택된 읽기 전용 값을 표시할 때 사용합니다.
+              </p>
+
+              <!-- 데모 미리보기: 비활성 3가지 변형 -->
+              <div class="demo-preview" role="group" aria-label="Disabled Checkbox 데모">
+
+                <!-- 비활성 + 미체크 (sm) -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-disabled-sm"
+                    name="demo-disabled-sm"
+                    data-size="sm"
+                    disabled
+                  />
+                  <label data-checkbox-label data-size="sm" for="demo-disabled-sm">
+                    Disabled (small)
+                  </label>
+                </div>
+
+                <!-- 비활성 + 미체크 (md) -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-disabled-md"
+                    name="demo-disabled-md"
+                    disabled
+                  />
+                  <label data-checkbox-label for="demo-disabled-md">
+                    Disabled (medium)
+                  </label>
+                </div>
+
+                <!-- 비활성 + 체크 (md): 읽기 전용 선택 상태 -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-disabled-checked"
+                    name="demo-disabled-checked"
+                    disabled
+                    checked
+                  />
+                  <label data-checkbox-label for="demo-disabled-checked">
+                    Disabled (checked)
+                  </label>
+                </div>
+
+                <!-- 비활성 + 미체크 (lg) -->
+                <div class="checkbox-group">
+                  <input
+                    type="checkbox"
+                    data-checkbox
+                    id="demo-disabled-lg"
+                    name="demo-disabled-lg"
+                    disabled
+                  />
+                  <label data-checkbox-label data-size="lg" for="demo-disabled-lg">
+                    Disabled (large)
+                  </label>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 비활성 + 미체크 --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  id="disabled-unchecked"
+  name="disabled-unchecked"
+  disabled
+/&gt;
+&lt;label data-checkbox-label for="disabled-unchecked"&gt;
+  Disabled
+&lt;/label&gt;
+
+&lt;!-- 비활성 + 체크: 읽기 전용 선택 상태 --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  id="disabled-checked"
+  name="disabled-checked"
+  disabled
+  checked
+/&gt;
+&lt;label data-checkbox-label for="disabled-checked"&gt;
+  Disabled (checked)
+&lt;/label&gt;'
+                data-css='/* 비활성 상태: 반투명 + 커서 변경 + 클릭 차단 */
+input[type="checkbox"][data-checkbox]:disabled + label[data-checkbox-label] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 비활성 + 체크 상태: primary 배경 유지 (상태 인지 보장) */
+input[type="checkbox"][data-checkbox]:disabled:checked + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}'
+                data-js='// 조건부 비활성화 예시
+const checkboxEl = document.querySelector("#disabled-unchecked");
+const toggleBtn  = document.querySelector("#enable-btn");
+
+toggleBtn.addEventListener("click", () => {
+  checkboxEl.disabled = !checkboxEl.disabled;
+  toggleBtn.textContent = checkboxEl.disabled ? "활성화" : "비활성화";
+});'
+                aria-label="Disabled Checkbox 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 비활성 + 미체크 --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  id="disabled-unchecked"
+  name="disabled-unchecked"
+  disabled
+/&gt;
+&lt;label data-checkbox-label for="disabled-unchecked"&gt;
+  Disabled
+&lt;/label&gt;
+
+&lt;!-- 비활성 + 체크: 읽기 전용 선택 상태 --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  id="disabled-checked"
+  name="disabled-checked"
+  disabled
+  checked
+/&gt;
+&lt;label data-checkbox-label for="disabled-checked"&gt;
+  Disabled (checked)
+&lt;/label&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 비활성 상태: 반투명 + 커서 변경 + 클릭 차단 */
+input[type="checkbox"][data-checkbox]:disabled + label[data-checkbox-label] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 비활성 + 체크 상태: primary 배경 유지 (상태 인지 보장) */
+input[type="checkbox"][data-checkbox]:disabled:checked + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 조건부 비활성화 예시
+const checkboxEl = document.querySelector('#disabled-unchecked');
+const toggleBtn  = document.querySelector('#enable-btn');
+
+toggleBtn.addEventListener('click', () =&gt; {
+  checkboxEl.disabled = !checkboxEl.disabled;
+  toggleBtn.textContent = checkboxEl.disabled ? '활성화' : '비활성화';
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 5: Indeterminate State
+                 aria-checked="mixed": 부분 선택 상태 (tri-state)
+                 ::after를 대시(-) 형태로 재정의하여 표시
+                 예: 트리 체크박스 부모 노드, "전체 선택" 체크박스
+                 JS: indeterminate 프로퍼티 설정 (CSS만으로는 불가)
+                 ============================================ -->
+            <section class="demo-section" id="section-indeterminate" aria-labelledby="heading-indeterminate">
+              <h2 id="heading-indeterminate" class="demo-section-title">Indeterminate State</h2>
+              <p class="demo-description">
+                일부 하위 항목만 선택된 부모 체크박스에 사용하는 불확정(tri-state) 상태입니다.
+                <code>aria-checked="mixed"</code> 속성으로 스크린리더에 부분 선택 상태를 전달합니다.
+                CSS <code>::after</code>를 수평 대시(–)로 재정의하여 시각적으로 표시합니다.
+              </p>
+
+              <!-- 데모 미리보기: 불확정 상태 크기 변형 + "전체 선택" 패턴 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 24px;"
+                role="group"
+                aria-label="Indeterminate State 데모"
+              >
+
+                <!-- sm / md / lg 불확정 상태 비교 -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 8px;">크기별 Indeterminate</p>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-checkbox
+                      id="demo-indet-sm"
+                      name="demo-indet-sm"
+                      aria-checked="mixed"
+                    />
+                    <label data-checkbox-label data-size="sm" for="demo-indet-sm">
+                      Small (indeterminate)
+                    </label>
+                  </div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-checkbox
+                      id="demo-indet-md"
+                      name="demo-indet-md"
+                      aria-checked="mixed"
+                    />
+                    <label data-checkbox-label for="demo-indet-md">
+                      Medium (indeterminate)
+                    </label>
+                  </div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-checkbox
+                      id="demo-indet-lg"
+                      name="demo-indet-lg"
+                      aria-checked="mixed"
+                    />
+                    <label data-checkbox-label data-size="lg" for="demo-indet-lg">
+                      Large (indeterminate)
+                    </label>
+                  </div>
+                </div>
+
+                <!-- "전체 선택" 패턴: 부모 + 자식 체크박스 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 8px;">"전체 선택" 패턴</p>
+
+                  <!-- 부모: 불확정 상태 -->
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-checkbox
+                      id="demo-parent"
+                      name="demo-parent"
+                      aria-checked="mixed"
+                      aria-controls="demo-child-1 demo-child-2 demo-child-3"
+                    />
+                    <label data-checkbox-label for="demo-parent">
+                      전체 선택
+                    </label>
+                  </div>
+
+                  <!-- 자식: 일부 체크 -->
+                  <div class="checkbox-group" style="margin-top: 8px; margin-left: 26px;">
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        id="demo-child-1"
+                        name="demo-children"
+                        value="1"
+                        checked
+                      />
+                      <label data-checkbox-label for="demo-child-1">항목 1 (체크됨)</label>
+                    </div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        id="demo-child-2"
+                        name="demo-children"
+                        value="2"
+                      />
+                      <label data-checkbox-label for="demo-child-2">항목 2</label>
+                    </div>
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-checkbox
+                        id="demo-child-3"
+                        name="demo-children"
+                        value="3"
+                        checked
+                      />
+                      <label data-checkbox-label for="demo-child-3">항목 3 (체크됨)</label>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- Indeterminate: aria-checked="mixed" 속성 사용 --&gt;
+&lt;!-- CSS: [aria-checked="mixed"] 선택자로 대시(-) 스타일 적용 --&gt;
+&lt;!-- JS: .indeterminate 프로퍼티로 네이티브 상태도 설정 (선택적) --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  id="parent-cb" name="parent-cb"
+  aria-checked="mixed"
+  aria-controls="child-1 child-2 child-3"
+/&gt;
+&lt;label data-checkbox-label for="parent-cb"&gt;
+  전체 선택
+&lt;/label&gt;
+
+&lt;!-- 자식 체크박스들 --&gt;
+&lt;div class="checkbox-group" style="margin-left: 26px;"&gt;
+  &lt;div&gt;
+    &lt;input type="checkbox" data-checkbox id="child-1" name="items" value="1" checked /&gt;
+    &lt;label data-checkbox-label for="child-1"&gt;항목 1&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="checkbox" data-checkbox id="child-2" name="items" value="2" /&gt;
+    &lt;label data-checkbox-label for="child-2"&gt;항목 2&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="checkbox" data-checkbox id="child-3" name="items" value="3" checked /&gt;
+    &lt;label data-checkbox-label for="child-3"&gt;항목 3&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* Indeterminate: ::before 박스를 primary 배경으로 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"]
+  + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Indeterminate: ::after를 수평 대시(-)로 재정의 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"]
+  + label[data-checkbox-label]::after {
+  width: 10px;
+  height: 2px;
+  border: none;
+  background-color: #ffffff;
+  border-radius: 1px;
+  /* 대시 중앙 정렬: translateX(9px - 5px = 4px) */
+  transform: translateX(4px) translateY(-50%);
+  opacity: 1;
+}
+
+/* sm 크기 불확정 대시 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"]
+  + label[data-checkbox-label][data-size="sm"]::after {
+  width: 8px;
+  transform: translateX(3px) translateY(-50%);
+}
+
+/* lg 크기 불확정 대시 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"]
+  + label[data-checkbox-label][data-size="lg"]::after {
+  width: 12px;
+  transform: translateX(5px) translateY(-50%);
+}'
+                data-js='// "전체 선택" 체크박스 Indeterminate 관리
+const parentCb  = document.querySelector("#parent-cb");
+const childCbs  = document.querySelectorAll("[name=\"items\"]");
+
+function updateParentState() {
+  const total   = childCbs.length;
+  const checked = [...childCbs].filter((c) => c.checked).length;
+
+  if (checked === 0) {
+    parentCb.indeterminate = false;
+    parentCb.checked = false;
+    parentCb.setAttribute("aria-checked", "false");
+  } else if (checked === total) {
+    parentCb.indeterminate = false;
+    parentCb.checked = true;
+    parentCb.setAttribute("aria-checked", "true");
+  } else {
+    parentCb.indeterminate = true;  // 네이티브 불확정 프로퍼티
+    parentCb.setAttribute("aria-checked", "mixed");
+  }
+}
+
+// 자식 변경 시 부모 상태 갱신
+childCbs.forEach((cb) => cb.addEventListener("change", updateParentState));
+
+// 부모 클릭 시 전체 선택/해제
+parentCb.addEventListener("change", () => {
+  const newState = parentCb.checked;
+  childCbs.forEach((cb) => { cb.checked = newState; });
+  parentCb.setAttribute("aria-checked", String(newState));
+  parentCb.indeterminate = false;
+});
+
+// 초기 상태 설정
+updateParentState();'
+                aria-label="Indeterminate State 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- Indeterminate: aria-checked="mixed" 속성 사용 --&gt;
+&lt;input
+  type="checkbox" data-checkbox
+  id="parent-cb" name="parent-cb"
+  aria-checked="mixed"
+  aria-controls="child-1 child-2 child-3"
+/&gt;
+&lt;label data-checkbox-label for="parent-cb"&gt;
+  전체 선택
+&lt;/label&gt;
+
+&lt;!-- 자식 체크박스들 --&gt;
+&lt;div class="checkbox-group" style="margin-left: 26px;"&gt;
+  &lt;div&gt;
+    &lt;input type="checkbox" data-checkbox id="child-1" name="items" value="1" checked /&gt;
+    &lt;label data-checkbox-label for="child-1"&gt;항목 1&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="checkbox" data-checkbox id="child-2" name="items" value="2" /&gt;
+    &lt;label data-checkbox-label for="child-2"&gt;항목 2&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="checkbox" data-checkbox id="child-3" name="items" value="3" checked /&gt;
+    &lt;label data-checkbox-label for="child-3"&gt;항목 3&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* Indeterminate: ::before 박스를 primary 배경으로 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"]
+  + label[data-checkbox-label]::before {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+/* Indeterminate: ::after를 수평 대시(-)로 재정의 */
+input[type="checkbox"][data-checkbox][aria-checked="mixed"]
+  + label[data-checkbox-label]::after {
+  width: 10px;
+  height: 2px;
+  border: none;
+  background-color: #ffffff;
+  border-radius: 1px;
+  transform: translateX(4px) translateY(-50%);
+  opacity: 1;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// "전체 선택" 체크박스 Indeterminate 관리
+const parentCb = document.querySelector('#parent-cb');
+const childCbs = document.querySelectorAll('[name="items"]');
+
+function updateParentState() {
+  const total   = childCbs.length;
+  const checked = [...childCbs].filter((c) =&gt; c.checked).length;
+
+  if (checked === 0) {
+    parentCb.indeterminate = false;
+    parentCb.checked = false;
+    parentCb.setAttribute('aria-checked', 'false');
+  } else if (checked === total) {
+    parentCb.indeterminate = false;
+    parentCb.checked = true;
+    parentCb.setAttribute('aria-checked', 'true');
+  } else {
+    parentCb.indeterminate = true; /* 네이티브 불확정 프로퍼티 */
+    parentCb.setAttribute('aria-checked', 'mixed');
+  }
+}
+
+childCbs.forEach((cb) =&gt; cb.addEventListener('change', updateParentState));
+
+parentCb.addEventListener('change', () =&gt; {
+  const newState = parentCb.checked;
+  childCbs.forEach((cb) =&gt; { cb.checked = newState; });
+  parentCb.setAttribute('aria-checked', String(newState));
+  parentCb.indeterminate = false;
+});
+
+updateParentState();</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Input 컴포넌트 -->
+                <a href="./input.html" class="detail-footer-link" aria-label="Input 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Input</span>
+                </a>
+                <!-- 다음: Radio 컴포넌트 -->
+                <a href="./radio.html" class="detail-footer-link" aria-label="Radio 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Radio</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS/JS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>
