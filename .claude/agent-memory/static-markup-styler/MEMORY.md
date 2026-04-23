@@ -2,3 +2,4 @@
 - [Button 컴포넌트 CSS 구현 패턴](project_button_css_patterns.md) — data-attribute 선택자, 아이콘 버튼, 다크 모드 예외, prefers-reduced-motion, 터치 타겟
 - [Input 컴포넌트 CSS 구현 패턴](project_input_css_patterns.md) — data-attribute 선택자, error 상태 color-mix 배경, :focus 포커스 링, number 스피너 제거
 - [Detail Page 구조 패턴](project_detail_page_structure.md) — pages/*.html 표준 레이아웃, CSS/JS 로드 순서, CodeBlock 마크업, 사이드바 nav 패턴
+- [Switch 컴포넌트 CSS 구현 패턴](project_switch_css_patterns.md) — 트랙(::before)+노브(::after) translateX 계산식, switch-row/switch-list 레이아웃, role="switch" 접근성
