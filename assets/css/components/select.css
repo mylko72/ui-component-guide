@@ -1,1 +1,373 @@
-/* Select 컴포넌트 스타일 */
+/* ============================================
+   Select 컴포넌트 스타일
+   tokens.css CSS 변수만 사용 (외부 의존 없음)
+   WCAG 2.2 접근성 준수
+   ============================================ */
+
+/* ============================================
+   네이티브 select 화살표 제거
+   커스텀 화살표 아이콘(::after)으로 대체
+   ============================================ */
+
+/* ============================================
+   Select 래퍼 컨테이너
+   커스텀 화살표 아이콘을 절대 위치로 배치하기 위한 컨테이너
+   ============================================ */
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* .select-wrap 내부 select: 너비 100% 점유 */
+.select-wrap select[data-select] {
+  width: 100%;
+}
+
+/* 커스텀 화살표 아이콘: ::after 가상 요소
+   실제 아이콘은 Lucide로 삽입하므로 별도 span 처리 */
+.select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* 클릭 통과: select 클릭 이벤트에 영향 없음 */
+  color: var(--color-text-secondary);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+}
+
+/* ============================================
+   베이스 select 스타일
+   [data-select] 속성으로 컴포넌트 식별
+   ============================================ */
+select[data-select] {
+  /* 레이아웃: 블록 요소로 너비 100% 점유 */
+  display: block;
+  width: 100%;
+
+  /* 박스 모델 */
+  box-sizing: border-box;
+  padding: 10px 40px 10px 14px; /* 우측 패딩 확장: 커스텀 화살표 공간 확보 */
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  /* 타이포그래피 */
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+
+  /* 배경 */
+  background-color: var(--color-bg);
+
+  /* 네이티브 select 화살표 제거 */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* 전환 효과: 호버/포커스 시 시각 피드백 */
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+
+  /* outline 초기화: 포커스 스타일은 아래에서 별도 정의 */
+  outline: none;
+
+  /* 최소 높이: 터치 타겟 기준 (WCAG 2.5.5) */
+  min-height: 44px;
+
+  /* 커서: 선택 가능한 요소임을 암시 */
+  cursor: pointer;
+
+  /* 텍스트 오버플로 방지 */
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   Placeholder 옵션 스타일 (첫 번째 빈 option)
+   보조 텍스트 색상으로 구분감 확보
+   ============================================ */
+select[data-select] option[value=""] {
+  color: var(--color-text-secondary);
+}
+
+/* ============================================
+   크기(size) 변형
+   sm / md / lg 세 단계
+   input.css 크기 체계와 동일하게 정렬
+   ============================================ */
+
+/* 소형: 보조 폼, 테이블 인라인 필터 등 */
+select[data-select][data-size="sm"] {
+  padding: 6px 32px 6px 10px;
+  font-size: var(--font-size-sm);
+  min-height: 32px;
+  border-radius: var(--radius-sm);
+}
+
+/* 소형: 화살표 아이콘 크기 조정 */
+select[data-select][data-size="sm"] ~ .select-icon {
+  right: 8px;
+  width: 14px;
+  height: 14px;
+}
+
+/* 대형: 주요 폼 입력 등 */
+select[data-select][data-size="lg"] {
+  padding: 14px 48px 14px 18px;
+  font-size: var(--font-size-lg);
+  min-height: 52px;
+  border-radius: var(--radius-lg);
+}
+
+/* 대형: 화살표 아이콘 위치 조정 */
+select[data-select][data-size="lg"] ~ .select-icon {
+  right: 16px;
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   Hover 상태
+   마우스 오버 시 테두리 색상 강화로 상호작용 암시
+   ============================================ */
+select[data-select]:hover:not(:disabled):not([data-error="true"]) {
+  border-color: var(--color-border-hover);
+}
+
+/* 호버 시 화살표 아이콘 색상 강화 */
+.select-wrap:hover:not(:has(select:disabled)):not(:has(select[data-error="true"])) .select-icon {
+  color: var(--color-text);
+}
+
+/* ============================================
+   Focus 상태 (WCAG 2.2 Focus Visible)
+   outline 2px solid + box-shadow 이중 처리
+   ============================================ */
+select[data-select]:focus:not(:disabled) {
+  /* 2px 포커스 링: WCAG 2.2 요구사항 준수 */
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+  /* 테두리 색상도 primary로 전환 */
+  border-color: var(--color-primary);
+  /* 내부 glow: 포커스 감지성 강화 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* 포커스 시 화살표 아이콘 primary 색상으로 */
+select[data-select]:focus:not(:disabled) ~ .select-icon {
+  color: var(--color-primary);
+}
+
+/* ============================================
+   Error 상태 (data-error="true")
+   유효성 검증 실패 시 빨간 계열로 시각 경고
+   ============================================ */
+select[data-select][data-error="true"] {
+  border-color: var(--color-danger);
+  /* 연한 빨간 배경: 에러 상태를 배경으로도 암시 */
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+/* Error + hover: 테두리 색상 유지 */
+select[data-select][data-error="true"]:hover:not(:disabled) {
+  border-color: var(--color-danger);
+}
+
+/* Error + focus: 포커스 링을 danger 색상으로 */
+select[data-select][data-error="true"]:focus:not(:disabled) {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 0;
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Error 상태 화살표 아이콘: danger 색상 */
+select[data-select][data-error="true"] ~ .select-icon {
+  color: var(--color-danger);
+}
+
+/* ============================================
+   Success 상태 (data-success="true")
+   유효성 검증 통과 시 초록 계열로 시각 확인
+   ============================================ */
+select[data-select][data-success="true"] {
+  border-color: var(--color-success);
+  background-color: color-mix(in srgb, var(--color-success) 6%, var(--color-bg));
+}
+
+/* Success + hover: 테두리 색상 유지 */
+select[data-select][data-success="true"]:hover:not(:disabled) {
+  border-color: var(--color-success);
+}
+
+/* Success + focus: 포커스 링을 success 색상으로 */
+select[data-select][data-success="true"]:focus:not(:disabled) {
+  outline: 2px solid var(--color-success);
+  outline-offset: 0;
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* Success 상태 화살표 아이콘: success 색상 */
+select[data-select][data-success="true"] ~ .select-icon {
+  color: var(--color-success);
+}
+
+/* ============================================
+   Disabled 상태
+   WCAG: opacity 0.5 + cursor not-allowed + pointer-events none
+   ============================================ */
+select[data-select]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  /* disabled 배경: 보조 배경색으로 입력 불가 암시 */
+  background-color: var(--color-bg-secondary);
+}
+
+/* ============================================
+   입력 필드 그룹 레이아웃
+   라벨 + select + 헬퍼/에러 메시지 수직 배치
+   input.css의 .input-field 패턴과 동일
+   ============================================ */
+.select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ============================================
+   라벨 스타일
+   input.css의 .input-label 패턴과 동일
+   ============================================ */
+.select-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+/* 필수 입력 표시 (*) */
+.select-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   헬퍼 텍스트
+   input.css의 .input-helper 패턴과 동일
+   ============================================ */
+.select-helper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
+/* 성공 상태 헬퍼 */
+.select-helper--success {
+  color: var(--color-success);
+}
+
+/* ============================================
+   에러 메시지
+   role="alert"으로 스크린리더에 즉시 전달
+   ============================================ */
+.select-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
+/* 에러 메시지 아이콘 크기 */
+.select-error-msg svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   다크 모드 대응
+   tokens.css [data-theme="dark"] 변수가 대부분 자동 처리
+   color-mix 배경색 보완만 별도 선언
+   ============================================ */
+
+/* 다크 모드: 포커스 glow — 어두운 배경에서 청색 번짐 조정 */
+:root[data-theme="dark"] select[data-select]:focus:not(:disabled) {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+/* 다크 모드: error 배경 — color-mix 지원 여부 관계없이 명시적 폴백 */
+:root[data-theme="dark"] select[data-select][data-error="true"] {
+  background-color: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg));
+}
+
+/* 다크 모드: error focus glow */
+:root[data-theme="dark"] select[data-select][data-error="true"]:focus:not(:disabled) {
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+/* 다크 모드: success 배경 */
+:root[data-theme="dark"] select[data-select][data-success="true"] {
+  background-color: color-mix(in srgb, var(--color-success) 10%, var(--color-bg));
+}
+
+/* 다크 모드: success focus glow */
+:root[data-theme="dark"] select[data-select][data-success="true"]:focus:not(:disabled) {
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+}
+
+/* ============================================
+   반응형: 모바일(767px 이하)
+   터치 타겟 최소 44px 확보 (WCAG 2.5.5)
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일 터치 타겟: sm 크기도 44px로 통일 */
+  select[data-select][data-size="sm"] {
+    min-height: 44px;
+    padding: 10px 36px 10px 12px;
+    font-size: var(--font-size-base);
+  }
+
+  /* md/lg: 그대로 유지하되 padding 좌우를 약간 줄여 좁은 화면 대응 */
+  select[data-select][data-size="md"],
+  select[data-select]:not([data-size]) {
+    padding: 10px 40px 10px 12px;
+  }
+
+  select[data-select][data-size="lg"] {
+    padding: 12px 44px 12px 14px;
+  }
+}
+
+/* ============================================
+   동작 감소 설정 대응 (prefers-reduced-motion)
+   KWCAG 2.2 / WCAG 2.1 SC 2.3.3
+   전정 장애·전간증 사용자 배려
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  select[data-select],
+  .select-icon {
+    transition: none;
+  }
+}

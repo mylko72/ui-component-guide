@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Switch 컴포넌트: ON/OFF 토글 기본 크기 변형, 라벨·헬퍼 텍스트, 에러 상태, 비활성화, 설명 레이아웃, 다중 스위치 6가지 패턴. WCAG 2.2 접근성 준수">
+  <title>Switch — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → switch (컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/switch.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       radio.html 헤더와 동일한 구조 유지
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: switch.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: switch.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Switch 컴포넌트 데모 6개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Switch</h1>
+              <p class="detail-description">
+                ON/OFF 두 가지 상태를 전환하는 토글 스위치 컴포넌트입니다.
+                <code>data-switch</code> 속성을 숨겨진 <code>input[type="checkbox"]</code>에 지정하고,
+                인접한 <code>label[data-switch-label]</code>의 <code>::before</code>(트랙)와
+                <code>::after</code>(노브) 가상 요소로 슬라이딩 토글을 렌더링합니다.
+                <code>:checked</code> 상태에서 노브가 오른쪽으로 이동하고 트랙이 primary 색상으로 전환되며,
+                <code>data-size</code>로 sm / md / lg 크기를 지정할 수 있습니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: Default Switch
+                 data-switch 속성으로 네이티브 input 숨김
+                 data-size="sm|md|lg"로 크기 변형
+                 label[data-switch-label]이 시각적 스위치 역할
+                 OFF 상태와 ON(checked) 상태를 나란히 표시
+                 ============================================ -->
+            <section class="demo-section" id="section-default" aria-labelledby="heading-default">
+              <h2 id="heading-default" class="demo-section-title">Default Switch</h2>
+              <p class="demo-description">
+                기본 스위치입니다.
+                <code>data-size</code> 속성으로 sm(트랙 32×20px) / md(트랙 40×24px) / lg(트랙 52×32px) 크기를 지정합니다.
+                각 크기별로 OFF 상태와 ON(<code>checked</code>) 상태를 나란히 비교합니다.
+              </p>
+
+              <!-- 데모 미리보기: sm / md / lg 크기 비교 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 32px;"
+                role="group"
+                aria-label="Default Switch 크기 데모"
+              >
+
+                <!-- 소형(sm) — OFF / ON 나란히 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 8px; font-weight: 500;">Small (sm)</p>
+                  <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+                    <!-- sm OFF -->
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-switch
+                        id="demo-sm-off"
+                        aria-label="Small Switch OFF"
+                      />
+                      <label data-switch-label data-size="sm" for="demo-sm-off">
+                        OFF
+                      </label>
+                    </div>
+                    <!-- sm ON (checked) -->
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-switch
+                        id="demo-sm-on"
+                        checked
+                        aria-label="Small Switch ON"
+                      />
+                      <label data-switch-label data-size="sm" for="demo-sm-on">
+                        ON
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 중형(md) — OFF / ON 나란히 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 8px; font-weight: 500;">Medium (md) — 기본</p>
+                  <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+                    <!-- md OFF -->
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-switch
+                        id="demo-md-off"
+                        aria-label="Medium Switch OFF"
+                      />
+                      <label data-switch-label for="demo-md-off">
+                        OFF
+                      </label>
+                    </div>
+                    <!-- md ON (checked) -->
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-switch
+                        id="demo-md-on"
+                        checked
+                        aria-label="Medium Switch ON"
+                      />
+                      <label data-switch-label for="demo-md-on">
+                        ON
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 대형(lg) — OFF / ON 나란히 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 8px; font-weight: 500;">Large (lg)</p>
+                  <div style="display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+                    <!-- lg OFF -->
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-switch
+                        id="demo-lg-off"
+                        aria-label="Large Switch OFF"
+                      />
+                      <label data-switch-label data-size="lg" for="demo-lg-off">
+                        OFF
+                      </label>
+                    </div>
+                    <!-- lg ON (checked) -->
+                    <div>
+                      <input
+                        type="checkbox"
+                        data-switch
+                        id="demo-lg-on"
+                        checked
+                        aria-label="Large Switch ON"
+                      />
+                      <label data-switch-label data-size="lg" for="demo-lg-on">
+                        ON
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS/JS 탭 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 기본 스위치 (크기: sm / md / lg) --&gt;
+&lt;!-- input[data-switch] + label[data-switch-label] 인접 쌍 --&gt;
+
+&lt;!-- sm: 소형 OFF --&gt;
+&lt;input type="checkbox" data-switch id="sw-sm-off" aria-label="Small Switch OFF" /&gt;
+&lt;label data-switch-label data-size="sm" for="sw-sm-off"&gt;OFF&lt;/label&gt;
+
+&lt;!-- sm: 소형 ON --&gt;
+&lt;input type="checkbox" data-switch id="sw-sm-on" checked aria-label="Small Switch ON" /&gt;
+&lt;label data-switch-label data-size="sm" for="sw-sm-on"&gt;ON&lt;/label&gt;
+
+&lt;!-- md: 기본(default) 크기 OFF --&gt;
+&lt;input type="checkbox" data-switch id="sw-md-off" aria-label="Medium Switch OFF" /&gt;
+&lt;label data-switch-label for="sw-md-off"&gt;OFF&lt;/label&gt;
+
+&lt;!-- md: 기본(default) 크기 ON --&gt;
+&lt;input type="checkbox" data-switch id="sw-md-on" checked aria-label="Medium Switch ON" /&gt;
+&lt;label data-switch-label for="sw-md-on"&gt;ON&lt;/label&gt;
+
+&lt;!-- lg: 대형 OFF --&gt;
+&lt;input type="checkbox" data-switch id="sw-lg-off" aria-label="Large Switch OFF" /&gt;
+&lt;label data-switch-label data-size="lg" for="sw-lg-off"&gt;OFF&lt;/label&gt;
+
+&lt;!-- lg: 대형 ON --&gt;
+&lt;input type="checkbox" data-switch id="sw-lg-on" checked aria-label="Large Switch ON" /&gt;
+&lt;label data-switch-label data-size="lg" for="sw-lg-on"&gt;ON&lt;/label&gt;'
+                data-css='/* 네이티브 checkbox 시각적 숨김 (접근성 트리 유지) */
+input[type="checkbox"][data-switch] {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
+
+/* 스위치 레이블: 수평 배치 + 터치 타겟 */
+label[data-switch-label] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-height: 44px; /* WCAG 2.5.5 */
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+/* ::before: 트랙 (40×24px pill) */
+label[data-switch-label]::before {
+  content: "";
+  width: 40px; height: 24px;
+  flex-shrink: 0;
+  border-radius: 9999px; /* pill 형태 */
+  background-color: var(--color-border-hover); /* 비활성 회색 */
+  transition: background-color 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ::after: 노브 (18×18px 원형) */
+label[data-switch-label]::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%;
+  width: 18px; height: 18px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transform: translateX(3px) translateY(-50%); /* 기본: 왼쪽 */
+  box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* 선택(ON) 상태: 트랙 primary + 노브 오른쪽 이동 */
+input[type="checkbox"][data-switch]:checked + label[data-switch-label]::before {
+  background-color: var(--color-primary);
+}
+input[type="checkbox"][data-switch]:checked + label[data-switch-label]::after {
+  transform: translateX(19px) translateY(-50%); /* 40-18-3=19px */
+}
+
+/* 크기 변형 */
+label[data-switch-label][data-size="sm"]::before { width: 32px; height: 20px; }
+label[data-switch-label][data-size="sm"]::after  { width: 14px; height: 14px; }
+input[type="checkbox"][data-switch]:checked + label[data-switch-label][data-size="sm"]::after {
+  transform: translateX(15px) translateY(-50%); /* 32-14-3=15px */
+}
+
+label[data-switch-label][data-size="lg"]::before { width: 52px; height: 32px; }
+label[data-switch-label][data-size="lg"]::after  { width: 24px; height: 24px; transform: translateX(4px) translateY(-50%); }
+input[type="checkbox"][data-switch]:checked + label[data-switch-label][data-size="lg"]::after {
+  transform: translateX(24px) translateY(-50%); /* 52-24-4=24px */
+}'
+                data-js='// 스위치 상태 변경 감지 예시
+const switches = document.querySelectorAll("[data-switch]");
+switches.forEach((sw) => {
+  sw.addEventListener("change", (e) => {
+    const state = e.target.checked ? "ON" : "OFF";
+    console.log(`Switch 상태: ${state}`);
+  });
+});'
+                aria-label="Default Switch 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-switch-default-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-switch-default-css"
+                    >CSS</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="js"
+                      aria-selected="false"
+                      aria-controls="cb-switch-default-js"
+                    >JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-switch-default-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- 기본 스위치: sm / md / lg 크기 변형 --&gt;
+
+&lt;!-- sm OFF --&gt;
+&lt;input type="checkbox" data-switch id="sw-sm-off" aria-label="Small Switch OFF" /&gt;
+&lt;label data-switch-label data-size="sm" for="sw-sm-off"&gt;OFF&lt;/label&gt;
+
+&lt;!-- sm ON --&gt;
+&lt;input type="checkbox" data-switch id="sw-sm-on" checked aria-label="Small Switch ON" /&gt;
+&lt;label data-switch-label data-size="sm" for="sw-sm-on"&gt;ON&lt;/label&gt;
+
+&lt;!-- md(기본) OFF --&gt;
+&lt;input type="checkbox" data-switch id="sw-md-off" aria-label="Medium Switch OFF" /&gt;
+&lt;label data-switch-label for="sw-md-off"&gt;OFF&lt;/label&gt;
+
+&lt;!-- md(기본) ON --&gt;
+&lt;input type="checkbox" data-switch id="sw-md-on" checked aria-label="Medium Switch ON" /&gt;
+&lt;label data-switch-label for="sw-md-on"&gt;ON&lt;/label&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-switch-default-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* 네이티브 checkbox 시각적 숨김 */
+input[type="checkbox"][data-switch] {
+  position: absolute;
+  width: 1px; height: 1px;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* 트랙: pill 형태 배경 */
+label[data-switch-label]::before {
+  content: "";
+  width: 40px; height: 24px;
+  border-radius: 9999px;
+  background-color: var(--color-border-hover);
+  transition: background-color 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* 노브: 슬라이딩 원형 */
+label[data-switch-label]::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%;
+  width: 18px; height: 18px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  transform: translateX(3px) translateY(-50%);
+  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ON 상태 */
+input[type="checkbox"][data-switch]:checked + label[data-switch-label]::before {
+  background-color: var(--color-primary);
+}
+input[type="checkbox"][data-switch]:checked + label[data-switch-label]::after {
+  transform: translateX(19px) translateY(-50%);
+}</pre>
+                    </div>
+                    <div
+                      id="cb-switch-default-js"
+                      class="code-block__panel"
+                      data-code-block-panel="js"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">// 스위치 상태 변경 감지
+const switches = document.querySelectorAll('[data-switch]');
+switches.forEach((sw) => {
+  sw.addEventListener('change', (e) => {
+    const state = e.target.checked ? 'ON' : 'OFF';
+    console.log(`Switch 상태: ${state}`);
+  });
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: With Label & Helper
+                 aria-describedby로 헬퍼 텍스트를 스크린리더에 전달
+                 스위치 앞에 설명 레이블 + 아래 헬퍼 텍스트 패턴
+                 aria-checked 속성: switch role 시멘틱 명시
+                 ============================================ -->
+            <section class="demo-section" id="section-label" aria-labelledby="heading-label">
+              <h2 id="heading-label" class="demo-section-title">With Label &amp; Helper</h2>
+              <p class="demo-description">
+                스위치 앞에 설명 레이블을, 아래에 헬퍼 텍스트를 배치하는 패턴입니다.
+                <code>aria-describedby</code>로 헬퍼 텍스트 ID를 연결하면
+                스크린리더가 스위치 목적과 부가 정보를 함께 읽습니다.
+                <code>role="switch"</code>와 <code>aria-checked</code>로 접근성 시멘틱을 강화합니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 32px;"
+                role="group"
+                aria-label="Label과 Helper Text 데모"
+              >
+
+                <!-- 기본 ON/OFF 레이블 + 헬퍼 -->
+                <div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-switch
+                      id="demo-label-notify"
+                      role="switch"
+                      aria-checked="false"
+                      aria-describedby="demo-notify-helper"
+                    />
+                    <label data-switch-label for="demo-label-notify">
+                      이메일 알림 수신
+                    </label>
+                  </div>
+                  <p class="switch-helper" id="demo-notify-helper">
+                    마케팅 이메일 및 서비스 업데이트를 받습니다.
+                  </p>
+                </div>
+
+                <!-- checked 상태: ON + 헬퍼 -->
+                <div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-switch
+                      id="demo-label-dark"
+                      role="switch"
+                      aria-checked="true"
+                      checked
+                      aria-describedby="demo-dark-helper"
+                    />
+                    <label data-switch-label for="demo-label-dark">
+                      다크 모드 사용
+                    </label>
+                  </div>
+                  <p class="switch-helper" id="demo-dark-helper">
+                    시스템 설정에 관계없이 항상 다크 테마를 사용합니다.
+                  </p>
+                </div>
+
+                <!-- 필수 항목 표시 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text); margin: 0 0 6px;">
+                    개인정보 처리방침 동의
+                    <span style="color: var(--color-danger); margin-left: 1px;" aria-hidden="true">*</span>
+                  </p>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-switch
+                      id="demo-label-agree"
+                      role="switch"
+                      aria-checked="false"
+                      aria-required="true"
+                      aria-describedby="demo-agree-helper"
+                    />
+                    <label data-switch-label for="demo-label-agree">
+                      동의합니다
+                    </label>
+                  </div>
+                  <p class="switch-helper" id="demo-agree-helper">
+                    서비스 이용을 위해 필수로 동의해야 합니다.
+                  </p>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 스위치 + 헬퍼 텍스트 패턴 --&gt;
+&lt;!-- role="switch" + aria-checked로 접근성 시멘틱 명시 --&gt;
+&lt;!-- aria-describedby로 헬퍼 텍스트 연결 --&gt;
+
+&lt;div&gt;
+  &lt;input
+    type="checkbox"
+    data-switch
+    id="sw-notify"
+    role="switch"
+    aria-checked="false"
+    aria-describedby="sw-notify-helper"
+  /&gt;
+  &lt;label data-switch-label for="sw-notify"&gt;
+    이메일 알림 수신
+  &lt;/label&gt;
+  &lt;p class="switch-helper" id="sw-notify-helper"&gt;
+    마케팅 이메일 및 서비스 업데이트를 받습니다.
+  &lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- checked(ON) 상태 --&gt;
+&lt;div&gt;
+  &lt;input
+    type="checkbox"
+    data-switch
+    id="sw-dark"
+    role="switch"
+    aria-checked="true"
+    checked
+    aria-describedby="sw-dark-helper"
+  /&gt;
+  &lt;label data-switch-label for="sw-dark"&gt;
+    다크 모드 사용
+  &lt;/label&gt;
+  &lt;p class="switch-helper" id="sw-dark-helper"&gt;
+    시스템 설정에 관계없이 항상 다크 테마를 사용합니다.
+  &lt;/p&gt;
+&lt;/div&gt;'
+                data-css='/* 헬퍼 텍스트 */
+.switch-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}'
+                data-js='// aria-checked 동적 업데이트 (접근성 유지)
+const sw = document.querySelector("#sw-notify");
+sw.addEventListener("change", (e) => {
+  sw.setAttribute("aria-checked", e.target.checked ? "true" : "false");
+  console.log("이메일 알림:", e.target.checked ? "활성화" : "비활성화");
+});'
+                aria-label="With Label and Helper 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- role="switch" + aria-checked로 접근성 시멘틱 명시 --&gt;
+&lt;div&gt;
+  &lt;input
+    type="checkbox"
+    data-switch
+    id="sw-notify"
+    role="switch"
+    aria-checked="false"
+    aria-describedby="sw-notify-helper"
+  /&gt;
+  &lt;label data-switch-label for="sw-notify"&gt;
+    이메일 알림 수신
+  &lt;/label&gt;
+&lt;/div&gt;
+&lt;p class="switch-helper" id="sw-notify-helper"&gt;
+  마케팅 이메일 및 서비스 업데이트를 받습니다.
+&lt;/p&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 헬퍼 텍스트 스타일 */
+.switch-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// aria-checked 동적 업데이트
+const sw = document.querySelector('#sw-notify');
+sw.addEventListener('change', (e) => {
+  sw.setAttribute('aria-checked', e.target.checked ? 'true' : 'false');
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: Error State
+                 data-error="true" + aria-invalid="true" 동시 사용
+                 트랙 배경이 danger 계열 색상으로 표시
+                 role="alert"로 에러 메시지 즉시 읽힘
+                 ============================================ -->
+            <section class="demo-section" id="section-error" aria-labelledby="heading-error">
+              <h2 id="heading-error" class="demo-section-title">Error State</h2>
+              <p class="demo-description">
+                <code>data-error="true"</code>와 <code>aria-invalid="true"</code>를 함께 지정하면
+                트랙이 danger 계열 색상으로 전환됩니다.
+                에러 메시지는 <code>role="alert"</code>를 사용해 스크린리더가 즉시 읽습니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 32px;"
+                role="group"
+                aria-label="Error State 데모"
+              >
+
+                <!-- OFF 상태 에러 -->
+                <div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-switch
+                      id="demo-error-off"
+                      data-error="true"
+                      aria-invalid="true"
+                      aria-describedby="demo-error-off-msg"
+                      role="switch"
+                      aria-checked="false"
+                    />
+                    <label data-switch-label for="demo-error-off">
+                      서비스 이용 동의 (OFF)
+                    </label>
+                  </div>
+                  <p class="switch-error-msg" id="demo-error-off-msg" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    서비스 이용을 위해 필수로 동의해야 합니다.
+                  </p>
+                </div>
+
+                <!-- ON 상태 에러 -->
+                <div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-switch
+                      id="demo-error-on"
+                      data-error="true"
+                      aria-invalid="true"
+                      checked
+                      aria-describedby="demo-error-on-msg"
+                      role="switch"
+                      aria-checked="true"
+                    />
+                    <label data-switch-label for="demo-error-on">
+                      위험 기능 활성화 (ON)
+                    </label>
+                  </div>
+                  <p class="switch-error-msg" id="demo-error-on-msg" role="alert">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    이 기능을 활성화하면 데이터가 즉시 삭제됩니다.
+                  </p>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 에러 상태: data-error="true" + aria-invalid="true" --&gt;
+
+&lt;!-- OFF 에러 --&gt;
+&lt;div&gt;
+  &lt;input
+    type="checkbox"
+    data-switch
+    id="sw-err-off"
+    data-error="true"
+    aria-invalid="true"
+    aria-describedby="sw-err-off-msg"
+    role="switch"
+    aria-checked="false"
+  /&gt;
+  &lt;label data-switch-label for="sw-err-off"&gt;서비스 이용 동의&lt;/label&gt;
+&lt;/div&gt;
+&lt;p class="switch-error-msg" id="sw-err-off-msg" role="alert"&gt;
+  서비스 이용을 위해 필수로 동의해야 합니다.
+&lt;/p&gt;
+
+&lt;!-- ON 에러 --&gt;
+&lt;div&gt;
+  &lt;input
+    type="checkbox"
+    data-switch
+    id="sw-err-on"
+    data-error="true"
+    aria-invalid="true"
+    checked
+    aria-describedby="sw-err-on-msg"
+    role="switch"
+    aria-checked="true"
+  /&gt;
+  &lt;label data-switch-label for="sw-err-on"&gt;위험 기능 활성화&lt;/label&gt;
+&lt;/div&gt;
+&lt;p class="switch-error-msg" id="sw-err-on-msg" role="alert"&gt;
+  이 기능을 활성화하면 데이터가 즉시 삭제됩니다.
+&lt;/p&gt;'
+                data-css='/* 에러 트랙: danger 계열 배경 */
+input[type="checkbox"][data-switch][data-error="true"]
++ label[data-switch-label]::before {
+  background-color: color-mix(
+    in srgb, var(--color-danger) 25%, var(--color-border-hover)
+  );
+}
+
+/* 에러 + ON: danger 색상 트랙 */
+input[type="checkbox"][data-switch][data-error="true"]:checked
++ label[data-switch-label]::before {
+  background-color: var(--color-danger);
+}
+
+/* 에러 메시지 */
+.switch-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin-top: var(--spacing-xs);
+}'
+                data-js='// 에러 상태 동적 적용 예시
+function setError(input, hasError, message) {
+  input.setAttribute("data-error", hasError ? "true" : "false");
+  input.setAttribute("aria-invalid", hasError ? "true" : "false");
+  const errMsg = document.getElementById(input.getAttribute("aria-describedby"));
+  if (errMsg) errMsg.style.display = hasError ? "flex" : "none";
+}'
+                aria-label="Error State 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 에러: data-error="true" + aria-invalid="true" --&gt;
+&lt;div&gt;
+  &lt;input
+    type="checkbox"
+    data-switch
+    id="sw-err-off"
+    data-error="true"
+    aria-invalid="true"
+    aria-describedby="sw-err-msg"
+    role="switch"
+    aria-checked="false"
+  /&gt;
+  &lt;label data-switch-label for="sw-err-off"&gt;
+    서비스 이용 동의
+  &lt;/label&gt;
+&lt;/div&gt;
+&lt;p class="switch-error-msg" id="sw-err-msg" role="alert"&gt;
+  서비스 이용을 위해 필수로 동의해야 합니다.
+&lt;/p&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 에러 트랙 */
+input[type="checkbox"][data-switch][data-error="true"]
++ label[data-switch-label]::before {
+  background-color: color-mix(
+    in srgb, var(--color-danger) 25%, var(--color-border-hover)
+  );
+}
+/* 에러 + ON */
+input[type="checkbox"][data-switch][data-error="true"]:checked
++ label[data-switch-label]::before {
+  background-color: var(--color-danger);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 에러 상태 동적 적용
+function setError(input, hasError) {
+  input.setAttribute('data-error', hasError ? 'true' : 'false');
+  input.setAttribute('aria-invalid', hasError ? 'true' : 'false');
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: Disabled Switch
+                 disabled 속성으로 비활성화
+                 opacity 0.5 + cursor not-allowed 적용
+                 읽기 전용(read-only) OFF/ON 상태 모두 표시
+                 ============================================ -->
+            <section class="demo-section" id="section-disabled" aria-labelledby="heading-disabled">
+              <h2 id="heading-disabled" class="demo-section-title">Disabled Switch</h2>
+              <p class="demo-description">
+                <code>disabled</code> 속성으로 스위치를 비활성화합니다.
+                시각적으로 반투명(opacity 0.5)하게 표시되며 커서가 <code>not-allowed</code>로 변경됩니다.
+                비활성화된 OFF와 ON 상태 모두 표시하여 읽기 전용 상태를 나타낼 수 있습니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 24px;"
+                role="group"
+                aria-label="Disabled Switch 데모"
+              >
+
+                <!-- 비활성 OFF -->
+                <div>
+                  <input
+                    type="checkbox"
+                    data-switch
+                    id="demo-dis-off"
+                    disabled
+                    aria-label="비활성화 스위치 OFF"
+                  />
+                  <label data-switch-label for="demo-dis-off">
+                    비활성화 (OFF)
+                  </label>
+                </div>
+
+                <!-- 비활성 ON -->
+                <div>
+                  <input
+                    type="checkbox"
+                    data-switch
+                    id="demo-dis-on"
+                    disabled
+                    checked
+                    aria-label="비활성화 스위치 ON"
+                  />
+                  <label data-switch-label for="demo-dis-on">
+                    비활성화 (ON)
+                  </label>
+                </div>
+
+                <!-- 비활성 + sm 크기 -->
+                <div>
+                  <input
+                    type="checkbox"
+                    data-switch
+                    id="demo-dis-sm"
+                    disabled
+                    checked
+                    aria-label="소형 비활성화 스위치"
+                  />
+                  <label data-switch-label data-size="sm" for="demo-dis-sm">
+                    비활성화 소형 (sm)
+                  </label>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 비활성화: disabled 속성 추가 --&gt;
+
+&lt;!-- 비활성 OFF --&gt;
+&lt;input
+  type="checkbox"
+  data-switch
+  id="sw-dis-off"
+  disabled
+  aria-label="비활성화 스위치 OFF"
+/&gt;
+&lt;label data-switch-label for="sw-dis-off"&gt;비활성화 (OFF)&lt;/label&gt;
+
+&lt;!-- 비활성 ON (읽기 전용 활성 상태) --&gt;
+&lt;input
+  type="checkbox"
+  data-switch
+  id="sw-dis-on"
+  disabled
+  checked
+  aria-label="비활성화 스위치 ON"
+/&gt;
+&lt;label data-switch-label for="sw-dis-on"&gt;비활성화 (ON)&lt;/label&gt;'
+                data-css='/* 비활성화: opacity 0.5 + not-allowed */
+input[type="checkbox"][data-switch]:disabled
++ label[data-switch-label] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}'
+                data-js='// 동적 비활성화 토글 예시
+const sw = document.querySelector("#sw-dis-off");
+const btn = document.querySelector("#toggle-disabled");
+
+btn.addEventListener("click", () => {
+  sw.disabled = !sw.disabled;
+  btn.textContent = sw.disabled ? "활성화" : "비활성화";
+});'
+                aria-label="Disabled Switch 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 비활성 OFF --&gt;
+&lt;input
+  type="checkbox"
+  data-switch
+  id="sw-dis-off"
+  disabled
+  aria-label="비활성화 스위치 OFF"
+/&gt;
+&lt;label data-switch-label for="sw-dis-off"&gt;비활성화 (OFF)&lt;/label&gt;
+
+&lt;!-- 비활성 ON (읽기 전용) --&gt;
+&lt;input
+  type="checkbox"
+  data-switch
+  id="sw-dis-on"
+  disabled
+  checked
+  aria-label="비활성화 스위치 ON"
+/&gt;
+&lt;label data-switch-label for="sw-dis-on"&gt;비활성화 (ON)&lt;/label&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 비활성화: opacity + not-allowed */
+input[type="checkbox"][data-switch]:disabled
++ label[data-switch-label] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 동적 비활성화 토글
+const sw = document.querySelector('#sw-dis-off');
+sw.disabled = true; // 비활성화
+sw.disabled = false; // 재활성화</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 5: Switch with Description
+                 좌측 텍스트(제목+설명) + 우측 스위치 레이아웃
+                 설정 화면에서 자주 쓰이는 UI 패턴
+                 .switch-row: justify-content space-between 배치
+                 ============================================ -->
+            <section class="demo-section" id="section-description" aria-labelledby="heading-description">
+              <h2 id="heading-description" class="demo-section-title">Switch with Description</h2>
+              <p class="demo-description">
+                좌측에 제목과 설명 텍스트, 우측에 스위치를 배치하는 일반적인 설정 화면 패턴입니다.
+                <code>.switch-row</code> 클래스로 <code>justify-content: space-between</code> 레이아웃을 구현합니다.
+                <code>aria-labelledby</code>로 제목 ID를 연결하면 스크린리더가 스위치 기능을 명확하게 전달합니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; width: 100%; max-width: 480px;"
+                role="group"
+                aria-label="Switch with Description 데모"
+              >
+
+                <!-- 알림 설정 -->
+                <div class="switch-row">
+                  <div class="switch-row__content">
+                    <span class="switch-row__title" id="desc-push-title">푸시 알림</span>
+                    <p class="switch-row__desc">앱 업데이트 및 새 메시지를 실시간으로 받습니다.</p>
+                  </div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-switch
+                      id="desc-push"
+                      role="switch"
+                      aria-checked="true"
+                      aria-labelledby="desc-push-title"
+                      checked
+                    />
+                    <label data-switch-label for="desc-push">
+                      <span class="sr-only">푸시 알림 켜기/끄기</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 자동 저장 -->
+                <div class="switch-row">
+                  <div class="switch-row__content">
+                    <span class="switch-row__title" id="desc-save-title">자동 저장</span>
+                    <p class="switch-row__desc">5분마다 작업 내용을 자동으로 저장합니다.</p>
+                  </div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-switch
+                      id="desc-save"
+                      role="switch"
+                      aria-checked="false"
+                      aria-labelledby="desc-save-title"
+                    />
+                    <label data-switch-label for="desc-save">
+                      <span class="sr-only">자동 저장 켜기/끄기</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- 위치 정보 (비활성) -->
+                <div class="switch-row">
+                  <div class="switch-row__content">
+                    <span class="switch-row__title" id="desc-loc-title" style="color: var(--color-text-secondary);">위치 정보 공유</span>
+                    <p class="switch-row__desc">현재 권한 없음. 설정에서 위치 접근을 허용하세요.</p>
+                  </div>
+                  <div>
+                    <input
+                      type="checkbox"
+                      data-switch
+                      id="desc-loc"
+                      role="switch"
+                      aria-checked="false"
+                      aria-labelledby="desc-loc-title"
+                      disabled
+                    />
+                    <label data-switch-label for="desc-loc">
+                      <span class="sr-only">위치 정보 공유 켜기/끄기</span>
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 좌측 텍스트 + 우측 스위치 레이아웃 --&gt;
+&lt;!-- .switch-row: space-between 배치 --&gt;
+
+&lt;div class="switch-row"&gt;
+  &lt;div class="switch-row__content"&gt;
+    &lt;span class="switch-row__title" id="sw-push-title"&gt;푸시 알림&lt;/span&gt;
+    &lt;p class="switch-row__desc"&gt;앱 업데이트 및 새 메시지를 실시간으로 받습니다.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input
+      type="checkbox"
+      data-switch
+      id="sw-push"
+      role="switch"
+      aria-checked="true"
+      aria-labelledby="sw-push-title"
+      checked
+    /&gt;
+    &lt;label data-switch-label for="sw-push"&gt;
+      &lt;span class="sr-only"&gt;푸시 알림 켜기/끄기&lt;/span&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* 좌우 배치 레이아웃 */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+.switch-row__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.switch-row__title {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.switch-row__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}'
+                data-js='// aria-labelledby 패턴: 스위치에 별도 label 없이
+// 인접 제목 요소를 참조하여 접근성 제공
+const row = document.querySelector("#sw-push");
+row.addEventListener("change", (e) => {
+  row.setAttribute("aria-checked", e.target.checked ? "true" : "false");
+});'
+                aria-label="Switch with Description 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;div class="switch-row"&gt;
+  &lt;div class="switch-row__content"&gt;
+    &lt;span class="switch-row__title" id="sw-push-title"&gt;
+      푸시 알림
+    &lt;/span&gt;
+    &lt;p class="switch-row__desc"&gt;
+      앱 업데이트 및 새 메시지를 실시간으로 받습니다.
+    &lt;/p&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input
+      type="checkbox"
+      data-switch
+      id="sw-push"
+      role="switch"
+      aria-checked="true"
+      aria-labelledby="sw-push-title"
+      checked
+    /&gt;
+    &lt;label data-switch-label for="sw-push"&gt;
+      &lt;span class="sr-only"&gt;푸시 알림 켜기/끄기&lt;/span&gt;
+    &lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 좌우 배치 컨테이너 */
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+.switch-row__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.switch-row__title {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.switch-row__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// aria-checked 동적 업데이트
+const sw = document.querySelector('#sw-push');
+sw.addEventListener('change', (e) => {
+  sw.setAttribute('aria-checked', e.target.checked ? 'true' : 'false');
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 6: Multiple Switches
+                 알림 설정 또는 기능 토글 그룹 패턴
+                 .switch-list + .switch-list__item 구조
+                 테두리+구분선으로 그룹 시각화
+                 ============================================ -->
+            <section class="demo-section" id="section-multiple" aria-labelledby="heading-multiple">
+              <h2 id="heading-multiple" class="demo-section-title">Multiple Switches</h2>
+              <p class="demo-description">
+                관련 스위치 여러 개를 그룹으로 묶어 설정 목록처럼 표시하는 패턴입니다.
+                <code>.switch-list</code> + <code>.switch-list__item</code>으로 테두리와 구분선을 구성하고,
+                각 항목은 <code>.switch-row</code> 레이아웃을 재사용합니다.
+              </p>
+
+              <!-- 데모 미리보기: 알림 설정 그룹 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; width: 100%; max-width: 520px;"
+                role="group"
+                aria-label="Multiple Switches 데모"
+              >
+
+                <!-- 알림 설정 그룹 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text); margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">알림 설정</p>
+                  <div class="switch-list" role="group" aria-label="알림 설정 그룹">
+
+                    <div class="switch-list__item">
+                      <div class="switch-row" style="padding: 0;">
+                        <div class="switch-row__content">
+                          <span class="switch-row__title" id="multi-email-title">이메일 알림</span>
+                          <p class="switch-row__desc">새 댓글, 좋아요, 팔로우 알림</p>
+                        </div>
+                        <div>
+                          <input
+                            type="checkbox"
+                            data-switch
+                            id="multi-email"
+                            role="switch"
+                            aria-checked="true"
+                            aria-labelledby="multi-email-title"
+                            checked
+                          />
+                          <label data-switch-label for="multi-email">
+                            <span class="sr-only">이메일 알림 켜기/끄기</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="switch-list__item">
+                      <div class="switch-row" style="padding: 0;">
+                        <div class="switch-row__content">
+                          <span class="switch-row__title" id="multi-sms-title">SMS 알림</span>
+                          <p class="switch-row__desc">중요 보안 알림 및 계정 변경 내역</p>
+                        </div>
+                        <div>
+                          <input
+                            type="checkbox"
+                            data-switch
+                            id="multi-sms"
+                            role="switch"
+                            aria-checked="true"
+                            aria-labelledby="multi-sms-title"
+                            checked
+                          />
+                          <label data-switch-label for="multi-sms">
+                            <span class="sr-only">SMS 알림 켜기/끄기</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="switch-list__item">
+                      <div class="switch-row" style="padding: 0;">
+                        <div class="switch-row__content">
+                          <span class="switch-row__title" id="multi-marketing-title">마케팅 수신</span>
+                          <p class="switch-row__desc">이벤트, 프로모션, 신규 기능 소식</p>
+                        </div>
+                        <div>
+                          <input
+                            type="checkbox"
+                            data-switch
+                            id="multi-marketing"
+                            role="switch"
+                            aria-checked="false"
+                            aria-labelledby="multi-marketing-title"
+                          />
+                          <label data-switch-label for="multi-marketing">
+                            <span class="sr-only">마케팅 수신 켜기/끄기</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="switch-list__item">
+                      <div class="switch-row" style="padding: 0;">
+                        <div class="switch-row__content">
+                          <span class="switch-row__title" id="multi-newsletter-title">뉴스레터</span>
+                          <p class="switch-row__desc">주간 업데이트 및 추천 콘텐츠</p>
+                        </div>
+                        <div>
+                          <input
+                            type="checkbox"
+                            data-switch
+                            id="multi-newsletter"
+                            role="switch"
+                            aria-checked="false"
+                            aria-labelledby="multi-newsletter-title"
+                          />
+                          <label data-switch-label for="multi-newsletter">
+                            <span class="sr-only">뉴스레터 켜기/끄기</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <!-- 기능 토글 그룹 -->
+                <div style="margin-top: 32px;">
+                  <p style="font-size: var(--font-size-sm); font-weight: 600; color: var(--color-text); margin: 0 0 12px; text-transform: uppercase; letter-spacing: 0.05em;">기능 설정</p>
+                  <div class="switch-list" role="group" aria-label="기능 설정 그룹">
+
+                    <div class="switch-list__item">
+                      <div class="switch-row" style="padding: 0;">
+                        <div class="switch-row__content">
+                          <span class="switch-row__title" id="multi-autosave-title">자동 저장</span>
+                          <p class="switch-row__desc">변경사항을 5분마다 자동 저장</p>
+                        </div>
+                        <div>
+                          <input
+                            type="checkbox"
+                            data-switch
+                            id="multi-autosave"
+                            role="switch"
+                            aria-checked="true"
+                            aria-labelledby="multi-autosave-title"
+                            checked
+                          />
+                          <label data-switch-label for="multi-autosave">
+                            <span class="sr-only">자동 저장 켜기/끄기</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="switch-list__item">
+                      <div class="switch-row" style="padding: 0;">
+                        <div class="switch-row__content">
+                          <span class="switch-row__title" id="multi-analytics-title">사용 데이터 수집</span>
+                          <p class="switch-row__desc">서비스 개선을 위한 익명 사용 통계</p>
+                        </div>
+                        <div>
+                          <input
+                            type="checkbox"
+                            data-switch
+                            id="multi-analytics"
+                            role="switch"
+                            aria-checked="false"
+                            aria-labelledby="multi-analytics-title"
+                            disabled
+                          />
+                          <label data-switch-label for="multi-analytics">
+                            <span class="sr-only">사용 데이터 수집 켜기/끄기</span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 다중 스위치 그룹: .switch-list 컨테이너 --&gt;
+&lt;!-- 각 항목: .switch-list__item + .switch-row 재사용 --&gt;
+
+&lt;div class="switch-list" role="group" aria-label="알림 설정"&gt;
+
+  &lt;div class="switch-list__item"&gt;
+    &lt;div class="switch-row" style="padding: 0;"&gt;
+      &lt;div class="switch-row__content"&gt;
+        &lt;span class="switch-row__title" id="sw-email-title"&gt;이메일 알림&lt;/span&gt;
+        &lt;p class="switch-row__desc"&gt;새 댓글, 좋아요, 팔로우 알림&lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;input
+          type="checkbox"
+          data-switch
+          id="sw-email"
+          role="switch"
+          aria-checked="true"
+          aria-labelledby="sw-email-title"
+          checked
+        /&gt;
+        &lt;label data-switch-label for="sw-email"&gt;
+          &lt;span class="sr-only"&gt;이메일 알림 켜기/끄기&lt;/span&gt;
+        &lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;div class="switch-list__item"&gt;
+    &lt;!-- 두 번째 항목... --&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;'
+                data-css='/* 스위치 목록 컨테이너 */
+.switch-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* 각 항목: 패딩 + 구분선 */
+.switch-list__item {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  transition: background-color var(--transition-fast);
+}
+
+.switch-list__item:last-child {
+  border-bottom: none;
+}
+
+.switch-list__item:hover {
+  background-color: var(--color-bg-secondary);
+}'
+                data-js='// 다중 스위치 상태 수집 예시
+function getNotificationSettings() {
+  const settings = {};
+  document.querySelectorAll(".switch-list [data-switch]").forEach((sw) => {
+    settings[sw.id] = sw.checked;
+  });
+  return settings;
+}
+
+// 모든 스위치에 aria-checked 동기화
+document.querySelectorAll("[data-switch]").forEach((sw) => {
+  sw.addEventListener("change", (e) => {
+    e.target.setAttribute("aria-checked", e.target.checked ? "true" : "false");
+  });
+});'
+                aria-label="Multiple Switches 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;div class="switch-list" role="group" aria-label="알림 설정"&gt;
+  &lt;div class="switch-list__item"&gt;
+    &lt;div class="switch-row" style="padding: 0;"&gt;
+      &lt;div class="switch-row__content"&gt;
+        &lt;span class="switch-row__title" id="sw-email-title"&gt;
+          이메일 알림
+        &lt;/span&gt;
+        &lt;p class="switch-row__desc"&gt;
+          새 댓글, 좋아요, 팔로우 알림
+        &lt;/p&gt;
+      &lt;/div&gt;
+      &lt;div&gt;
+        &lt;input
+          type="checkbox"
+          data-switch
+          id="sw-email"
+          role="switch"
+          aria-checked="true"
+          aria-labelledby="sw-email-title"
+          checked
+        /&gt;
+        &lt;label data-switch-label for="sw-email"&gt;
+          &lt;span class="sr-only"&gt;이메일 알림 켜기/끄기&lt;/span&gt;
+        &lt;/label&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 스위치 목록 컨테이너 */
+.switch-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.switch-list__item {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+}
+
+.switch-list__item:last-child {
+  border-bottom: none;
+}
+
+.switch-list__item:hover {
+  background-color: var(--color-bg-secondary);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 다중 스위치 상태 수집
+function getSettings() {
+  const settings = {};
+  document.querySelectorAll('.switch-list [data-switch]')
+    .forEach((sw) => { settings[sw.id] = sw.checked; });
+  return settings;
+}
+
+// aria-checked 동기화
+document.querySelectorAll('[data-switch]').forEach((sw) => {
+  sw.addEventListener('change', (e) => {
+    e.target.setAttribute(
+      'aria-checked',
+      e.target.checked ? 'true' : 'false'
+    );
+  });
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Radio 컴포넌트 -->
+                <a href="./radio.html" class="detail-footer-link" aria-label="Radio 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Radio</span>
+                </a>
+                <!-- 다음: Textarea 컴포넌트 -->
+                <a href="./textarea.html" class="detail-footer-link" aria-label="Textarea 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Textarea</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS/JS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>

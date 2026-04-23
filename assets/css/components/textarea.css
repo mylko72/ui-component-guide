@@ -1,1 +1,321 @@
-/* Textarea 컴포넌트 스타일 */
+/* ============================================
+   Textarea 컴포넌트 스타일
+   tokens.css CSS 변수만 사용 (외부 의존 없음)
+   input.css 패턴을 다중 행 입력에 맞게 조정
+   WCAG 2.2 접근성 준수
+   ============================================ */
+
+/* ============================================
+   베이스 textarea 스타일
+   [data-textarea] 속성으로 컴포넌트 식별
+   다중 행 텍스트 입력을 위한 기본값 설정
+   ============================================ */
+textarea[data-textarea] {
+  /* 레이아웃: 블록 요소로 너비 100% 점유 */
+  display: block;
+  width: 100%;
+
+  /* 박스 모델 */
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  /* 타이포그래피 */
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  /* 다중 행 텍스트: line-height를 넉넉하게 설정해 가독성 확보 */
+  line-height: 1.7;
+  color: var(--color-text);
+
+  /* 배경 */
+  background-color: var(--color-bg);
+
+  /* 최소 높이: 단일 행 input보다 확연히 큰 높이로 다중 행 의도 암시 */
+  min-height: 100px;
+
+  /* 리사이즈: 세로 방향만 허용 (가로 리사이즈는 레이아웃 파괴 위험) */
+  resize: vertical;
+
+  /* 전환 효과: 호버/포커스 시 시각 피드백 */
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+
+  /* outline 초기화: 포커스 스타일은 아래에서 별도 정의 */
+  outline: none;
+
+  /* 텍스트 줄바꿈 */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ============================================
+   Placeholder 스타일
+   보조 텍스트 색상으로 구분감 확보
+   ============================================ */
+textarea[data-textarea]::placeholder {
+  color: var(--color-text-secondary);
+  /* placeholder는 italic 처리 안 함 — 가독성 우선 */
+  opacity: 1;
+}
+
+/* ============================================
+   크기(size) 변형
+   sm / md / lg 세 단계
+   input.css 크기 체계와 동일하게 정렬
+   ============================================ */
+
+/* 소형: 짧은 코멘트, 메모 입력 등 */
+textarea[data-textarea][data-size="sm"] {
+  padding: 6px 10px;
+  font-size: var(--font-size-sm);
+  min-height: 80px;
+  border-radius: var(--radius-sm);
+}
+
+/* 중형: 기본값 (대부분의 폼 UI) */
+textarea[data-textarea][data-size="md"] {
+  padding: 10px 14px;
+  font-size: var(--font-size-base);
+  min-height: 100px;
+}
+
+/* 대형: 본문 작성, 긴 설명 입력 등 */
+textarea[data-textarea][data-size="lg"] {
+  padding: 14px 18px;
+  font-size: var(--font-size-lg);
+  min-height: 140px;
+  border-radius: var(--radius-lg);
+}
+
+/* ============================================
+   Hover 상태
+   마우스 오버 시 테두리 색상 강화로 상호작용 암시
+   ============================================ */
+textarea[data-textarea]:hover:not(:disabled):not([data-error="true"]) {
+  border-color: var(--color-border-hover);
+}
+
+/* ============================================
+   Focus 상태 (WCAG 2.2 Focus Visible)
+   outline 2px solid + box-shadow 이중 처리
+   키보드·마우스 모두 포커스 링 표시
+   ============================================ */
+textarea[data-textarea]:focus:not(:disabled) {
+  /* 2px 포커스 링: 접근성 요구사항 준수 */
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+  /* 테두리 색상도 primary로 전환 */
+  border-color: var(--color-primary);
+  /* 내부 glow: 포커스 감지성 강화 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ============================================
+   Error 상태 (data-error="true")
+   유효성 검증 실패 시 빨간 계열로 시각 경고
+   ============================================ */
+textarea[data-textarea][data-error="true"] {
+  border-color: var(--color-danger);
+  /* 연한 빨간 배경: 에러 상태를 배경으로도 암시 */
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+/* Error + hover: 테두리 색상 유지 */
+textarea[data-textarea][data-error="true"]:hover:not(:disabled) {
+  border-color: var(--color-danger);
+}
+
+/* Error + focus: 포커스 링을 danger 색상으로 */
+textarea[data-textarea][data-error="true"]:focus:not(:disabled) {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 0;
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* ============================================
+   Disabled 상태
+   WCAG: opacity 0.5 + cursor not-allowed + pointer-events none
+   ============================================ */
+textarea[data-textarea]:disabled,
+textarea[data-textarea][disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  /* 마우스 이벤트 차단 */
+  pointer-events: none;
+  /* disabled 배경: 보조 배경색으로 입력 불가 암시 */
+  background-color: var(--color-bg-secondary);
+  /* 비활성 상태에서는 리사이즈 차단 */
+  resize: none;
+}
+
+/* ============================================
+   Read-only 상태
+   편집 불가 + 배경으로 구분
+   ============================================ */
+textarea[data-textarea]:read-only:not(:disabled) {
+  background-color: var(--color-bg-secondary);
+  border-color: var(--color-border);
+  cursor: default;
+  color: var(--color-text-secondary);
+  /* 읽기 전용: 리사이즈도 차단 */
+  resize: none;
+}
+
+/* ============================================
+   다크 모드 대응
+   tokens.css [data-theme="dark"] 변수가 대부분 자동 처리
+   color-mix 배경색 보완만 별도 선언
+   ============================================ */
+
+/* 다크 모드: 포커스 glow — 어두운 배경에서 청색 번짐 조정 */
+:root[data-theme="dark"] textarea[data-textarea]:focus:not(:disabled) {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+/* 다크 모드: error 배경 — color-mix 지원 여부 관계없이 명시적 폴백 */
+:root[data-theme="dark"] textarea[data-textarea][data-error="true"] {
+  /* 다크 배경(#111827) 위 에러 배경: 불투명도 낮게 유지 */
+  background-color: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg));
+}
+
+/* 다크 모드: error focus glow */
+:root[data-theme="dark"] textarea[data-textarea][data-error="true"]:focus:not(:disabled) {
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+/* ============================================
+   반응형: 모바일(767px 이하)
+   터치 타겟 최소 44px 확보 (WCAG 2.5.5)
+   360px~767px 뷰포트 범위 대응
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일: sm 크기 최소 높이를 올려 터치 친화적으로 */
+  textarea[data-textarea][data-size="sm"] {
+    min-height: 88px;
+    padding: 8px 12px;
+    font-size: var(--font-size-base);
+  }
+
+  /* md/lg: padding 좌우를 약간 줄여 좁은 화면 대응 */
+  textarea[data-textarea][data-size="md"] {
+    padding: 10px 12px;
+  }
+
+  textarea[data-textarea][data-size="lg"] {
+    padding: 12px 14px;
+  }
+}
+
+/* ============================================
+   동작 감소 설정 대응 (prefers-reduced-motion)
+   KWCAG 2.2 / WCAG 2.1 SC 2.3.3
+   전정 장애·전간증 사용자 배려
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* 모든 textarea 전환 효과 즉시 처리 */
+  textarea[data-textarea] {
+    transition: none;
+  }
+}
+
+/* ============================================
+   입력 필드 그룹 레이아웃
+   라벨 + textarea + 헬퍼/에러 메시지 수직 배치
+   input.css .input-field 패턴과 동일
+   ============================================ */
+.textarea-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ============================================
+   라벨 스타일
+   ============================================ */
+.textarea-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+/* 필수 입력 표시 (*) */
+.textarea-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+  font-size: var(--font-size-sm);
+}
+
+/* ============================================
+   헬퍼 텍스트
+   ============================================ */
+.textarea-helper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
+/* ============================================
+   에러 메시지
+   role="alert"으로 스크린리더에 즉시 전달
+   ============================================ */
+.textarea-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
+/* 에러 메시지 아이콘 크기 */
+.textarea-error-msg svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   글자 수 카운터 래퍼
+   textarea 하단에 헬퍼 텍스트와 카운터를 나란히 배치
+   ============================================ */
+.textarea-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* ============================================
+   글자 수 카운터
+   현재/최대 글자 수를 우측 하단에 표시
+   ============================================ */
+.textarea-counter {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  /* 숫자 정렬: 한 자리 수 증가 시 레이아웃 흔들림 방지 */
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  /* 카운터를 우측으로 밀어냄 */
+  margin-left: auto;
+}
+
+/* 글자 수 초과 시 경고 색상 */
+.textarea-counter[data-over="true"] {
+  color: var(--color-danger);
+  font-weight: 500;
+}

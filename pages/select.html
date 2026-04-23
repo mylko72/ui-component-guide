@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Select 컴포넌트: 기본 크기 변형, 라벨·헬퍼 텍스트, 에러·성공 상태, 비활성화, 옵션 그룹 5가지 패턴. WCAG 2.2 접근성 준수">
+  <title>Select — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → select (컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/select.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       radio.html / switch.html 헤더와 동일한 구조 유지
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: select.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: select.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Select 컴포넌트 데모 5개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Select</h1>
+              <p class="detail-description">
+                목록에서 하나의 옵션을 선택하는 드롭다운 컴포넌트입니다.
+                네이티브 <code>select</code> 요소에 <code>data-select</code> 속성을 지정하고,
+                <code>.select-wrap</code> 컨테이너 안에 넣어 커스텀 화살표 아이콘을 배치합니다.
+                <code>data-size</code>로 sm / md / lg 크기를 지정하며,
+                <code>data-error="true"</code>로 에러 상태,
+                <code>data-success="true"</code>로 성공 상태를 표현합니다.
+                <code>optgroup</code> 요소로 옵션 그룹핑도 지원합니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: Default Select
+                 [data-select] 속성 + .select-wrap 컨테이너 기본 구조
+                 data-size="sm|md|lg"로 크기 변형
+                 네이티브 화살표 제거 후 .select-icon 커스텀 화살표
+                 ============================================ -->
+            <section class="demo-section" id="section-default" aria-labelledby="heading-default">
+              <h2 id="heading-default" class="demo-section-title">Default Select</h2>
+              <p class="demo-description">
+                기본 Select 컴포넌트입니다.
+                <code>data-size</code> 속성으로 sm(32px) / md(44px) / lg(52px) 크기를 지정합니다.
+                네이티브 <code>appearance: none</code>으로 기본 화살표를 제거하고
+                <code>.select-icon</code>으로 커스텀 화살표를 제공합니다.
+              </p>
+
+              <!-- 데모 미리보기: sm / md / lg 크기 비교 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 24px; max-width: 400px;"
+                role="group"
+                aria-label="Default Select 크기 데모"
+              >
+
+                <!-- 소형(sm) select -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 6px; font-weight: 500;">Small (sm)</p>
+                  <div class="select-wrap">
+                    <select data-select data-size="sm" id="demo-sm-select" aria-label="소형 select 예시">
+                      <option value="">선택하세요</option>
+                      <option value="kr">대한민국</option>
+                      <option value="us">미국</option>
+                      <option value="jp">일본</option>
+                      <option value="cn">중국</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 중형(md) select — 기본값 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 6px; font-weight: 500;">Medium (md) — 기본</p>
+                  <div class="select-wrap">
+                    <select data-select id="demo-md-select" aria-label="중형 select 예시">
+                      <option value="">선택하세요</option>
+                      <option value="kr" selected>대한민국</option>
+                      <option value="us">미국</option>
+                      <option value="jp">일본</option>
+                      <option value="cn">중국</option>
+                      <option value="de">독일</option>
+                      <option value="fr">프랑스</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 대형(lg) select -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 6px; font-weight: 500;">Large (lg)</p>
+                  <div class="select-wrap">
+                    <select data-select data-size="lg" id="demo-lg-select" aria-label="대형 select 예시">
+                      <option value="">선택하세요</option>
+                      <option value="kr">대한민국</option>
+                      <option value="us">미국</option>
+                      <option value="jp">일본</option>
+                      <option value="cn">중국</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: code-block.js가 [data-code-block] 속성을 감지하여 자동 초기화 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 기본 Select (크기: sm / md / lg) --&gt;
+&lt;!-- .select-wrap: 커스텀 화살표 배치를 위한 position: relative 컨테이너 --&gt;
+
+&lt;!-- sm: 소형 --&gt;
+&lt;div class="select-wrap"&gt;
+  &lt;select data-select data-size="sm" id="sel-sm"&gt;
+    &lt;option value=""&gt;선택하세요&lt;/option&gt;
+    &lt;option value="kr"&gt;대한민국&lt;/option&gt;
+    &lt;option value="us"&gt;미국&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;span class="select-icon" aria-hidden="true"&gt;
+    &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- md: 기본(default) 크기 --&gt;
+&lt;div class="select-wrap"&gt;
+  &lt;select data-select id="sel-md"&gt;
+    &lt;option value=""&gt;선택하세요&lt;/option&gt;
+    &lt;option value="kr" selected&gt;대한민국&lt;/option&gt;
+    &lt;option value="us"&gt;미국&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;span class="select-icon" aria-hidden="true"&gt;
+    &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- lg: 대형 --&gt;
+&lt;div class="select-wrap"&gt;
+  &lt;select data-select data-size="lg" id="sel-lg"&gt;
+    &lt;option value=""&gt;선택하세요&lt;/option&gt;
+    &lt;option value="kr"&gt;대한민국&lt;/option&gt;
+    &lt;option value="us"&gt;미국&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;span class="select-icon" aria-hidden="true"&gt;
+    &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+  &lt;/span&gt;
+&lt;/div&gt;'
+                data-css='/* 래퍼: 커스텀 화살표 절대 위치 기준 */
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* 네이티브 화살표 제거 + 커스텀 스타일 */
+select[data-select] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 40px 10px 14px; /* 우측 화살표 공간 확보 */
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  appearance: none;       /* 네이티브 화살표 제거 */
+  -webkit-appearance: none;
+  min-height: 44px;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+/* 커스텀 화살표 아이콘 */
+.select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* 클릭 통과 */
+  color: var(--color-text-secondary);
+  width: 16px;
+  height: 16px;
+}
+
+/* 크기 변형 */
+select[data-select][data-size="sm"] {
+  padding: 6px 32px 6px 10px;
+  font-size: var(--font-size-sm);
+  min-height: 32px;
+  border-radius: var(--radius-sm);
+}
+select[data-select][data-size="lg"] {
+  padding: 14px 48px 14px 18px;
+  font-size: var(--font-size-lg);
+  min-height: 52px;
+  border-radius: var(--radius-lg);
+}'
+                data-js='// select 값 변경 감지 예시
+const sel = document.querySelector("[data-select]");
+sel.addEventListener("change", (e) => {
+  console.log("선택된 값:", e.target.value);
+});'
+                aria-label="Default Select 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-select-default-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-select-default-css"
+                    >CSS</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="js"
+                      aria-selected="false"
+                      aria-controls="cb-select-default-js"
+                    >JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-select-default-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- 기본 Select (크기: sm / md / lg) --&gt;
+&lt;!-- .select-wrap: 커스텀 화살표 배치를 위한 컨테이너 --&gt;
+
+&lt;!-- sm: 소형 --&gt;
+&lt;div class="select-wrap"&gt;
+  &lt;select data-select data-size="sm" id="sel-sm"&gt;
+    &lt;option value=""&gt;선택하세요&lt;/option&gt;
+    &lt;option value="kr"&gt;대한민국&lt;/option&gt;
+    &lt;option value="us"&gt;미국&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;span class="select-icon" aria-hidden="true"&gt;
+    &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+  &lt;/span&gt;
+&lt;/div&gt;
+
+&lt;!-- md: 기본 크기 (data-size 생략 시 md) --&gt;
+&lt;div class="select-wrap"&gt;
+  &lt;select data-select id="sel-md"&gt;
+    &lt;option value=""&gt;선택하세요&lt;/option&gt;
+    &lt;option value="kr" selected&gt;대한민국&lt;/option&gt;
+    &lt;option value="us"&gt;미국&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;span class="select-icon" aria-hidden="true"&gt;
+    &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+  &lt;/span&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-select-default-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* 래퍼: 커스텀 화살표 절대 위치 기준 */
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+}
+
+/* 네이티브 화살표 제거 + 커스텀 스타일 */
+select[data-select] {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 40px 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  appearance: none; /* 네이티브 화살표 제거 */
+  -webkit-appearance: none;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+/* 커스텀 화살표 */
+.select-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-text-secondary);
+}</pre>
+                    </div>
+                    <div
+                      id="cb-select-default-js"
+                      class="code-block__panel"
+                      data-code-block-panel="js"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">// select 값 변경 감지 예시
+const sel = document.querySelector('[data-select]');
+sel.addEventListener('change', (e) =&gt; {
+  console.log('선택된 값:', e.target.value);
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: With Label & Helper
+                 .select-field + .select-label + .select-wrap 조합
+                 aria-describedby로 헬퍼 텍스트를 스크린리더에 전달
+                 .select-required(*): 필수 입력 표시
+                 ============================================ -->
+            <section class="demo-section" id="section-label" aria-labelledby="heading-label">
+              <h2 id="heading-label" class="demo-section-title">With Label &amp; Helper</h2>
+              <p class="demo-description">
+                <code>.select-field</code>로 라벨 + select + 헬퍼 텍스트를 수직으로 묶습니다.
+                <code>.select-label</code>은 <code>for</code> 속성으로 select와 연결하고,
+                <code>aria-describedby</code>로 헬퍼 텍스트를 스크린리더에 전달합니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 24px; max-width: 400px;"
+                role="group"
+                aria-label="Label과 Helper Text 데모"
+              >
+
+                <!-- 기본 라벨 + 헬퍼 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-country">
+                    국가
+                    <span class="select-required" aria-hidden="true">*</span>
+                  </label>
+                  <div class="select-wrap">
+                    <select
+                      data-select
+                      id="demo-country"
+                      aria-required="true"
+                      aria-describedby="demo-country-helper"
+                    >
+                      <option value="">국가를 선택하세요</option>
+                      <option value="kr" selected>대한민국</option>
+                      <option value="us">미국</option>
+                      <option value="jp">일본</option>
+                      <option value="cn">중국</option>
+                      <option value="de">독일</option>
+                      <option value="fr">프랑스</option>
+                      <option value="gb">영국</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <!-- 헬퍼 텍스트: aria-describedby로 select에 연결 -->
+                  <p class="select-helper" id="demo-country-helper">
+                    서비스를 제공하는 국가를 선택하세요.
+                  </p>
+                </div>
+
+                <!-- 언어 선택 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-lang">
+                    언어
+                  </label>
+                  <div class="select-wrap">
+                    <select
+                      data-select
+                      id="demo-lang"
+                      aria-describedby="demo-lang-helper"
+                    >
+                      <option value="ko" selected>한국어</option>
+                      <option value="en">English</option>
+                      <option value="ja">日本語</option>
+                      <option value="zh">中文</option>
+                      <option value="de">Deutsch</option>
+                      <option value="fr">Français</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <p class="select-helper" id="demo-lang-helper">
+                    인터페이스 표시 언어를 선택합니다.
+                  </p>
+                </div>
+
+                <!-- 시간대 선택 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-timezone">
+                    시간대
+                    <span class="select-required" aria-hidden="true">*</span>
+                  </label>
+                  <div class="select-wrap">
+                    <select
+                      data-select
+                      id="demo-timezone"
+                      aria-required="true"
+                      aria-describedby="demo-timezone-helper"
+                    >
+                      <option value="">시간대를 선택하세요</option>
+                      <option value="Asia/Seoul" selected>UTC+9 (서울)</option>
+                      <option value="America/New_York">UTC-5 (뉴욕)</option>
+                      <option value="Europe/London">UTC+0 (런던)</option>
+                      <option value="Asia/Tokyo">UTC+9 (도쿄)</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <p class="select-helper" id="demo-timezone-helper">
+                    알림 및 예약 기능에 사용됩니다.
+                  </p>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 라벨 + Select + 헬퍼 텍스트 조합 --&gt;
+&lt;!-- .select-field: 수직 배치 컨테이너 --&gt;
+&lt;div class="select-field"&gt;
+  &lt;!-- .select-label: for 속성으로 select 연결 --&gt;
+  &lt;label class="select-label" for="country"&gt;
+    국가
+    &lt;span class="select-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;select
+      data-select
+      id="country"
+      aria-required="true"
+      aria-describedby="country-helper"
+    &gt;
+      &lt;option value=""&gt;국가를 선택하세요&lt;/option&gt;
+      &lt;option value="kr" selected&gt;대한민국&lt;/option&gt;
+      &lt;option value="us"&gt;미국&lt;/option&gt;
+      &lt;option value="jp"&gt;일본&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;!-- 헬퍼 텍스트: aria-describedby로 연결 --&gt;
+  &lt;p class="select-helper" id="country-helper"&gt;
+    서비스를 제공하는 국가를 선택하세요.
+  &lt;/p&gt;
+&lt;/div&gt;'
+                data-css='/* select 필드 그룹: 라벨 + select + 헬퍼 수직 배치 */
+.select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 라벨 */
+.select-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+/* 필수 표시 */
+.select-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+}
+
+/* 헬퍼 텍스트 */
+.select-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}'
+                data-js='// 국가 선택 변경 시 관련 필드 업데이트 예시
+const countrySelect = document.querySelector("#country");
+countrySelect.addEventListener("change", (e) => {
+  const selectedCountry = e.target.value;
+  console.log("선택된 국가:", selectedCountry);
+  // 국가에 따라 시간대 select 옵션 필터링 등 처리
+});'
+                aria-label="Label과 Helper Text 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 라벨 + Select + 헬퍼 텍스트 조합 --&gt;
+&lt;div class="select-field"&gt;
+  &lt;label class="select-label" for="country"&gt;
+    국가
+    &lt;span class="select-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;select
+      data-select
+      id="country"
+      aria-required="true"
+      aria-describedby="country-helper"
+    &gt;
+      &lt;option value=""&gt;국가를 선택하세요&lt;/option&gt;
+      &lt;option value="kr" selected&gt;대한민국&lt;/option&gt;
+      &lt;option value="us"&gt;미국&lt;/option&gt;
+      &lt;option value="jp"&gt;일본&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class="select-helper" id="country-helper"&gt;
+    서비스를 제공하는 국가를 선택하세요.
+  &lt;/p&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* select 필드 그룹 */
+.select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* 라벨 */
+.select-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+/* 필수 표시 */
+.select-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+}
+
+/* 헬퍼 텍스트 */
+.select-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 국가 선택 변경 시 처리 예시
+const countrySelect = document.querySelector('#country');
+countrySelect.addEventListener('change', (e) =&gt; {
+  const selectedCountry = e.target.value;
+  console.log('선택된 국가:', selectedCountry);
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: Error & Success State
+                 data-error="true": 빨간 테두리 + 연한 배경 + 에러 화살표
+                 data-success="true": 초록 테두리 + 연한 배경 + 성공 화살표
+                 aria-invalid="true": 스크린리더에 유효성 실패 전달
+                 role="alert": 에러 메시지를 즉시 읽어줌
+                 ============================================ -->
+            <section class="demo-section" id="section-states" aria-labelledby="heading-states">
+              <h2 id="heading-states" class="demo-section-title">Error &amp; Success State</h2>
+              <p class="demo-description">
+                유효성 검사 실패 시 <code>data-error="true"</code>와 <code>aria-invalid="true"</code>를 함께 적용합니다.
+                유효성 통과 시 <code>data-success="true"</code>로 성공 상태를 표시합니다.
+                에러 메시지는 <code>role="alert"</code>으로 스크린리더에 즉시 전달됩니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 24px; max-width: 400px;"
+                role="group"
+                aria-label="Error와 Success State 데모"
+              >
+
+                <!-- 에러 상태: 미선택 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-err-category">
+                    카테고리
+                    <span class="select-required" aria-hidden="true">*</span>
+                  </label>
+                  <div class="select-wrap">
+                    <select
+                      data-select
+                      data-error="true"
+                      id="demo-err-category"
+                      aria-required="true"
+                      aria-invalid="true"
+                      aria-describedby="demo-err-category-msg"
+                    >
+                      <option value="">카테고리를 선택하세요</option>
+                      <option value="tech">기술</option>
+                      <option value="design">디자인</option>
+                      <option value="business">비즈니스</option>
+                      <option value="marketing">마케팅</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <!-- role="alert": 에러 메시지를 스크린리더가 즉시 읽음 -->
+                  <p class="select-error-msg" id="demo-err-category-msg" role="alert">
+                    <i data-lucide="alert-circle" aria-hidden="true"></i>
+                    카테고리를 선택해 주세요.
+                  </p>
+                </div>
+
+                <!-- 에러 상태: 선택했지만 유효하지 않은 경우 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-err-age">
+                    연령대
+                    <span class="select-required" aria-hidden="true">*</span>
+                  </label>
+                  <div class="select-wrap">
+                    <select
+                      data-select
+                      data-error="true"
+                      id="demo-err-age"
+                      aria-required="true"
+                      aria-invalid="true"
+                      aria-describedby="demo-err-age-msg"
+                    >
+                      <option value="">선택하세요</option>
+                      <option value="under18" selected>18세 미만</option>
+                      <option value="18-25">18 ~ 25세</option>
+                      <option value="26-35">26 ~ 35세</option>
+                      <option value="36-50">36 ~ 50세</option>
+                      <option value="over50">50세 이상</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <p class="select-error-msg" id="demo-err-age-msg" role="alert">
+                    <i data-lucide="alert-circle" aria-hidden="true"></i>
+                    이 서비스는 18세 이상만 이용 가능합니다.
+                  </p>
+                </div>
+
+                <!-- 성공 상태 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-success-plan">
+                    구독 플랜
+                    <span class="select-required" aria-hidden="true">*</span>
+                  </label>
+                  <div class="select-wrap">
+                    <select
+                      data-select
+                      data-success="true"
+                      id="demo-success-plan"
+                      aria-required="true"
+                      aria-describedby="demo-success-plan-msg"
+                    >
+                      <option value="">플랜을 선택하세요</option>
+                      <option value="free">무료 플랜</option>
+                      <option value="pro" selected>Pro 플랜</option>
+                      <option value="enterprise">Enterprise 플랜</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <!-- 성공 헬퍼 메시지 -->
+                  <p class="select-helper select-helper--success" id="demo-success-plan-msg">
+                    <i data-lucide="check-circle" aria-hidden="true" style="width: 14px; height: 14px; flex-shrink: 0;"></i>
+                    유효한 플랜이 선택되었습니다.
+                  </p>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 에러 상태: data-error="true" + aria-invalid="true" --&gt;
+&lt;div class="select-field"&gt;
+  &lt;label class="select-label" for="category"&gt;
+    카테고리
+    &lt;span class="select-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;select
+      data-select
+      data-error="true"
+      id="category"
+      aria-required="true"
+      aria-invalid="true"
+      aria-describedby="category-error"
+    &gt;
+      &lt;option value=""&gt;카테고리를 선택하세요&lt;/option&gt;
+      &lt;option value="tech"&gt;기술&lt;/option&gt;
+      &lt;option value="design"&gt;디자인&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;!-- role="alert": 에러 메시지를 즉시 읽어줌 --&gt;
+  &lt;p class="select-error-msg" id="category-error" role="alert"&gt;
+    &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+    카테고리를 선택해 주세요.
+  &lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- 성공 상태: data-success="true" --&gt;
+&lt;div class="select-field"&gt;
+  &lt;label class="select-label" for="plan"&gt;구독 플랜&lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;select
+      data-select
+      data-success="true"
+      id="plan"
+      aria-describedby="plan-helper"
+    &gt;
+      &lt;option value="pro" selected&gt;Pro 플랜&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class="select-helper select-helper--success" id="plan-helper"&gt;
+    유효한 플랜이 선택되었습니다.
+  &lt;/p&gt;
+&lt;/div&gt;'
+                data-css='/* 에러 상태: 빨간 테두리 + 연한 배경 */
+select[data-select][data-error="true"] {
+  border-color: var(--color-danger);
+  background-color: color-mix(
+    in srgb, var(--color-danger) 6%, var(--color-bg)
+  );
+}
+
+/* 에러 상태 화살표 아이콘: danger 색상 */
+select[data-select][data-error="true"] ~ .select-icon {
+  color: var(--color-danger);
+}
+
+/* 에러 메시지 */
+.select-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin: 0;
+}
+
+/* 성공 상태: 초록 테두리 + 연한 배경 */
+select[data-select][data-success="true"] {
+  border-color: var(--color-success);
+  background-color: color-mix(
+    in srgb, var(--color-success) 6%, var(--color-bg)
+  );
+}
+
+/* 성공 헬퍼 텍스트 */
+.select-helper--success {
+  color: var(--color-success);
+}'
+                data-js='// 폼 제출 시 select 유효성 검사 예시
+const form = document.querySelector("form");
+form.addEventListener("submit", (e) => {
+  const sel = document.querySelector("[data-select]");
+  const errorMsg = document.querySelector("#category-error");
+
+  if (!sel.value) {
+    e.preventDefault();
+    sel.dataset.error = "true";
+    sel.setAttribute("aria-invalid", "true");
+    errorMsg.hidden = false;
+    sel.focus();
+  } else {
+    delete sel.dataset.error;
+    sel.setAttribute("aria-invalid", "false");
+    errorMsg.hidden = true;
+  }
+});'
+                aria-label="Error와 Success State 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 에러 상태 --&gt;
+&lt;div class="select-field"&gt;
+  &lt;label class="select-label" for="category"&gt;
+    카테고리
+    &lt;span class="select-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;select
+      data-select data-error="true"
+      id="category"
+      aria-required="true"
+      aria-invalid="true"
+      aria-describedby="category-error"
+    &gt;
+      &lt;option value=""&gt;카테고리를 선택하세요&lt;/option&gt;
+      &lt;option value="tech"&gt;기술&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class="select-error-msg" id="category-error" role="alert"&gt;
+    &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+    카테고리를 선택해 주세요.
+  &lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- 성공 상태 --&gt;
+&lt;div class="select-field"&gt;
+  &lt;label class="select-label" for="plan"&gt;구독 플랜&lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;select
+      data-select data-success="true"
+      id="plan"
+      aria-describedby="plan-helper"
+    &gt;
+      &lt;option value="pro" selected&gt;Pro 플랜&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class="select-helper select-helper--success" id="plan-helper"&gt;
+    유효한 플랜이 선택되었습니다.
+  &lt;/p&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 에러 상태 */
+select[data-select][data-error="true"] {
+  border-color: var(--color-danger);
+  background-color: color-mix(
+    in srgb, var(--color-danger) 6%, var(--color-bg)
+  );
+}
+
+select[data-select][data-error="true"] ~ .select-icon {
+  color: var(--color-danger);
+}
+
+.select-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin: 0;
+}
+
+/* 성공 상태 */
+select[data-select][data-success="true"] {
+  border-color: var(--color-success);
+  background-color: color-mix(
+    in srgb, var(--color-success) 6%, var(--color-bg)
+  );
+}
+
+.select-helper--success {
+  color: var(--color-success);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 폼 제출 시 select 유효성 검사
+const form = document.querySelector('form');
+form.addEventListener('submit', (e) =&gt; {
+  const sel = document.querySelector('[data-select]');
+  const errorMsg = document.querySelector('#category-error');
+
+  if (!sel.value) {
+    e.preventDefault();
+    sel.dataset.error = 'true';
+    sel.setAttribute('aria-invalid', 'true');
+    errorMsg.hidden = false;
+    sel.focus();
+  } else {
+    delete sel.dataset.error;
+    sel.setAttribute('aria-invalid', 'false');
+    errorMsg.hidden = true;
+  }
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: Disabled State
+                 HTML disabled 속성: opacity 0.5 + cursor not-allowed
+                 pointer-events: none으로 클릭 차단
+                 ============================================ -->
+            <section class="demo-section" id="section-disabled" aria-labelledby="heading-disabled">
+              <h2 id="heading-disabled" class="demo-section-title">Disabled State</h2>
+              <p class="demo-description">
+                <code>disabled</code> 속성 추가 시 반투명 처리되고 상호작용이 차단됩니다.
+                폼 내 편집 불가 항목에 사용하며, 읽기 전용 정보 표시 시에도 활용합니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 24px; max-width: 400px;"
+                role="group"
+                aria-label="Disabled State 데모"
+              >
+
+                <!-- 비활성: 미선택 상태 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-dis-region">
+                    지역 (비활성 — 미선택)
+                  </label>
+                  <div class="select-wrap">
+                    <select data-select id="demo-dis-region" disabled aria-disabled="true">
+                      <option value="">지역을 선택하세요</option>
+                      <option value="seoul">서울</option>
+                      <option value="busan">부산</option>
+                      <option value="daegu">대구</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <p class="select-helper" id="demo-dis-region-helper">
+                    현재 선택할 수 없는 항목입니다.
+                  </p>
+                </div>
+
+                <!-- 비활성: 이미 선택된 값을 읽기 전용으로 표시 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-dis-readonly">
+                    요금제 (비활성 — 선택됨)
+                  </label>
+                  <div class="select-wrap">
+                    <select data-select id="demo-dis-readonly" disabled aria-disabled="true">
+                      <option value="basic">기본 요금제</option>
+                      <option value="standard" selected>스탠다드 요금제</option>
+                      <option value="premium">프리미엄 요금제</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <p class="select-helper">
+                    현재 사용 중인 요금제입니다. 변경하려면 고객센터에 문의하세요.
+                  </p>
+                </div>
+
+                <!-- sm 크기 비활성 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-dis-sm">
+                    소형 비활성 (sm)
+                  </label>
+                  <div class="select-wrap">
+                    <select data-select data-size="sm" id="demo-dis-sm" disabled aria-disabled="true">
+                      <option value="opt1">옵션 1</option>
+                      <option value="opt2" selected>옵션 2 (선택됨)</option>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 비활성 select: disabled + aria-disabled --&gt;
+&lt;div class="select-field"&gt;
+  &lt;label class="select-label" for="region"&gt;
+    지역 (비활성)
+  &lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;!-- HTML disabled + aria-disabled: 접근성 트리 동기화 --&gt;
+    &lt;select
+      data-select
+      id="region"
+      disabled
+      aria-disabled="true"
+    &gt;
+      &lt;option value=""&gt;지역을 선택하세요&lt;/option&gt;
+      &lt;option value="seoul"&gt;서울&lt;/option&gt;
+      &lt;option value="busan"&gt;부산&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class="select-helper"&gt;
+    현재 선택할 수 없는 항목입니다.
+  &lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- 읽기 전용: 선택된 값 표시 --&gt;
+&lt;div class="select-wrap"&gt;
+  &lt;select data-select id="plan" disabled aria-disabled="true"&gt;
+    &lt;option value="standard" selected&gt;스탠다드 요금제&lt;/option&gt;
+  &lt;/select&gt;
+  &lt;span class="select-icon" aria-hidden="true"&gt;
+    &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+  &lt;/span&gt;
+&lt;/div&gt;'
+                data-css='/* 비활성 상태: 반투명 + 커서 변경 + 클릭 차단 */
+select[data-select]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  /* 보조 배경색으로 입력 불가 암시 */
+  background-color: var(--color-bg-secondary);
+}'
+                data-js='// 조건부 비활성화 예시
+const regionSelect = document.querySelector("#region");
+const isPlanActive = false; // 서버에서 조건 확인
+
+if (!isPlanActive) {
+  regionSelect.disabled = true;
+  regionSelect.setAttribute("aria-disabled", "true");
+}'
+                aria-label="Disabled State 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 비활성 select --&gt;
+&lt;div class="select-field"&gt;
+  &lt;label class="select-label" for="region"&gt;
+    지역 (비활성)
+  &lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;select
+      data-select
+      id="region"
+      disabled
+      aria-disabled="true"
+    &gt;
+      &lt;option value=""&gt;지역을 선택하세요&lt;/option&gt;
+      &lt;option value="seoul"&gt;서울&lt;/option&gt;
+      &lt;option value="busan"&gt;부산&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class="select-helper"&gt;
+    현재 선택할 수 없는 항목입니다.
+  &lt;/p&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 비활성 상태 */
+select[data-select]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: var(--color-bg-secondary);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 조건부 비활성화 예시
+const regionSelect = document.querySelector('#region');
+const isPlanActive = false;
+
+if (!isPlanActive) {
+  regionSelect.disabled = true;
+  regionSelect.setAttribute('aria-disabled', 'true');
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 5: Option Group (optgroup)
+                 optgroup 요소: 관련 옵션 그룹핑
+                 label 속성: 그룹명 표시
+                 많은 옵션 수 처리 예시 포함
+                 ============================================ -->
+            <section class="demo-section" id="section-optgroup" aria-labelledby="heading-optgroup">
+              <h2 id="heading-optgroup" class="demo-section-title">Option Group</h2>
+              <p class="demo-description">
+                <code>optgroup</code> 요소로 관련 옵션들을 시각적으로 그룹핑합니다.
+                <code>label</code> 속성으로 그룹명을 표시하며, 브라우저가 기본으로 지원합니다.
+                옵션이 많을 때 사용자가 원하는 항목을 더 빠르게 찾을 수 있습니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: stretch; gap: 24px; max-width: 400px;"
+                role="group"
+                aria-label="Option Group 데모"
+              >
+
+                <!-- 지역별 도시 그룹 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-city">
+                    도시
+                    <span class="select-required" aria-hidden="true">*</span>
+                  </label>
+                  <div class="select-wrap">
+                    <select data-select id="demo-city" aria-required="true">
+                      <option value="">도시를 선택하세요</option>
+                      <optgroup label="수도권">
+                        <option value="seoul">서울</option>
+                        <option value="incheon">인천</option>
+                        <option value="suwon">수원</option>
+                        <option value="seongnam">성남</option>
+                      </optgroup>
+                      <optgroup label="영남권">
+                        <option value="busan" selected>부산</option>
+                        <option value="daegu">대구</option>
+                        <option value="ulsan">울산</option>
+                        <option value="changwon">창원</option>
+                      </optgroup>
+                      <optgroup label="호남권">
+                        <option value="gwangju">광주</option>
+                        <option value="jeonju">전주</option>
+                        <option value="yeosu">여수</option>
+                      </optgroup>
+                      <optgroup label="충청권">
+                        <option value="daejeon">대전</option>
+                        <option value="cheongju">청주</option>
+                        <option value="cheonan">천안</option>
+                      </optgroup>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <p class="select-helper">지역별로 도시가 그룹핑되어 있습니다.</p>
+                </div>
+
+                <!-- 프로그래밍 언어 분류 그룹 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-lang-prog">
+                    프로그래밍 언어
+                  </label>
+                  <div class="select-wrap">
+                    <select data-select id="demo-lang-prog">
+                      <option value="">언어를 선택하세요</option>
+                      <optgroup label="프론트엔드">
+                        <option value="js">JavaScript</option>
+                        <option value="ts">TypeScript</option>
+                        <option value="html">HTML</option>
+                        <option value="css">CSS</option>
+                      </optgroup>
+                      <optgroup label="백엔드">
+                        <option value="python" selected>Python</option>
+                        <option value="java">Java</option>
+                        <option value="go">Go</option>
+                        <option value="rust">Rust</option>
+                        <option value="php">PHP</option>
+                      </optgroup>
+                      <optgroup label="모바일">
+                        <option value="swift">Swift</option>
+                        <option value="kotlin">Kotlin</option>
+                        <option value="dart">Dart (Flutter)</option>
+                      </optgroup>
+                      <optgroup label="데이터">
+                        <option value="r">R</option>
+                        <option value="scala">Scala</option>
+                        <option value="julia">Julia</option>
+                      </optgroup>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <p class="select-helper">용도별로 언어가 분류되어 있습니다.</p>
+                </div>
+
+                <!-- 비활성 옵션 포함 그룹 -->
+                <div class="select-field">
+                  <label class="select-label" for="demo-feature">
+                    기능 (일부 옵션 비활성)
+                  </label>
+                  <div class="select-wrap">
+                    <select data-select id="demo-feature">
+                      <option value="">기능을 선택하세요</option>
+                      <optgroup label="기본 기능">
+                        <option value="export">내보내기</option>
+                        <option value="import">가져오기</option>
+                        <option value="search">검색</option>
+                      </optgroup>
+                      <optgroup label="고급 기능 (Pro 이상)">
+                        <!-- disabled option: 해당 기능 비활성 -->
+                        <option value="ai" disabled>AI 분석 (준비 중)</option>
+                        <option value="batch">일괄 처리</option>
+                        <option value="api" disabled>API 연동 (준비 중)</option>
+                      </optgroup>
+                    </select>
+                    <span class="select-icon" aria-hidden="true">
+                      <i data-lucide="chevron-down"></i>
+                    </span>
+                  </div>
+                  <p class="select-helper">준비 중인 기능은 선택할 수 없습니다.</p>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- optgroup으로 옵션 그룹핑 --&gt;
+&lt;div class="select-field"&gt;
+  &lt;label class="select-label" for="city"&gt;도시&lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;select data-select id="city"&gt;
+      &lt;option value=""&gt;도시를 선택하세요&lt;/option&gt;
+      &lt;!-- optgroup label: 그룹명 표시 --&gt;
+      &lt;optgroup label="수도권"&gt;
+        &lt;option value="seoul"&gt;서울&lt;/option&gt;
+        &lt;option value="incheon"&gt;인천&lt;/option&gt;
+        &lt;option value="suwon"&gt;수원&lt;/option&gt;
+      &lt;/optgroup&gt;
+      &lt;optgroup label="영남권"&gt;
+        &lt;option value="busan"&gt;부산&lt;/option&gt;
+        &lt;option value="daegu"&gt;대구&lt;/option&gt;
+        &lt;option value="ulsan"&gt;울산&lt;/option&gt;
+      &lt;/optgroup&gt;
+      &lt;optgroup label="호남권"&gt;
+        &lt;option value="gwangju"&gt;광주&lt;/option&gt;
+        &lt;option value="jeonju"&gt;전주&lt;/option&gt;
+      &lt;/optgroup&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+  &lt;p class="select-helper"&gt;지역별로 도시가 그룹핑되어 있습니다.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- 비활성 option: disabled 속성 --&gt;
+&lt;optgroup label="고급 기능 (Pro 이상)"&gt;
+  &lt;option value="ai" disabled&gt;AI 분석 (준비 중)&lt;/option&gt;
+  &lt;option value="batch"&gt;일괄 처리&lt;/option&gt;
+&lt;/optgroup&gt;'
+                data-css='/* optgroup 스타일: 브라우저 기본 지원
+   추가적인 CSS는 불필요
+   select 기본 스타일이 그대로 적용됨 */
+
+/* 특정 optgroup 강조가 필요하다면 */
+select[data-select] optgroup {
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+/* 비활성 option: 브라우저 기본 처리
+   추가 스타일 없이도 흐리게 표시됨 */
+select[data-select] option:disabled {
+  color: var(--color-text-secondary);
+}'
+                data-js='// optgroup을 활용한 동적 필터링 예시
+const citySelect = document.querySelector("#city");
+
+// 특정 지역의 도시만 남기기
+function filterByRegion(region) {
+  const groups = citySelect.querySelectorAll("optgroup");
+  groups.forEach((group) => {
+    group.hidden = group.label !== region;
+  });
+}
+
+// 예: "수도권"만 보이기
+filterByRegion("수도권");'
+                aria-label="Option Group 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- optgroup으로 옵션 그룹핑 --&gt;
+&lt;div class="select-field"&gt;
+  &lt;label class="select-label" for="city"&gt;도시&lt;/label&gt;
+  &lt;div class="select-wrap"&gt;
+    &lt;select data-select id="city"&gt;
+      &lt;option value=""&gt;도시를 선택하세요&lt;/option&gt;
+      &lt;optgroup label="수도권"&gt;
+        &lt;option value="seoul"&gt;서울&lt;/option&gt;
+        &lt;option value="incheon"&gt;인천&lt;/option&gt;
+        &lt;option value="suwon"&gt;수원&lt;/option&gt;
+      &lt;/optgroup&gt;
+      &lt;optgroup label="영남권"&gt;
+        &lt;option value="busan"&gt;부산&lt;/option&gt;
+        &lt;option value="daegu"&gt;대구&lt;/option&gt;
+      &lt;/optgroup&gt;
+    &lt;/select&gt;
+    &lt;span class="select-icon" aria-hidden="true"&gt;
+      &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+    &lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 비활성 option: 특정 항목만 선택 불가 --&gt;
+&lt;optgroup label="고급 기능 (Pro 이상)"&gt;
+  &lt;option value="ai" disabled&gt;AI 분석 (준비 중)&lt;/option&gt;
+  &lt;option value="batch"&gt;일괄 처리&lt;/option&gt;
+&lt;/optgroup&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* optgroup 스타일은 브라우저 기본 지원
+   select[data-select] 기본 스타일 그대로 적용 */
+
+/* 비활성 option: 브라우저가 자동으로 흐리게 표시
+   필요 시 색상 명시 가능 */
+select[data-select] option:disabled {
+  color: var(--color-text-secondary);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// optgroup 동적 필터링 예시
+const citySelect = document.querySelector('#city');
+
+function filterByRegion(region) {
+  const groups = citySelect.querySelectorAll('optgroup');
+  groups.forEach((group) =&gt; {
+    group.hidden = group.label !== region;
+  });
+}
+
+// 예: "수도권"만 보이기
+filterByRegion('수도권');</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Switch 컴포넌트 -->
+                <a href="./switch.html" class="detail-footer-link" aria-label="Switch 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Switch</span>
+                </a>
+                <!-- 다음: Textarea 컴포넌트 -->
+                <a href="./textarea.html" class="detail-footer-link" aria-label="Textarea 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Textarea</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS/JS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>

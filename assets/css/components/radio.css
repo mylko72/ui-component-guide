@@ -1,1 +1,410 @@
-/* Radio 컴포넌트 스타일 */
+/* ============================================
+   Radio 컴포넌트 스타일
+   tokens.css CSS 변수만 사용 (외부 의존 없음)
+   WCAG 2.2 접근성 준수
+   커스텀 라디오: label::before(원형 테두리) + label::after(내부 점)
+   checkbox.css 패턴을 계승, 사각형→원형으로 변형
+   ============================================ */
+
+/* ============================================
+   네이티브 input[type="radio"] 시각적 숨김
+   display:none 대신 SR-전용 기법으로 숨겨
+   접근성 트리에는 유지 (스크린리더 인식 보장)
+   ============================================ */
+input[type="radio"][data-radio] {
+  /* 시각적으로 숨기되 접근성 트리에서는 제거하지 않음 */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   Radio 래퍼: label 요소
+   라디오+텍스트를 수평 배치하는 컨테이너
+   최소 44px × 44px 터치 타겟 확보 (WCAG 2.5.5)
+   ============================================ */
+label[data-radio-label] {
+  /* 수평 배치: ::before 원형 + 텍스트 */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  /* 타이포그래피 */
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+
+  /* 클릭 커서 */
+  cursor: pointer;
+
+  /* 터치 타겟: 최소 44px 높이 확보 */
+  min-height: 44px;
+
+  /* 사용자 선택 방지 (더블클릭 텍스트 선택 억제) */
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* 상대 위치: ::after 내부 점 절대 배치의 기준 */
+  position: relative;
+}
+
+/* ============================================
+   ::before: 라디오 원형 외테두리
+   18×18px 원형, 2px 테두리, border-radius: 50%
+   checkbox::before의 border-radius: 3px → 50% 변경
+   ============================================ */
+label[data-radio-label]::before {
+  content: '';
+
+  /* 고정 크기: 18×18px */
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+
+  /* 박스 모델 */
+  box-sizing: border-box;
+  border: 2px solid var(--color-border-hover);
+
+  /* 핵심 차이: 원형 (checkbox는 border-radius: 3px) */
+  border-radius: 50%;
+
+  /* 배경: 기본값은 빈 원 */
+  background-color: var(--color-bg);
+
+  /* 전환 효과: 선택 상태 변경 시 시각 피드백 */
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+/* ============================================
+   ::after: 내부 채움 점(●)
+   기본값: 비표시 → 선택 시 primary 색상으로 표시
+   checkbox의 체크마크와 달리 단순 원형 점 사용
+   ============================================ */
+label[data-radio-label]::after {
+  content: '';
+
+  /* 절대 위치: ::before 원형 내부에 정확히 배치 */
+  position: absolute;
+  left: 0;
+  top: 50%;
+
+  /* 내부 점 크기: 6×6px (18px 원형의 약 1/3) */
+  width: 6px;
+  height: 6px;
+
+  /* 원형 점 */
+  background-color: var(--color-primary);
+  border-radius: 50%;
+
+  /* 내부 점 중앙 정렬:
+     translateX: ::before 원형 중앙(9px) - 점 절반(3px) = 6px
+     translateY: 세로 정중앙 */
+  transform: translateX(6px) translateY(-50%);
+
+  /* 기본값: 투명 (미선택 상태) */
+  opacity: 0;
+
+  /* 전환 효과 */
+  transition: opacity var(--transition-fast);
+}
+
+/* ============================================
+   Hover 상태 (미선택 + 활성 상태)
+   테두리 색상 강화로 상호작용 암시
+   ============================================ */
+input[type="radio"][data-radio]:not(:checked):not(:disabled) + label[data-radio-label]:hover::before {
+  border-color: var(--color-primary);
+  /* 연한 primary 배경: hover 시 미리보기 효과 */
+  background-color: color-mix(in srgb, var(--color-primary) 6%, var(--color-bg));
+}
+
+/* ============================================
+   Checked 상태
+   ::before: primary 테두리 강화 (배경 유지)
+   ::after: primary 색상 내부 점 표시
+   ============================================ */
+input[type="radio"][data-radio]:checked + label[data-radio-label]::before {
+  border-color: var(--color-primary);
+  border-width: 2px;
+  /* 체크박스와 달리 배경을 채우지 않고 테두리+내부점 방식 */
+  background-color: var(--color-bg);
+}
+
+input[type="radio"][data-radio]:checked + label[data-radio-label]::after {
+  /* 선택 상태에서 내부 점 표시 */
+  opacity: 1;
+}
+
+/* ============================================
+   포커스 상태 (WCAG 2.2 Focus Visible)
+   input이 숨겨져 있으므로 label::before에 포커스 링 표현
+   2px outline + 2px offset (요구사항 준수)
+   ============================================ */
+input[type="radio"][data-radio]:focus-visible + label[data-radio-label]::before {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  /* 포커스 감지성 강화: box-shadow glow */
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+/* ============================================
+   Disabled 상태
+   WCAG: opacity 0.5 + cursor not-allowed
+   ============================================ */
+input[type="radio"][data-radio]:disabled + label[data-radio-label] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  /* pointer-events: none → 마우스 이벤트 차단 */
+  pointer-events: none;
+}
+
+/* disabled + 선택 상태: primary 색상 유지 (상태 인지 보장) */
+input[type="radio"][data-radio]:disabled:checked + label[data-radio-label]::before {
+  border-color: var(--color-primary);
+}
+
+input[type="radio"][data-radio]:disabled:checked + label[data-radio-label]::after {
+  opacity: 1;
+}
+
+/* ============================================
+   Error 상태
+   data-error="true" + aria-invalid="true" 동시 사용
+   ::before에 danger 테두리 + 연한 배경
+   ============================================ */
+input[type="radio"][data-radio][data-error="true"] + label[data-radio-label]::before {
+  border-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+/* 에러 + 선택 상태: danger 색상 내부 점 */
+input[type="radio"][data-radio][data-error="true"]:checked + label[data-radio-label]::before {
+  border-color: var(--color-danger);
+}
+
+input[type="radio"][data-radio][data-error="true"]:checked + label[data-radio-label]::after {
+  background-color: var(--color-danger);
+  opacity: 1;
+}
+
+/* ============================================
+   크기(size) 변형
+   sm / md(기본) / lg 세 단계
+   button.css, input.css, checkbox.css와 동일 체계
+   ============================================ */
+
+/* --- 소형(sm): 보조 폼, 테이블 인라인 등 --- */
+label[data-radio-label][data-size="sm"] {
+  font-size: var(--font-size-sm);
+  gap: 6px;
+  min-height: 32px;
+}
+
+label[data-radio-label][data-size="sm"]::before {
+  width: 14px;
+  height: 14px;
+}
+
+/* sm 내부 점 크기 조정: 14px 원의 약 1/3 ≈ 4px */
+label[data-radio-label][data-size="sm"]::after {
+  width: 4px;
+  height: 4px;
+  /* translateX: 14px 중앙(7px) - 점 절반(2px) = 5px */
+  transform: translateX(5px) translateY(-50%);
+}
+
+/* --- 대형(lg): 주요 선택 폼, 설정 화면 등 --- */
+label[data-radio-label][data-size="lg"] {
+  font-size: var(--font-size-lg);
+  gap: 10px;
+  min-height: 52px;
+}
+
+label[data-radio-label][data-size="lg"]::before {
+  width: 22px;
+  height: 22px;
+}
+
+/* lg 내부 점 크기 조정: 22px 원의 약 1/3 ≈ 8px */
+label[data-radio-label][data-size="lg"]::after {
+  width: 8px;
+  height: 8px;
+  /* translateX: 22px 중앙(11px) - 점 절반(4px) = 7px */
+  transform: translateX(7px) translateY(-50%);
+}
+
+/* ============================================
+   다크 모드 대응
+   tokens.css [data-theme="dark"] 변수가 대부분 자동 처리
+   박스 배경 + 포커스 glow + 하드코딩 값만 보완
+   ============================================ */
+
+/* 다크 모드: 기본 원형 테두리 가시성 보강 */
+:root[data-theme="dark"] label[data-radio-label]::before {
+  border-color: var(--color-border-hover);
+  background-color: var(--color-bg-secondary);
+}
+
+/* 다크 모드: hover 상태 배경 색 보정 */
+:root[data-theme="dark"] input[type="radio"][data-radio]:not(:checked):not(:disabled) + label[data-radio-label]:hover::before {
+  background-color: color-mix(in srgb, var(--color-primary) 15%, var(--color-bg-secondary));
+  border-color: var(--color-primary);
+}
+
+/* 다크 모드: 포커스 glow 색상 보정 */
+:root[data-theme="dark"] input[type="radio"][data-radio]:focus-visible + label[data-radio-label]::before {
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+}
+
+/* 다크 모드: checked 상태 (primary 색상은 dark 토큰으로 자동 전환) */
+:root[data-theme="dark"] input[type="radio"][data-radio]:checked + label[data-radio-label]::before {
+  border-color: var(--color-primary);
+  background-color: var(--color-bg-secondary);
+}
+
+/* 다크 모드: 에러 배경 비율 상향 (어두운 배경 대비 강화) */
+:root[data-theme="dark"] input[type="radio"][data-radio][data-error="true"] + label[data-radio-label]::before {
+  border-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg-secondary));
+}
+
+/* ============================================
+   반응형: 모바일(767px 이하)
+   터치 타겟 최소 44px 확보 (WCAG 2.5.5)
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일: 모든 크기 최소 44px 터치 타겟 확보 */
+  label[data-radio-label] {
+    min-height: 44px;
+  }
+
+  /* 모바일 sm: 터치 타겟 44px로 통일, 원형 크기는 유지 */
+  label[data-radio-label][data-size="sm"] {
+    min-height: 44px;
+    font-size: var(--font-size-base);
+  }
+
+  /* 모바일 lg: 터치 영역 더 넓게 */
+  label[data-radio-label][data-size="lg"] {
+    min-height: 52px;
+  }
+}
+
+/* ============================================
+   반응형: 태블릿(768px~1023px)
+   기본 스타일 유지 + 세밀한 보정
+   ============================================ */
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* 태블릿: 기본 44px 터치 타겟 유지 */
+  label[data-radio-label] {
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   동작 감소 설정 대응 (prefers-reduced-motion)
+   KWCAG 2.2 / WCAG 2.1 SC 2.3.3
+   전정 장애·전간증 사용자 배려
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* 모든 라디오 전환 효과 즉시 처리 */
+  label[data-radio-label]::before,
+  label[data-radio-label]::after {
+    transition: none;
+  }
+}
+
+/* ============================================
+   라디오 그룹 레이아웃
+   여러 라디오를 수직 또는 수평으로 배치
+   checkbox-group과 동일한 패턴 (클래스명만 변경)
+   ============================================ */
+
+/* 수직 그룹 (기본) */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 수평 그룹 */
+.radio-group--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* ============================================
+   그룹 레이블 (라디오 그룹 제목)
+   fieldset + legend 또는 div + p 구조 지원
+   ============================================ */
+.radio-group-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: var(--line-height-tight);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* 필수 표시 */
+.radio-group-label .radio-required,
+.radio-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+}
+
+/* ============================================
+   헬퍼/에러 메시지
+   ============================================ */
+.radio-helper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.radio-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  line-height: var(--line-height-normal);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}
+
+/* 에러 메시지 아이콘 크기 (input.css 패턴 일치) */
+.radio-error-msg svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   모바일: 그룹 반응형 보정
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일: 수평 그룹도 수직으로 전환 */
+  .radio-group--inline {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}

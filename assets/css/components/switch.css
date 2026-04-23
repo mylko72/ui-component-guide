@@ -1,1 +1,461 @@
-/* Switch 컴포넌트 스타일 */
+/* ============================================
+   Switch 컴포넌트 스타일
+   tokens.css CSS 변수만 사용 (외부 의존 없음)
+   WCAG 2.2 접근성 준수
+   커스텀 스위치: label::before(트랙) + label::after(노브)
+   checkbox 패턴 계승, 원형→슬라이딩 토글로 변형
+   ============================================ */
+
+/* ============================================
+   네이티브 input[type="checkbox"] 시각적 숨김
+   display:none 대신 SR-전용 기법으로 숨겨
+   접근성 트리에는 유지 (스크린리더 인식 보장)
+   ============================================ */
+input[type="checkbox"][data-switch] {
+  /* 시각적으로 숨기되 접근성 트리에서는 제거하지 않음 */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   Switch 래퍼: label 요소
+   트랙+노브를 감싸는 인라인 플렉스 컨테이너
+   최소 44px 터치 타겟 확보 (WCAG 2.5.5)
+   ============================================ */
+label[data-switch-label] {
+  /* 수평 배치: 트랙(::before) + 텍스트 */
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+
+  /* 타이포그래피 */
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+
+  /* 클릭 커서 */
+  cursor: pointer;
+
+  /* 터치 타겟: 최소 44px 높이 확보 */
+  min-height: 44px;
+
+  /* 사용자 선택 방지 */
+  user-select: none;
+  -webkit-user-select: none;
+
+  /* 상대 위치: ::after 노브 절대 배치의 기준 */
+  position: relative;
+}
+
+/* ============================================
+   ::before: 스위치 트랙 (슬라이딩 배경)
+   md 기본 크기: 40px × 24px
+   border-radius: 9999px (완전한 pill 형태)
+   기본 색상: 비활성 회색 → 선택 시 primary
+   ============================================ */
+label[data-switch-label]::before {
+  content: '';
+
+  /* 트랙 크기: 가로 40px × 세로 24px */
+  width: 40px;
+  height: 24px;
+  flex-shrink: 0;
+
+  /* 박스 모델 */
+  box-sizing: border-box;
+
+  /* pill 형태 — 트랙의 핵심 시각 요소 */
+  border-radius: 9999px;
+
+  /* 기본 배경: 비활성 상태 회색 트랙 */
+  background-color: var(--color-border-hover);
+
+  /* 테두리: 없음 (solid 배경으로 대체) */
+  border: none;
+
+  /* 전환 효과: 색상 변화 */
+  transition:
+    background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow var(--transition-fast);
+}
+
+/* ============================================
+   ::after: 스위치 노브 (슬라이딩 원형 버튼)
+   md 기본 크기: 18px × 18px
+   기본 위치: 트랙 왼쪽 (3px 오프셋)
+   선택 시: 오른쪽으로 이동 (translateX 16px)
+   ============================================ */
+label[data-switch-label]::after {
+  content: '';
+
+  /* 절대 위치: label 기준 */
+  position: absolute;
+  left: 0;
+  top: 50%;
+
+  /* 노브 크기: 18×18px (트랙 높이 24px에서 여백 3px×2) */
+  width: 18px;
+  height: 18px;
+
+  /* 원형 노브 */
+  background-color: #ffffff;
+  border-radius: 50%;
+
+  /* 기본 위치: 왼쪽 정렬 (3px 여백 + 수직 중앙)
+     translateX: 3px (여백)
+     translateY: -50% (수직 중앙) */
+  transform: translateX(3px) translateY(-50%);
+
+  /* 그림자: 노브 입체감 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  /* 슬라이딩 전환: 노브 이동 애니메이션 */
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow var(--transition-fast);
+}
+
+/* ============================================
+   Hover 상태 (미선택 + 활성 상태)
+   트랙 배경 색상 살짝 어둡게 → 인터랙션 암시
+   ============================================ */
+input[type="checkbox"][data-switch]:not(:checked):not(:disabled) + label[data-switch-label]:hover::before {
+  background-color: var(--color-border);
+  /* hover 시 약한 glow 효과 */
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-hover) 30%, transparent);
+}
+
+/* 선택된 상태의 hover: primary 색상에 살짝 밝게 */
+input[type="checkbox"][data-switch]:checked:not(:disabled) + label[data-switch-label]:hover::before {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+/* ============================================
+   Checked 상태 (ON)
+   트랙: primary 배경색으로 전환
+   노브: 오른쪽으로 이동 (translateX: 40px - 18px - 3px = 19px)
+   ============================================ */
+input[type="checkbox"][data-switch]:checked + label[data-switch-label]::before {
+  /* 활성화: primary 색상 트랙 */
+  background-color: var(--color-primary);
+}
+
+input[type="checkbox"][data-switch]:checked + label[data-switch-label]::after {
+  /* 노브 오른쪽 이동:
+     트랙 너비(40px) - 노브 너비(18px) - 오른쪽 여백(3px) = 19px */
+  transform: translateX(19px) translateY(-50%);
+}
+
+/* ============================================
+   포커스 상태 (WCAG 2.2 Focus Visible)
+   input이 숨겨져 있으므로 label::before에 포커스 링 표현
+   ============================================ */
+input[type="checkbox"][data-switch]:focus-visible + label[data-switch-label]::before {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+}
+
+/* ============================================
+   Disabled 상태
+   WCAG: opacity 0.5 + cursor not-allowed
+   포인터 이벤트 차단
+   ============================================ */
+input[type="checkbox"][data-switch]:disabled + label[data-switch-label] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* disabled 노브: 약한 그림자 */
+input[type="checkbox"][data-switch]:disabled + label[data-switch-label]::after {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   Error 상태
+   data-error="true" + aria-invalid="true" 동시 사용
+   트랙 배경: danger 색상으로 표시
+   ============================================ */
+input[type="checkbox"][data-switch][data-error="true"] + label[data-switch-label]::before {
+  background-color: color-mix(in srgb, var(--color-danger) 25%, var(--color-border-hover));
+}
+
+/* 에러 + 선택 상태: danger 색상 트랙 */
+input[type="checkbox"][data-switch][data-error="true"]:checked + label[data-switch-label]::before {
+  background-color: var(--color-danger);
+}
+
+/* ============================================
+   크기(size) 변형
+   sm / md(기본) / lg 세 단계
+   트랙 크기, 노브 크기, 이동 거리 모두 조정
+   ============================================ */
+
+/* --- 소형(sm): 트랙 32×20px, 노브 14×14px --- */
+label[data-switch-label][data-size="sm"] {
+  font-size: var(--font-size-sm);
+  gap: 6px;
+  min-height: 32px;
+}
+
+/* sm 트랙: 32px × 20px */
+label[data-switch-label][data-size="sm"]::before {
+  width: 32px;
+  height: 20px;
+}
+
+/* sm 노브: 14×14px, 이동 거리: 32 - 14 - 3 = 15px */
+label[data-switch-label][data-size="sm"]::after {
+  width: 14px;
+  height: 14px;
+  transform: translateX(3px) translateY(-50%);
+}
+
+input[type="checkbox"][data-switch]:checked + label[data-switch-label][data-size="sm"]::after {
+  transform: translateX(15px) translateY(-50%);
+}
+
+/* --- 대형(lg): 트랙 52×32px, 노브 24×24px --- */
+label[data-switch-label][data-size="lg"] {
+  font-size: var(--font-size-lg);
+  gap: 10px;
+  min-height: 52px;
+}
+
+/* lg 트랙: 52px × 32px */
+label[data-switch-label][data-size="lg"]::before {
+  width: 52px;
+  height: 32px;
+}
+
+/* lg 노브: 24×24px, 이동 거리: 52 - 24 - 4 = 24px */
+label[data-switch-label][data-size="lg"]::after {
+  width: 24px;
+  height: 24px;
+  transform: translateX(4px) translateY(-50%);
+}
+
+input[type="checkbox"][data-switch]:checked + label[data-switch-label][data-size="lg"]::after {
+  transform: translateX(24px) translateY(-50%);
+}
+
+/* ============================================
+   다크 모드 대응
+   tokens.css [data-theme="dark"] 변수가 대부분 자동 처리
+   트랙 기본색 + 노브 그림자 + 포커스 glow만 보완
+   ============================================ */
+
+/* 다크 모드: 기본 트랙 색상 (비활성) */
+:root[data-theme="dark"] label[data-switch-label]::before {
+  background-color: var(--color-border-hover);
+}
+
+/* 다크 모드: 노브 배경 약간 밝게 (어두운 배경 대비) */
+:root[data-theme="dark"] label[data-switch-label]::after {
+  background-color: #f3f4f6;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* 다크 모드: hover 상태 트랙 보정 */
+:root[data-theme="dark"] input[type="checkbox"][data-switch]:not(:checked):not(:disabled) + label[data-switch-label]:hover::before {
+  background-color: var(--color-border);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-border-hover) 20%, transparent);
+}
+
+/* 다크 모드: 선택 hover glow */
+:root[data-theme="dark"] input[type="checkbox"][data-switch]:checked:not(:disabled) + label[data-switch-label]:hover::before {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+/* 다크 모드: 포커스 glow 색상 보정 */
+:root[data-theme="dark"] input[type="checkbox"][data-switch]:focus-visible + label[data-switch-label]::before {
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+}
+
+/* 다크 모드: 에러 상태 트랙 배경 비율 조정 */
+:root[data-theme="dark"] input[type="checkbox"][data-switch][data-error="true"] + label[data-switch-label]::before {
+  background-color: color-mix(in srgb, var(--color-danger) 30%, var(--color-border-hover));
+}
+
+/* ============================================
+   스위치 그룹 레이아웃
+   여러 스위치를 묶어 수직 배치
+   ============================================ */
+.switch-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 수평 그룹 (인라인) */
+.switch-group--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* ============================================
+   스위치 설명 레이아웃 (좌측 텍스트 + 우측 스위치)
+   일반적인 설정 화면 UI 패턴
+   ============================================ */
+.switch-row {
+  /* 좌: 라벨+설명, 우: 스위치 수평 배치 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) 0;
+}
+
+/* 스위치 행의 텍스트 영역 */
+.switch-row__content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 스위치 행 제목 */
+.switch-row__title {
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: var(--line-height-tight);
+}
+
+/* 스위치 행 설명 텍스트 */
+.switch-row__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
+/* ============================================
+   헬퍼/에러 메시지
+   ============================================ */
+.switch-helper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.switch-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  line-height: var(--line-height-normal);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.switch-error-msg svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   스위치 그룹 구분선 (Multiple Switches 섹션)
+   인접한 .switch-row 사이에 가는 구분선 삽입
+   ============================================ */
+.switch-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.switch-list__item {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg);
+  transition: background-color var(--transition-fast);
+}
+
+.switch-list__item:last-child {
+  border-bottom: none;
+}
+
+.switch-list__item:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+/* ============================================
+   반응형: 모바일(767px 이하)
+   WCAG 2.5.5 터치 타겟 최소 44px 확보
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일: 모든 크기 최소 44px */
+  label[data-switch-label] {
+    min-height: 44px;
+  }
+
+  /* 모바일 sm: 터치 타겟 44px로 통일 */
+  label[data-switch-label][data-size="sm"] {
+    min-height: 44px;
+    font-size: var(--font-size-base);
+  }
+
+  /* 모바일: switch-row 레이아웃 보정 */
+  .switch-row {
+    gap: var(--spacing-sm);
+  }
+
+  /* 모바일: 수평 그룹도 수직으로 전환 */
+  .switch-group--inline {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  /* 모바일: 리스트 아이템 패딩 축소 */
+  .switch-list__item {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+}
+
+/* ============================================
+   반응형: 태블릿(768px~1023px)
+   기본 스타일 유지
+   ============================================ */
+@media (min-width: 768px) and (max-width: 1023px) {
+  label[data-switch-label] {
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   동작 감소 설정 대응 (prefers-reduced-motion)
+   WCAG 2.1 SC 2.3.3: 전정 장애·전간증 사용자 배려
+   노브 슬라이딩 전환을 즉시 처리
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  /* 트랙 색상 전환 즉시 처리 */
+  label[data-switch-label]::before {
+    transition: none;
+  }
+  /* 노브 슬라이딩 즉시 처리 */
+  label[data-switch-label]::after {
+    transition: none;
+  }
+}

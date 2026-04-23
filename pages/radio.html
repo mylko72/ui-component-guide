@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Radio 컴포넌트: 기본 크기 변형, 라벨·헬퍼 텍스트, 에러 상태, 비활성화, 그룹 레이아웃 5가지 패턴. WCAG 2.2 접근성 준수">
+  <title>Radio — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → radio (컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/radio.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       checkbox.html 헤더와 동일한 구조 유지
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: radio.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: radio.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Radio 컴포넌트 데모 5개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Radio</h1>
+              <p class="detail-description">
+                여러 옵션 중 하나를 선택하는 라디오 버튼 컴포넌트입니다.
+                <code>data-radio</code> 속성을 숨겨진 <code>input[type="radio"]</code>에 지정하고,
+                인접한 <code>label[data-radio-label]</code>의 <code>::before</code>/<code>::after</code>
+                가상 요소로 커스텀 원형과 내부 점을 렌더링합니다.
+                동일한 <code>name</code> 속성을 가진 라디오끼리 그룹을 형성하며,
+                <code>data-size</code>로 sm / md / lg 크기를 지정하고
+                에러 상태, 비활성화를 지원합니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: Default Radio
+                 data-radio 속성으로 네이티브 input 숨김
+                 data-size="sm|md|lg"로 크기 변형
+                 label[data-radio-label]이 시각적 라디오 역할
+                 동일 name으로 그룹 형성: 하나만 선택 가능
+                 ============================================ -->
+            <section class="demo-section" id="section-default" aria-labelledby="heading-default">
+              <h2 id="heading-default" class="demo-section-title">Default Radio</h2>
+              <p class="demo-description">
+                기본 라디오 버튼입니다.
+                <code>data-size</code> 속성으로 sm(32px) / md(44px) / lg(52px) 크기를 지정합니다.
+                동일한 <code>name</code>을 가진 라디오끼리 그룹을 이루며 하나만 선택됩니다.
+              </p>
+
+              <!-- 데모 미리보기: sm / md / lg 그룹 비교 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 32px;"
+                role="group"
+                aria-label="Default Radio 크기 데모"
+              >
+
+                <!-- 소형(sm) 그룹 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 4px; font-weight: 500;">Small (sm)</p>
+                  <div class="radio-group">
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-sm-opt1"
+                        name="demo-sm"
+                        value="opt1"
+                      />
+                      <label data-radio-label data-size="sm" for="demo-sm-opt1">
+                        옵션 1
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-sm-opt2"
+                        name="demo-sm"
+                        value="opt2"
+                        checked
+                      />
+                      <label data-radio-label data-size="sm" for="demo-sm-opt2">
+                        옵션 2 (선택됨)
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-sm-opt3"
+                        name="demo-sm"
+                        value="opt3"
+                      />
+                      <label data-radio-label data-size="sm" for="demo-sm-opt3">
+                        옵션 3
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 중형(md) 그룹 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 4px; font-weight: 500;">Medium (md) — 기본</p>
+                  <div class="radio-group">
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-md-opt1"
+                        name="demo-md"
+                        value="opt1"
+                      />
+                      <label data-radio-label for="demo-md-opt1">
+                        옵션 1
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-md-opt2"
+                        name="demo-md"
+                        value="opt2"
+                        checked
+                      />
+                      <label data-radio-label for="demo-md-opt2">
+                        옵션 2 (선택됨)
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-md-opt3"
+                        name="demo-md"
+                        value="opt3"
+                      />
+                      <label data-radio-label for="demo-md-opt3">
+                        옵션 3
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 대형(lg) 그룹 -->
+                <div>
+                  <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin: 0 0 4px; font-weight: 500;">Large (lg)</p>
+                  <div class="radio-group">
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-lg-opt1"
+                        name="demo-lg"
+                        value="opt1"
+                        checked
+                      />
+                      <label data-radio-label data-size="lg" for="demo-lg-opt1">
+                        옵션 1 (선택됨)
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-lg-opt2"
+                        name="demo-lg"
+                        value="opt2"
+                      />
+                      <label data-radio-label data-size="lg" for="demo-lg-opt2">
+                        옵션 2
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-lg-opt3"
+                        name="demo-lg"
+                        value="opt3"
+                      />
+                      <label data-radio-label data-size="lg" for="demo-lg-opt3">
+                        옵션 3
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: code-block.js가 [data-code-block] 속성을 감지하여 자동 초기화 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 기본 라디오 그룹 (크기: sm / md / lg) --&gt;
+&lt;!-- input[data-radio] + label[data-radio-label] 인접 쌍 --&gt;
+&lt;!-- 동일 name 속성으로 그룹 형성: 하나만 선택 가능 --&gt;
+
+&lt;!-- sm: 소형 그룹 --&gt;
+&lt;div class="radio-group"&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-sm-1" name="r-sm" value="opt1" /&gt;
+    &lt;label data-radio-label data-size="sm" for="r-sm-1"&gt;옵션 1&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-sm-2" name="r-sm" value="opt2" checked /&gt;
+    &lt;label data-radio-label data-size="sm" for="r-sm-2"&gt;옵션 2 (선택됨)&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-sm-3" name="r-sm" value="opt3" /&gt;
+    &lt;label data-radio-label data-size="sm" for="r-sm-3"&gt;옵션 3&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- md: 기본(default) 크기 그룹 --&gt;
+&lt;div class="radio-group"&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-md-1" name="r-md" value="opt1" /&gt;
+    &lt;label data-radio-label for="r-md-1"&gt;옵션 1&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-md-2" name="r-md" value="opt2" checked /&gt;
+    &lt;label data-radio-label for="r-md-2"&gt;옵션 2 (선택됨)&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- lg: 대형 그룹 --&gt;
+&lt;div class="radio-group"&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-lg-1" name="r-lg" value="opt1" checked /&gt;
+    &lt;label data-radio-label data-size="lg" for="r-lg-1"&gt;옵션 1 (선택됨)&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-lg-2" name="r-lg" value="opt2" /&gt;
+    &lt;label data-radio-label data-size="lg" for="r-lg-2"&gt;옵션 2&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* 네이티브 라디오 시각적 숨김 (접근성 트리 유지) */
+input[type="radio"][data-radio] {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap; border: 0;
+}
+
+/* 커스텀 라디오 레이블: 수평 배치 + 터치 타겟 */
+label[data-radio-label] {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-height: 44px; /* WCAG 2.5.5: 최소 44px */
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+}
+
+/* ::before: 원형 외테두리 — 18×18px */
+label[data-radio-label]::before {
+  content: "";
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  border: 2px solid var(--color-border-hover);
+  border-radius: 50%; /* 핵심: 원형 */
+  background-color: var(--color-bg);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+/* ::after: 내부 점 — 기본값 숨김 */
+label[data-radio-label]::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%;
+  width: 6px; height: 6px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  transform: translateX(6px) translateY(-50%);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+/* 선택 상태: primary 테두리 + 내부 점 표시 */
+input[type="radio"][data-radio]:checked + label[data-radio-label]::before {
+  border-color: var(--color-primary);
+}
+input[type="radio"][data-radio]:checked + label[data-radio-label]::after {
+  opacity: 1;
+}
+
+/* 크기 변형 */
+label[data-radio-label][data-size="sm"] { font-size: var(--font-size-sm); min-height: 32px; gap: 6px; }
+label[data-radio-label][data-size="sm"]::before { width: 14px; height: 14px; }
+label[data-radio-label][data-size="sm"]::after { width: 4px; height: 4px; transform: translateX(5px) translateY(-50%); }
+label[data-radio-label][data-size="lg"] { font-size: var(--font-size-lg); min-height: 52px; gap: 10px; }
+label[data-radio-label][data-size="lg"]::before { width: 22px; height: 22px; }
+label[data-radio-label][data-size="lg"]::after { width: 8px; height: 8px; transform: translateX(7px) translateY(-50%); }'
+                data-js='// 라디오 선택 변경 감지 예시
+const radios = document.querySelectorAll("[data-radio]");
+radios.forEach((radio) => {
+  radio.addEventListener("change", (e) => {
+    if (e.target.checked) {
+      console.log("선택된 값:", e.target.value);
+    }
+  });
+});'
+                aria-label="Default Radio 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-radio-default-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-radio-default-css"
+                    >CSS</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="js"
+                      aria-selected="false"
+                      aria-controls="cb-radio-default-js"
+                    >JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-radio-default-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- 기본 라디오 그룹 (크기: sm / md / lg) --&gt;
+&lt;!-- 동일 name 속성으로 그룹 형성: 하나만 선택 가능 --&gt;
+
+&lt;!-- sm 크기 그룹 --&gt;
+&lt;div class="radio-group"&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-sm-1" name="r-sm" value="opt1" /&gt;
+    &lt;label data-radio-label data-size="sm" for="r-sm-1"&gt;옵션 1&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-sm-2" name="r-sm" value="opt2" checked /&gt;
+    &lt;label data-radio-label data-size="sm" for="r-sm-2"&gt;옵션 2 (선택됨)&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- md(기본) 크기 그룹 --&gt;
+&lt;div class="radio-group"&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-md-1" name="r-md" value="opt1" /&gt;
+    &lt;label data-radio-label for="r-md-1"&gt;옵션 1&lt;/label&gt;
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;input type="radio" data-radio id="r-md-2" name="r-md" value="opt2" checked /&gt;
+    &lt;label data-radio-label for="r-md-2"&gt;옵션 2 (선택됨)&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-radio-default-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* 네이티브 라디오 시각적 숨김 (접근성 트리 유지) */
+input[type="radio"][data-radio] {
+  position: absolute;
+  width: 1px; height: 1px;
+  clip: rect(0, 0, 0, 0);
+}
+
+/* ::before: 원형 외테두리 */
+label[data-radio-label]::before {
+  content: "";
+  width: 18px; height: 18px;
+  border: 2px solid var(--color-border-hover);
+  border-radius: 50%; /* 핵심: 원형 */
+  background-color: var(--color-bg);
+}
+
+/* ::after: 내부 점 */
+label[data-radio-label]::after {
+  content: "";
+  position: absolute;
+  left: 0; top: 50%;
+  width: 6px; height: 6px;
+  background-color: var(--color-primary);
+  border-radius: 50%;
+  transform: translateX(6px) translateY(-50%);
+  opacity: 0;
+}
+
+/* 선택 상태 */
+input[type="radio"][data-radio]:checked + label[data-radio-label]::before {
+  border-color: var(--color-primary);
+}
+input[type="radio"][data-radio]:checked + label[data-radio-label]::after {
+  opacity: 1;
+}</pre>
+                    </div>
+                    <div
+                      id="cb-radio-default-js"
+                      class="code-block__panel"
+                      data-code-block-panel="js"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">// 라디오 선택 변경 감지 예시
+const radios = document.querySelectorAll('[data-radio]');
+radios.forEach((radio) =&gt; {
+  radio.addEventListener('change', (e) =&gt; {
+    if (e.target.checked) {
+      console.log('선택된 값:', e.target.value);
+    }
+  });
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: With Label & Helper
+                 aria-describedby로 헬퍼 텍스트를 스크린리더에 전달
+                 fieldset + legend: 관련 라디오 그룹 묶음 (접근성 필수)
+                 라디오는 반드시 fieldset으로 그룹화해야 함
+                 ============================================ -->
+            <section class="demo-section" id="section-label" aria-labelledby="heading-label">
+              <h2 id="heading-label" class="demo-section-title">With Label &amp; Helper</h2>
+              <p class="demo-description">
+                라디오 그룹은 반드시 <code>fieldset</code> + <code>legend</code>로 묶어
+                스크린리더가 그룹 맥락을 올바르게 전달하도록 합니다.
+                <code>aria-describedby</code>로 헬퍼 텍스트를 연결합니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 32px;"
+                role="group"
+                aria-label="Label과 Helper Text 데모"
+              >
+
+                <!-- 단일 라디오 그룹: fieldset + legend + 헬퍼 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="radio-group-label">
+                    배송 방법
+                    <span class="radio-required" aria-hidden="true">*</span>
+                  </legend>
+                  <div
+                    class="radio-group"
+                    style="margin-top: 8px;"
+                    aria-describedby="demo-shipping-helper"
+                  >
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-shipping-standard"
+                        name="demo-shipping"
+                        value="standard"
+                        checked
+                        aria-describedby="demo-shipping-helper"
+                      />
+                      <label data-radio-label for="demo-shipping-standard">
+                        일반 배송 (3~5일)
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-shipping-express"
+                        name="demo-shipping"
+                        value="express"
+                        aria-describedby="demo-shipping-helper"
+                      />
+                      <label data-radio-label for="demo-shipping-express">
+                        빠른 배송 (1~2일)
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-shipping-same"
+                        name="demo-shipping"
+                        value="same-day"
+                        aria-describedby="demo-shipping-helper"
+                      />
+                      <label data-radio-label for="demo-shipping-same">
+                        당일 배송
+                      </label>
+                    </div>
+                  </div>
+                  <p class="radio-helper" id="demo-shipping-helper">
+                    배송 방법에 따라 추가 요금이 부과될 수 있습니다.
+                  </p>
+                </fieldset>
+
+                <!-- 구독 플랜 선택 그룹 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="radio-group-label">구독 플랜</legend>
+                  <div class="radio-group" style="margin-top: 8px;" aria-describedby="demo-plan-helper">
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-plan-free"
+                        name="demo-plan"
+                        value="free"
+                        checked
+                      />
+                      <label data-radio-label for="demo-plan-free">
+                        무료 플랜
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-plan-pro"
+                        name="demo-plan"
+                        value="pro"
+                      />
+                      <label data-radio-label for="demo-plan-pro">
+                        Pro 플랜
+                      </label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-plan-enterprise"
+                        name="demo-plan"
+                        value="enterprise"
+                      />
+                      <label data-radio-label for="demo-plan-enterprise">
+                        Enterprise 플랜
+                      </label>
+                    </div>
+                  </div>
+                  <p class="radio-helper" id="demo-plan-helper">
+                    플랜은 언제든지 변경하실 수 있습니다.
+                  </p>
+                </fieldset>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 라디오 그룹: fieldset + legend (접근성 필수 구조) --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;
+    배송 방법
+    &lt;span class="radio-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/legend&gt;
+  &lt;div class="radio-group" aria-describedby="shipping-helper"&gt;
+    &lt;div&gt;
+      &lt;input
+        type="radio" data-radio
+        id="ship-std" name="shipping" value="standard"
+        checked aria-describedby="shipping-helper"
+      /&gt;
+      &lt;label data-radio-label for="ship-std"&gt;일반 배송 (3~5일)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input
+        type="radio" data-radio
+        id="ship-exp" name="shipping" value="express"
+        aria-describedby="shipping-helper"
+      /&gt;
+      &lt;label data-radio-label for="ship-exp"&gt;빠른 배송 (1~2일)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input
+        type="radio" data-radio
+        id="ship-same" name="shipping" value="same-day"
+        aria-describedby="shipping-helper"
+      /&gt;
+      &lt;label data-radio-label for="ship-same"&gt;당일 배송&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;!-- 헬퍼 텍스트: aria-describedby로 연결 --&gt;
+  &lt;p class="radio-helper" id="shipping-helper"&gt;
+    배송 방법에 따라 추가 요금이 부과될 수 있습니다.
+  &lt;/p&gt;
+&lt;/fieldset&gt;'
+                data-css='/* 라디오 그룹 레이블 (fieldset legend) */
+.radio-group-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* 필수 표시 */
+.radio-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+}
+
+/* 수직 그룹 */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 헬퍼 텍스트 */
+.radio-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}'
+                data-js='// 라디오 그룹 선택 값 수집 예시
+const shippingRadios = document.querySelectorAll("[name=\"shipping\"]");
+shippingRadios.forEach((radio) => {
+  radio.addEventListener("change", (e) => {
+    console.log("선택된 배송 방법:", e.target.value);
+  });
+});'
+                aria-label="Label과 Helper Text 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 라디오 그룹: fieldset + legend (접근성 필수 구조) --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;
+    배송 방법
+    &lt;span class="radio-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/legend&gt;
+  &lt;div class="radio-group" aria-describedby="shipping-helper"&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="ship-std" name="shipping" value="standard"
+        checked aria-describedby="shipping-helper" /&gt;
+      &lt;label data-radio-label for="ship-std"&gt;일반 배송 (3~5일)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="ship-exp" name="shipping" value="express"
+        aria-describedby="shipping-helper" /&gt;
+      &lt;label data-radio-label for="ship-exp"&gt;빠른 배송 (1~2일)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="ship-same" name="shipping" value="same-day"
+        aria-describedby="shipping-helper" /&gt;
+      &lt;label data-radio-label for="ship-same"&gt;당일 배송&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p class="radio-helper" id="shipping-helper"&gt;
+    배송 방법에 따라 추가 요금이 부과될 수 있습니다.
+  &lt;/p&gt;
+&lt;/fieldset&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 라디오 그룹 레이블 */
+.radio-group-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* 필수 표시 */
+.radio-required {
+  color: var(--color-danger);
+  margin-left: 1px;
+}
+
+/* 수직 그룹 */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 헬퍼 텍스트 */
+.radio-helper {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 라디오 그룹 선택 값 수집 예시
+const shippingRadios = document.querySelectorAll('[name="shipping"]');
+shippingRadios.forEach((radio) =&gt; {
+  radio.addEventListener('change', (e) =&gt; {
+    console.log('선택된 배송 방법:', e.target.value);
+  });
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: Error State
+                 data-error="true": CSS 선택자로 빨간 테두리·배경 적용
+                 aria-invalid="true": 스크린리더에 유효성 실패 전달
+                 role="alert": 에러 메시지를 즉시 읽어줌
+                 라디오 그룹 전체에 에러 표시: 모든 라디오에 data-error 적용
+                 ============================================ -->
+            <section class="demo-section" id="section-error" aria-labelledby="heading-error">
+              <h2 id="heading-error" class="demo-section-title">Error State</h2>
+              <p class="demo-description">
+                필수 선택 미완료 등 유효성 검사 실패 시
+                <code>data-error="true"</code>와 <code>aria-invalid="true"</code>,
+                에러 메시지를 함께 제공합니다.
+                그룹 내 모든 라디오에 <code>data-error</code>를 적용합니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 32px;"
+                role="group"
+                aria-label="Error State 데모"
+              >
+
+                <!-- 미선택 에러: 아무것도 선택하지 않은 상태 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="radio-group-label">
+                    결제 방법
+                    <span class="radio-required" aria-hidden="true">*</span>
+                  </legend>
+                  <div
+                    class="radio-group"
+                    style="margin-top: 8px;"
+                    aria-describedby="demo-payment-error"
+                    aria-invalid="true"
+                  >
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        data-error="true"
+                        id="demo-pay-card"
+                        name="demo-payment"
+                        value="card"
+                        aria-invalid="true"
+                        aria-describedby="demo-payment-error"
+                      />
+                      <label data-radio-label for="demo-pay-card">신용카드</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        data-error="true"
+                        id="demo-pay-bank"
+                        name="demo-payment"
+                        value="bank"
+                        aria-invalid="true"
+                        aria-describedby="demo-payment-error"
+                      />
+                      <label data-radio-label for="demo-pay-bank">계좌이체</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        data-error="true"
+                        id="demo-pay-kakao"
+                        name="demo-payment"
+                        value="kakao"
+                        aria-invalid="true"
+                        aria-describedby="demo-payment-error"
+                      />
+                      <label data-radio-label for="demo-pay-kakao">카카오페이</label>
+                    </div>
+                  </div>
+                  <!-- role="alert": 에러 메시지를 스크린리더가 즉시 읽음 -->
+                  <p class="radio-error-msg" id="demo-payment-error" role="alert">
+                    <i data-lucide="alert-circle" aria-hidden="true"></i>
+                    결제 방법을 선택해 주세요.
+                  </p>
+                </fieldset>
+
+                <!-- 선택 후 에러: 선택했지만 유효하지 않은 상태 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="radio-group-label">
+                    나이 범위
+                    <span class="radio-required" aria-hidden="true">*</span>
+                  </legend>
+                  <div
+                    class="radio-group"
+                    style="margin-top: 8px;"
+                    aria-describedby="demo-age-error"
+                    aria-invalid="true"
+                  >
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        data-error="true"
+                        id="demo-age-under"
+                        name="demo-age"
+                        value="under18"
+                        checked
+                        aria-invalid="true"
+                        aria-describedby="demo-age-error"
+                      />
+                      <label data-radio-label for="demo-age-under">18세 미만 (선택됨)</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        data-error="true"
+                        id="demo-age-adult"
+                        name="demo-age"
+                        value="adult"
+                        aria-invalid="true"
+                        aria-describedby="demo-age-error"
+                      />
+                      <label data-radio-label for="demo-age-adult">18세 이상</label>
+                    </div>
+                  </div>
+                  <p class="radio-error-msg" id="demo-age-error" role="alert">
+                    <i data-lucide="alert-circle" aria-hidden="true"></i>
+                    이 서비스는 18세 이상만 이용 가능합니다.
+                  </p>
+                </fieldset>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 에러 상태: 그룹 내 모든 라디오에 data-error + aria-invalid --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;
+    결제 방법
+    &lt;span class="radio-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/legend&gt;
+  &lt;div class="radio-group"
+    aria-describedby="payment-error"
+    aria-invalid="true"
+  &gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        data-error="true"
+        id="pay-card" name="payment" value="card"
+        aria-invalid="true" aria-describedby="payment-error" /&gt;
+      &lt;label data-radio-label for="pay-card"&gt;신용카드&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        data-error="true"
+        id="pay-bank" name="payment" value="bank"
+        aria-invalid="true" aria-describedby="payment-error" /&gt;
+      &lt;label data-radio-label for="pay-bank"&gt;계좌이체&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;!-- role="alert": 에러 메시지를 즉시 읽어줌 --&gt;
+  &lt;p class="radio-error-msg" id="payment-error" role="alert"&gt;
+    &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+    결제 방법을 선택해 주세요.
+  &lt;/p&gt;
+&lt;/fieldset&gt;'
+                data-css='/* 에러 상태: ::before 원형에 빨간 테두리 적용 */
+input[type="radio"][data-radio][data-error="true"] + label[data-radio-label]::before {
+  border-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+/* 에러 + 선택 상태: 내부 점을 danger 색상으로 */
+input[type="radio"][data-radio][data-error="true"]:checked + label[data-radio-label]::before {
+  border-color: var(--color-danger);
+}
+input[type="radio"][data-radio][data-error="true"]:checked + label[data-radio-label]::after {
+  background-color: var(--color-danger);
+  opacity: 1;
+}
+
+/* 에러 메시지 */
+.radio-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin: 0;
+  margin-top: var(--spacing-xs);
+}
+
+.radio-error-msg svg {
+  width: 14px; height: 14px;
+  flex-shrink: 0;
+}'
+                data-js='// 폼 제출 시 라디오 그룹 유효성 검사
+const form = document.querySelector("form");
+form.addEventListener("submit", (e) => {
+  const radios = document.querySelectorAll("[name=\"payment\"]");
+  const selected = [...radios].find((r) => r.checked);
+  const errorMsg = document.querySelector("#payment-error");
+
+  if (!selected) {
+    e.preventDefault();
+    radios.forEach((r) => {
+      r.dataset.error = "true";
+      r.setAttribute("aria-invalid", "true");
+    });
+    errorMsg.hidden = false;
+    radios[0].focus();
+  } else {
+    radios.forEach((r) => {
+      delete r.dataset.error;
+      r.setAttribute("aria-invalid", "false");
+    });
+    errorMsg.hidden = true;
+  }
+});'
+                aria-label="Error State 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 에러 상태: 모든 라디오에 data-error + aria-invalid --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;
+    결제 방법
+    &lt;span class="radio-required" aria-hidden="true"&gt;*&lt;/span&gt;
+  &lt;/legend&gt;
+  &lt;div class="radio-group"
+    aria-describedby="payment-error"
+    aria-invalid="true"
+  &gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        data-error="true"
+        id="pay-card" name="payment" value="card"
+        aria-invalid="true" aria-describedby="payment-error" /&gt;
+      &lt;label data-radio-label for="pay-card"&gt;신용카드&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        data-error="true"
+        id="pay-bank" name="payment" value="bank"
+        aria-invalid="true" aria-describedby="payment-error" /&gt;
+      &lt;label data-radio-label for="pay-bank"&gt;계좌이체&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p class="radio-error-msg" id="payment-error" role="alert"&gt;
+    &lt;i data-lucide="alert-circle" aria-hidden="true"&gt;&lt;/i&gt;
+    결제 방법을 선택해 주세요.
+  &lt;/p&gt;
+&lt;/fieldset&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 에러: 빨간 테두리 + 연한 배경 */
+input[type="radio"][data-radio][data-error="true"]
+  + label[data-radio-label]::before {
+  border-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+/* 에러 + 선택: 내부 점 danger 색상 */
+input[type="radio"][data-radio][data-error="true"]:checked
+  + label[data-radio-label]::after {
+  background-color: var(--color-danger);
+  opacity: 1;
+}
+
+/* 에러 메시지 */
+.radio-error-msg {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-danger);
+  margin-top: var(--spacing-xs);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 폼 제출 시 라디오 그룹 유효성 검사
+const form = document.querySelector('form');
+form.addEventListener('submit', (e) =&gt; {
+  const radios = document.querySelectorAll('[name="payment"]');
+  const selected = [...radios].find((r) =&gt; r.checked);
+  const errorMsg = document.querySelector('#payment-error');
+
+  if (!selected) {
+    e.preventDefault();
+    radios.forEach((r) =&gt; {
+      r.dataset.error = 'true';
+      r.setAttribute('aria-invalid', 'true');
+    });
+    errorMsg.hidden = false;
+    radios[0].focus();
+  } else {
+    radios.forEach((r) =&gt; {
+      delete r.dataset.error;
+      r.setAttribute('aria-invalid', 'false');
+    });
+    errorMsg.hidden = true;
+  }
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: Disabled Radio
+                 HTML disabled 속성: opacity 0.5 + cursor not-allowed
+                 비활성 + 미선택 / 비활성 + 선택됨 두 가지 변형
+                 그룹 일부 비활성: 특정 항목만 선택 불가 처리
+                 ============================================ -->
+            <section class="demo-section" id="section-disabled" aria-labelledby="heading-disabled">
+              <h2 id="heading-disabled" class="demo-section-title">Disabled Radio</h2>
+              <p class="demo-description">
+                <code>disabled</code> 속성 추가 시 반투명 처리되고 클릭이 차단됩니다.
+                그룹 내 일부 항목만 비활성화할 수도 있으며,
+                비활성 + 선택 상태는 읽기 전용으로 현재 값을 표시할 때 사용합니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 32px;"
+                role="group"
+                aria-label="Disabled Radio 데모"
+              >
+
+                <!-- 전체 비활성 그룹 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="radio-group-label">전체 비활성 그룹</legend>
+                  <div class="radio-group" style="margin-top: 8px;">
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-dis-all-1"
+                        name="demo-dis-all"
+                        value="opt1"
+                        disabled
+                      />
+                      <label data-radio-label for="demo-dis-all-1">옵션 1</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-dis-all-2"
+                        name="demo-dis-all"
+                        value="opt2"
+                        disabled
+                        checked
+                      />
+                      <label data-radio-label for="demo-dis-all-2">옵션 2 (선택됨)</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-dis-all-3"
+                        name="demo-dis-all"
+                        value="opt3"
+                        disabled
+                      />
+                      <label data-radio-label for="demo-dis-all-3">옵션 3</label>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <!-- 일부 비활성: 특정 항목만 비활성 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="radio-group-label">일부 항목 비활성</legend>
+                  <div class="radio-group" style="margin-top: 8px;" aria-describedby="demo-partial-dis-helper">
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-partial-1"
+                        name="demo-partial"
+                        value="opt1"
+                        checked
+                      />
+                      <label data-radio-label for="demo-partial-1">기본 플랜 (선택됨)</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-partial-2"
+                        name="demo-partial"
+                        value="opt2"
+                      />
+                      <label data-radio-label for="demo-partial-2">Pro 플랜</label>
+                    </div>
+                    <div>
+                      <!-- 비활성 항목: 미출시 또는 권한 없음 -->
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-partial-3"
+                        name="demo-partial"
+                        value="opt3"
+                        disabled
+                      />
+                      <label data-radio-label for="demo-partial-3">Enterprise 플랜 (준비 중)</label>
+                    </div>
+                  </div>
+                  <p class="radio-helper" id="demo-partial-dis-helper">
+                    준비 중인 항목은 선택할 수 없습니다.
+                  </p>
+                </fieldset>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 전체 비활성: fieldset 내 모든 라디오에 disabled --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;전체 비활성 그룹&lt;/legend&gt;
+  &lt;div class="radio-group"&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="dis-1" name="dis" value="opt1" disabled /&gt;
+      &lt;label data-radio-label for="dis-1"&gt;옵션 1&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="dis-2" name="dis" value="opt2" disabled checked /&gt;
+      &lt;label data-radio-label for="dis-2"&gt;옵션 2 (선택됨)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="dis-3" name="dis" value="opt3" disabled /&gt;
+      &lt;label data-radio-label for="dis-3"&gt;옵션 3&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/fieldset&gt;
+
+&lt;!-- 일부 비활성: 특정 항목만 disabled --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;일부 항목 비활성&lt;/legend&gt;
+  &lt;div class="radio-group" aria-describedby="partial-helper"&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="plan-basic" name="plan" value="basic" checked /&gt;
+      &lt;label data-radio-label for="plan-basic"&gt;기본 플랜&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="plan-pro" name="plan" value="pro" /&gt;
+      &lt;label data-radio-label for="plan-pro"&gt;Pro 플랜&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;!-- disabled만 적용: aria-disabled는 네이티브 disabled가 대신함 --&gt;
+      &lt;input type="radio" data-radio
+        id="plan-ent" name="plan" value="enterprise" disabled /&gt;
+      &lt;label data-radio-label for="plan-ent"&gt;Enterprise 플랜 (준비 중)&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p class="radio-helper" id="partial-helper"&gt;
+    준비 중인 항목은 선택할 수 없습니다.
+  &lt;/p&gt;
+&lt;/fieldset&gt;'
+                data-css='/* 비활성 상태: 반투명 + 커서 변경 + 클릭 차단 */
+input[type="radio"][data-radio]:disabled + label[data-radio-label] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 비활성 + 선택 상태: primary 색상 유지 (상태 인지 보장) */
+input[type="radio"][data-radio]:disabled:checked + label[data-radio-label]::before {
+  border-color: var(--color-primary);
+}
+input[type="radio"][data-radio]:disabled:checked + label[data-radio-label]::after {
+  opacity: 1;
+}'
+                data-js='// 조건부 비활성화 예시
+const enterpriseRadio = document.querySelector("#plan-ent");
+const launchDate = new Date("2026-06-01");
+const today = new Date();
+
+// 출시일 이전에는 자동으로 비활성화
+if (today < launchDate) {
+  enterpriseRadio.disabled = true;
+}'
+                aria-label="Disabled Radio 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 전체 비활성: 모든 라디오에 disabled --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;전체 비활성 그룹&lt;/legend&gt;
+  &lt;div class="radio-group"&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="dis-1" name="dis" value="opt1" disabled /&gt;
+      &lt;label data-radio-label for="dis-1"&gt;옵션 1&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="dis-2" name="dis" value="opt2" disabled checked /&gt;
+      &lt;label data-radio-label for="dis-2"&gt;옵션 2 (선택됨)&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/fieldset&gt;
+
+&lt;!-- 일부 비활성: 특정 항목만 disabled --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;일부 항목 비활성&lt;/legend&gt;
+  &lt;div class="radio-group" aria-describedby="partial-helper"&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="plan-basic" name="plan" value="basic" checked /&gt;
+      &lt;label data-radio-label for="plan-basic"&gt;기본 플랜&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio
+        id="plan-ent" name="plan" value="enterprise" disabled /&gt;
+      &lt;label data-radio-label for="plan-ent"&gt;Enterprise (준비 중)&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p class="radio-helper" id="partial-helper"&gt;
+    준비 중인 항목은 선택할 수 없습니다.
+  &lt;/p&gt;
+&lt;/fieldset&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 비활성 상태: 반투명 + 커서 변경 + 클릭 차단 */
+input[type="radio"][data-radio]:disabled + label[data-radio-label] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* 비활성 + 선택 상태: primary 색상 유지 */
+input[type="radio"][data-radio]:disabled:checked
+  + label[data-radio-label]::before {
+  border-color: var(--color-primary);
+}
+input[type="radio"][data-radio]:disabled:checked
+  + label[data-radio-label]::after {
+  opacity: 1;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 조건부 비활성화 예시
+const enterpriseRadio = document.querySelector('#plan-ent');
+const launchDate = new Date('2026-06-01');
+const today = new Date();
+
+// 출시일 이전에는 자동으로 비활성화
+if (today &lt; launchDate) {
+  enterpriseRadio.disabled = true;
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 5: Radio Group Layout
+                 수직(기본) vs 수평 레이아웃 비교
+                 .radio-group: flex-direction column (기본)
+                 .radio-group--inline: flex-direction row (수평)
+                 fieldset을 반드시 사용하여 그룹 맥락 제공
+                 ============================================ -->
+            <section class="demo-section" id="section-layout" aria-labelledby="heading-layout">
+              <h2 id="heading-layout" class="demo-section-title">Radio Group Layout</h2>
+              <p class="demo-description">
+                <code>.radio-group</code>은 수직(세로) 배치,
+                <code>.radio-group--inline</code>은 수평(가로) 배치입니다.
+                옵션이 3개 이하이고 텍스트가 짧을 때 수평 레이아웃이 효과적입니다.
+              </p>
+
+              <!-- 데모 미리보기 -->
+              <div
+                class="demo-preview"
+                style="flex-direction: column; align-items: flex-start; gap: 32px;"
+                role="group"
+                aria-label="Radio Group Layout 데모"
+              >
+
+                <!-- 수직(Vertical) 레이아웃 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="radio-group-label">수직 레이아웃 (기본)</legend>
+                  <div class="radio-group" style="margin-top: 8px;">
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-vert-1"
+                        name="demo-vertical"
+                        value="small"
+                        checked
+                      />
+                      <label data-radio-label for="demo-vert-1">소형 (Small)</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-vert-2"
+                        name="demo-vertical"
+                        value="medium"
+                      />
+                      <label data-radio-label for="demo-vert-2">중형 (Medium)</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-vert-3"
+                        name="demo-vertical"
+                        value="large"
+                      />
+                      <label data-radio-label for="demo-vert-3">대형 (Large)</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-vert-4"
+                        name="demo-vertical"
+                        value="xlarge"
+                      />
+                      <label data-radio-label for="demo-vert-4">특대형 (X-Large)</label>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <!-- 수평(Horizontal/Inline) 레이아웃 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="radio-group-label">수평 레이아웃 (inline)</legend>
+                  <div class="radio-group radio-group--inline" style="margin-top: 8px;">
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-horiz-male"
+                        name="demo-horizontal"
+                        value="male"
+                        checked
+                      />
+                      <label data-radio-label for="demo-horiz-male">남성</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-horiz-female"
+                        name="demo-horizontal"
+                        value="female"
+                      />
+                      <label data-radio-label for="demo-horiz-female">여성</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-horiz-other"
+                        name="demo-horizontal"
+                        value="other"
+                      />
+                      <label data-radio-label for="demo-horiz-other">기타</label>
+                    </div>
+                  </div>
+                </fieldset>
+
+                <!-- 수평 레이아웃 — 평점 예시 -->
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                  <legend class="radio-group-label">만족도 평가</legend>
+                  <div class="radio-group radio-group--inline" style="margin-top: 8px;" aria-describedby="demo-rating-helper">
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-rating-1"
+                        name="demo-rating"
+                        value="1"
+                      />
+                      <label data-radio-label for="demo-rating-1">매우 불만족</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-rating-2"
+                        name="demo-rating"
+                        value="2"
+                      />
+                      <label data-radio-label for="demo-rating-2">불만족</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-rating-3"
+                        name="demo-rating"
+                        value="3"
+                        checked
+                      />
+                      <label data-radio-label for="demo-rating-3">보통</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-rating-4"
+                        name="demo-rating"
+                        value="4"
+                      />
+                      <label data-radio-label for="demo-rating-4">만족</label>
+                    </div>
+                    <div>
+                      <input
+                        type="radio"
+                        data-radio
+                        id="demo-rating-5"
+                        name="demo-rating"
+                        value="5"
+                      />
+                      <label data-radio-label for="demo-rating-5">매우 만족</label>
+                    </div>
+                  </div>
+                  <p class="radio-helper" id="demo-rating-helper">
+                    서비스 이용 후 만족도를 선택해 주세요.
+                  </p>
+                </fieldset>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 수직 레이아웃: .radio-group (기본) --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;사이즈 선택&lt;/legend&gt;
+  &lt;div class="radio-group"&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="sz-s" name="size" value="S" checked /&gt;
+      &lt;label data-radio-label for="sz-s"&gt;소형 (S)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="sz-m" name="size" value="M" /&gt;
+      &lt;label data-radio-label for="sz-m"&gt;중형 (M)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="sz-l" name="size" value="L" /&gt;
+      &lt;label data-radio-label for="sz-l"&gt;대형 (L)&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/fieldset&gt;
+
+&lt;!-- 수평 레이아웃: .radio-group.radio-group--inline --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;성별&lt;/legend&gt;
+  &lt;div class="radio-group radio-group--inline"&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="g-m" name="gender" value="male" checked /&gt;
+      &lt;label data-radio-label for="g-m"&gt;남성&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="g-f" name="gender" value="female" /&gt;
+      &lt;label data-radio-label for="g-f"&gt;여성&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="g-o" name="gender" value="other" /&gt;
+      &lt;label data-radio-label for="g-o"&gt;기타&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/fieldset&gt;'
+                data-css='/* 수직 그룹 (기본) */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 수평 그룹: .radio-group에 추가 */
+.radio-group--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* 모바일: 수평도 수직으로 전환 */
+@media (max-width: 767px) {
+  .radio-group--inline {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}'
+                data-js='// 레이아웃 전환 예시 (수평 ↔ 수직)
+const radioGroup = document.querySelector(".radio-group");
+const toggleBtn  = document.querySelector("#layout-toggle");
+
+toggleBtn.addEventListener("click", () => {
+  radioGroup.classList.toggle("radio-group--inline");
+  toggleBtn.textContent = radioGroup.classList.contains("radio-group--inline")
+    ? "수직으로 전환"
+    : "수평으로 전환";
+});'
+                aria-label="Radio Group Layout 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 수직 레이아웃: .radio-group (기본) --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;사이즈 선택&lt;/legend&gt;
+  &lt;div class="radio-group"&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="sz-s" name="size" value="S" checked /&gt;
+      &lt;label data-radio-label for="sz-s"&gt;소형 (S)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="sz-m" name="size" value="M" /&gt;
+      &lt;label data-radio-label for="sz-m"&gt;중형 (M)&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="sz-l" name="size" value="L" /&gt;
+      &lt;label data-radio-label for="sz-l"&gt;대형 (L)&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/fieldset&gt;
+
+&lt;!-- 수평 레이아웃: .radio-group.radio-group--inline --&gt;
+&lt;fieldset style="border: none; padding: 0;"&gt;
+  &lt;legend class="radio-group-label"&gt;성별&lt;/legend&gt;
+  &lt;div class="radio-group radio-group--inline"&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="g-m" name="gender" value="male" checked /&gt;
+      &lt;label data-radio-label for="g-m"&gt;남성&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="g-f" name="gender" value="female" /&gt;
+      &lt;label data-radio-label for="g-f"&gt;여성&lt;/label&gt;
+    &lt;/div&gt;
+    &lt;div&gt;
+      &lt;input type="radio" data-radio id="g-o" name="gender" value="other" /&gt;
+      &lt;label data-radio-label for="g-o"&gt;기타&lt;/label&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/fieldset&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 수직 그룹 (기본) */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 수평 그룹: .radio-group에 추가 */
+.radio-group--inline {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+/* 모바일: 수평도 수직으로 전환 */
+@media (max-width: 767px) {
+  .radio-group--inline {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 레이아웃 동적 전환 예시
+const radioGroup = document.querySelector('.radio-group');
+const toggleBtn  = document.querySelector('#layout-toggle');
+
+toggleBtn.addEventListener('click', () =&gt; {
+  radioGroup.classList.toggle('radio-group--inline');
+  toggleBtn.textContent =
+    radioGroup.classList.contains('radio-group--inline')
+      ? '수직으로 전환'
+      : '수평으로 전환';
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Checkbox 컴포넌트 -->
+                <a href="./checkbox.html" class="detail-footer-link" aria-label="Checkbox 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Checkbox</span>
+                </a>
+                <!-- 다음: Switch 컴포넌트 -->
+                <a href="./switch.html" class="detail-footer-link" aria-label="Switch 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Switch</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS/JS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>
