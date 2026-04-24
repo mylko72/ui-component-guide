@@ -6,3 +6,4 @@
 - [DetailPage 상속 패턴](reference_detail_page_pattern.md) — getComponentInfo + _renderDemos 오버라이드만으로 데모 페이지 구성
 - [Input 컴포넌트 패턴](reference_input_component_pattern.md) — data-input 속성 선택자, 아이콘 래퍼(.input-icon-wrap), 비밀번호 토글(.input-pw-toggle) 구현 레퍼런스
 - [Checkbox Indeterminate 패턴](reference_checkbox_indeterminate_pattern.md) — aria-checked="mixed" + element.indeterminate 조합, 부모-자식 data 속성 연동, 마운트 시 수동 초기화 필수
+- [Tabs 정적 HTML 패턴](reference_tabs_static_pattern.md) — CodeBlock 충돌 방지 필터, roving tabindex, disabled 건너뜀, JS 없을 때 display:none 마크업

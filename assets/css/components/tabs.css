@@ -1,1 +1,214 @@
-/* Tabs 컴포넌트 스타일 */
+/* ============================================
+   Tabs 컴포넌트 스타일
+   WAI-ARIA Tabs 패턴 기반
+   role="tablist / tab / tabpanel"
+   ============================================ */
+
+/* ------------------------------------------
+   탭 목록 컨테이너 (tablist)
+   ------------------------------------------ */
+.tabs {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  border-bottom: 2px solid var(--color-border);
+  margin-bottom: 0;
+}
+
+/* ------------------------------------------
+   탭 버튼 (tab)
+   - 기본 상태: 비활성
+   - aria-selected="true": 활성 탭
+   ------------------------------------------ */
+.tabs [role="tab"] {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  /* 하단 2px 테두리가 tablist border 위에 겹치도록 -2px offset */
+  margin-bottom: -2px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast),
+    background-color var(--transition-fast);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  outline: none;
+}
+
+/* 호버 상태 */
+.tabs [role="tab"]:hover {
+  color: var(--color-text);
+  background-color: var(--color-bg-secondary);
+}
+
+/* 포커스 가시성: 키보드 네비게이션 지원 */
+.tabs [role="tab"]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+/* 활성 탭 */
+.tabs [role="tab"][aria-selected="true"] {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  background-color: transparent;
+}
+
+/* ------------------------------------------
+   탭 패널 (tabpanel)
+   - JS 비활성화 시: 첫 번째 패널만 보임 (display: block이 HTML inline style)
+   - JS 활성화 후: display 속성으로 show/hide 제어
+   ------------------------------------------ */
+[role="tabpanel"] {
+  padding: var(--spacing-lg) 0;
+  outline: none;
+  animation: tabFadeIn var(--transition-fast) ease;
+}
+
+/* 패널 전환 페이드인 애니메이션 */
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------
+   탭 크기 변형
+   ------------------------------------------ */
+
+/* 소형(sm): 더 작은 패딩과 글꼴 */
+.tabs--sm [role="tab"] {
+  padding: 7px 12px;
+  font-size: var(--font-size-xs);
+}
+
+/* 대형(lg): 더 큰 패딩과 글꼴 */
+.tabs--lg [role="tab"] {
+  padding: 13px 20px;
+  font-size: var(--font-size-base);
+}
+
+/* ------------------------------------------
+   Filled 변형: 배경색으로 활성 탭 구분
+   ------------------------------------------ */
+.tabs--filled {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom: none;
+  padding: 4px;
+  gap: 2px;
+}
+
+.tabs--filled [role="tab"] {
+  border-bottom: none;
+  margin-bottom: 0;
+  border-radius: var(--radius-sm);
+}
+
+.tabs--filled [role="tab"]:hover {
+  background-color: var(--color-border);
+}
+
+.tabs--filled [role="tab"][aria-selected="true"] {
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  border-bottom: none;
+}
+
+.tabs--filled + [role="tabpanel"],
+.tabs--filled ~ [role="tabpanel"] {
+  border: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  padding: var(--spacing-lg);
+}
+
+/* ------------------------------------------
+   Underline 변형 (기본 스타일과 동일, 명시적 클래스)
+   ------------------------------------------ */
+.tabs--underline {
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* ------------------------------------------
+   수직 탭 (Vertical) 변형
+   ------------------------------------------ */
+.tabs--vertical {
+  flex-direction: column;
+  align-items: stretch;
+  border-bottom: none;
+  border-right: 2px solid var(--color-border);
+  margin-bottom: 0;
+  min-width: 160px;
+}
+
+.tabs--vertical [role="tab"] {
+  text-align: left;
+  border-bottom: none;
+  border-right: 2px solid transparent;
+  margin-bottom: 0;
+  margin-right: -2px;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+.tabs--vertical [role="tab"][aria-selected="true"] {
+  border-right-color: var(--color-primary);
+  border-bottom-color: transparent;
+}
+
+/* 수직 탭 + 패널 레이아웃 래퍼 */
+.tabs-vertical-layout {
+  display: flex;
+  gap: 0;
+  align-items: flex-start;
+}
+
+.tabs-vertical-layout [role="tabpanel"] {
+  flex: 1;
+  padding: 0 var(--spacing-lg);
+}
+
+/* ------------------------------------------
+   비활성화(disabled) 탭
+   ------------------------------------------ */
+.tabs [role="tab"][disabled],
+.tabs [role="tab"][aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ------------------------------------------
+   반응형: 모바일에서 탭 스크롤 가능
+   ------------------------------------------ */
+@media (max-width: 767px) {
+  .tabs {
+    overflow-x: auto;
+    /* 스크롤바 숨김 (스크롤 가능하지만 시각적으로 숨김) */
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tabs [role="tab"] {
+    flex-shrink: 0;
+  }
+}

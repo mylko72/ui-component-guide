@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Tabs 컴포넌트: 기본 탭, Filled 변형, 수직 탭, 비활성 탭, 아이콘 탭 5가지 패턴. WAI-ARIA Tabs 패턴, 키보드 네비게이션 완전 지원.">
+  <title>Tabs — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → tabs (컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/tabs.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: tabs.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: tabs.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Tabs 컴포넌트 데모 5개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Tabs</h1>
+              <p class="detail-description">
+                콘텐츠를 여러 패널로 나눠 탭으로 전환하는 컴포넌트입니다.
+                WAI-ARIA Tabs 패턴을 준수하며 <code>role="tablist"</code>를 가진
+                컨테이너에 탭 버튼(<code>role="tab"</code>)과
+                패널(<code>role="tabpanel"</code>)을 연결합니다.
+                키보드 화살표 키로 탭 간 이동을 지원하고,
+                <code>data-initialized</code>로 중복 초기화를 방지합니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: Default Tabs (기본 Underline 탭)
+                 - role="tablist/tab/tabpanel" 완전 ARIA 구현
+                 - JS 비활성화 시: 첫 번째 패널만 표시 (style="display:none" 마크업)
+                 - JS 활성화 후: tabs.js가 aria-selected + display 제어
+                 ============================================ -->
+            <section class="demo-section" id="section-default" aria-labelledby="heading-default">
+              <h2 id="heading-default" class="demo-section-title">Default Tabs</h2>
+              <p class="demo-description">
+                기본 Underline 스타일 탭입니다.
+                <code>role="tablist"</code> 컨테이너에 <code>role="tab"</code> 버튼과
+                <code>role="tabpanel"</code> 패널을 <code>aria-controls</code> /
+                <code>aria-labelledby</code>로 연결합니다.
+                JavaScript 없이도 첫 번째 탭 내용이 표시됩니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Default Tabs 데모">
+
+                <!-- tablist: 탭 버튼 목록 -->
+                <div
+                  role="tablist"
+                  class="tabs"
+                  aria-label="계정 정보 탭"
+                >
+                  <!-- 첫 번째 탭: 기본 활성 상태 -->
+                  <button
+                    role="tab"
+                    class="tabs__tab"
+                    id="tab-default-profile"
+                    aria-selected="true"
+                    aria-controls="panel-default-profile"
+                    tabindex="0"
+                  >프로필</button>
+
+                  <button
+                    role="tab"
+                    class="tabs__tab"
+                    id="tab-default-settings"
+                    aria-selected="false"
+                    aria-controls="panel-default-settings"
+                    tabindex="-1"
+                  >설정</button>
+
+                  <button
+                    role="tab"
+                    class="tabs__tab"
+                    id="tab-default-security"
+                    aria-selected="false"
+                    aria-controls="panel-default-security"
+                    tabindex="-1"
+                  >보안</button>
+                </div>
+
+                <!-- 패널 1: 프로필 (기본 표시) -->
+                <div
+                  id="panel-default-profile"
+                  role="tabpanel"
+                  aria-labelledby="tab-default-profile"
+                  tabindex="0"
+                >
+                  <h3 style="margin: 0 0 8px; font-size: var(--font-size-base); font-weight: 600; color: var(--color-text);">프로필 정보</h3>
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">
+                    이름, 이메일, 프로필 사진 등 기본 계정 정보를 관리합니다.
+                    변경 사항은 즉시 저장됩니다.
+                  </p>
+                </div>
+
+                <!-- 패널 2: 설정 (기본 숨김 - JS 없을 때 숨겨진 상태 유지) -->
+                <div
+                  id="panel-default-settings"
+                  role="tabpanel"
+                  aria-labelledby="tab-default-settings"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <h3 style="margin: 0 0 8px; font-size: var(--font-size-base); font-weight: 600; color: var(--color-text);">환경 설정</h3>
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">
+                    알림, 언어, 시간대 등 개인 설정을 조정합니다.
+                    변경 사항은 다음 로그인 시 적용됩니다.
+                  </p>
+                </div>
+
+                <!-- 패널 3: 보안 (기본 숨김) -->
+                <div
+                  id="panel-default-security"
+                  role="tabpanel"
+                  aria-labelledby="tab-default-security"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <h3 style="margin: 0 0 8px; font-size: var(--font-size-base); font-weight: 600; color: var(--color-text);">보안 설정</h3>
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">
+                    비밀번호 변경, 2단계 인증, 로그인 기기 관리 등
+                    계정 보안을 강화합니다.
+                  </p>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS/JS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- tablist: 탭 버튼 목록 --&gt;
+&lt;div role="tablist" class="tabs" aria-label="계정 정보 탭"&gt;
+  &lt;button
+    role="tab"
+    id="tab-profile"
+    aria-selected="true"
+    aria-controls="panel-profile"
+    tabindex="0"
+  &gt;프로필&lt;/button&gt;
+
+  &lt;button
+    role="tab"
+    id="tab-settings"
+    aria-selected="false"
+    aria-controls="panel-settings"
+    tabindex="-1"
+  &gt;설정&lt;/button&gt;
+
+  &lt;button
+    role="tab"
+    id="tab-security"
+    aria-selected="false"
+    aria-controls="panel-security"
+    tabindex="-1"
+  &gt;보안&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- tabpanel: 첫 번째 패널만 표시, 나머지는 display:none --&gt;
+&lt;div id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" tabindex="0"&gt;
+  프로필 내용...
+&lt;/div&gt;
+&lt;div id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" tabindex="0" style="display:none;"&gt;
+  설정 내용...
+&lt;/div&gt;
+&lt;div id="panel-security" role="tabpanel" aria-labelledby="tab-security" tabindex="0" style="display:none;"&gt;
+  보안 내용...
+&lt;/div&gt;'
+                data-css='/* 탭 목록 컨테이너 */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* 탭 버튼: 비활성 상태 */
+.tabs [role="tab"] {
+  padding: 10px 16px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+/* 탭 버튼: 활성 상태 */
+.tabs [role="tab"][aria-selected="true"] {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* 포커스 가시성: 키보드 접근성 */
+.tabs [role="tab"]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* 탭 패널 */
+[role="tabpanel"] {
+  padding: var(--spacing-lg) 0;
+  outline: none;
+}'
+                data-js='// tabs.js가 자동으로 초기화
+// 또는 특정 컨테이너만 초기화:
+Tabs.init(document.querySelector(".my-container"));
+
+// 탭 전환 이벤트 감지 예시
+const tablist = document.querySelector("[role=&quot;tablist&quot;]");
+tablist.addEventListener("click", (e) => {
+  const tab = e.target.closest("[role=&quot;tab&quot;]");
+  if (tab) {
+    console.log("선택된 탭:", tab.textContent.trim());
+    console.log("연결된 패널:", tab.getAttribute("aria-controls"));
+  }
+});'
+                aria-label="Default Tabs 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-tabs-default-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-tabs-default-css"
+                    >CSS</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="js"
+                      aria-selected="false"
+                      aria-controls="cb-tabs-default-js"
+                    >JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-tabs-default-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- tablist: role="tablist", aria-label로 그룹 설명 --&gt;
+&lt;div role="tablist" class="tabs" aria-label="계정 정보 탭"&gt;
+  &lt;!-- tab: aria-selected, aria-controls로 패널 연결 --&gt;
+  &lt;button
+    role="tab"
+    id="tab-profile"
+    aria-selected="true"
+    aria-controls="panel-profile"
+    tabindex="0"
+  &gt;프로필&lt;/button&gt;
+
+  &lt;button
+    role="tab"
+    id="tab-settings"
+    aria-selected="false"
+    aria-controls="panel-settings"
+    tabindex="-1"
+  &gt;설정&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- tabpanel: aria-labelledby로 탭 버튼 참조 --&gt;
+&lt;div id="panel-profile" role="tabpanel"
+  aria-labelledby="tab-profile" tabindex="0"&gt;
+  프로필 내용...
+&lt;/div&gt;
+&lt;div id="panel-settings" role="tabpanel"
+  aria-labelledby="tab-settings" tabindex="0"
+  style="display:none;"&gt;
+  설정 내용...
+&lt;/div&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-tabs-default-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* 탭 목록 컨테이너 */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* 탭 버튼: 비활성 */
+.tabs [role="tab"] {
+  padding: 10px 16px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px; /* tablist 하단 border 위에 겹침 */
+  cursor: pointer;
+  transition:
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+/* 탭 버튼: 활성 */
+.tabs [role="tab"][aria-selected="true"] {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* 포커스 가시성 */
+.tabs [role="tab"]:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+/* 탭 패널 */
+[role="tabpanel"] {
+  padding: var(--spacing-lg) 0;
+  outline: none;
+}</pre>
+                    </div>
+                    <div
+                      id="cb-tabs-default-js"
+                      class="code-block__panel"
+                      data-code-block-panel="js"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">// tabs.js 자동 초기화: DOMContentLoaded 시 Tabs.init() 호출
+// 특정 컨테이너 범위만 초기화:
+Tabs.init(document.querySelector('.my-container'));
+
+// 탭 전환 이벤트 감지
+const tablist = document.querySelector('[role="tablist"]');
+tablist.addEventListener('click', (e) =&gt; {
+  const tab = e.target.closest('[role="tab"]');
+  if (tab) {
+    console.log('선택된 탭:', tab.textContent.trim());
+    console.log('패널 ID:', tab.getAttribute('aria-controls'));
+  }
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: Filled Tabs (배경색 활성 탭 변형)
+                 - .tabs--filled 수정자 클래스 추가
+                 - 배경색으로 활성 탭 구분
+                 ============================================ -->
+            <section class="demo-section" id="section-filled" aria-labelledby="heading-filled">
+              <h2 id="heading-filled" class="demo-section-title">Filled Tabs</h2>
+              <p class="demo-description">
+                활성 탭을 배경색으로 강조하는 Filled 변형입니다.
+                <code>.tabs--filled</code> 클래스를 추가하면 활성 탭에
+                흰색 배경과 그림자가 적용됩니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Filled Tabs 데모">
+
+                <div
+                  role="tablist"
+                  class="tabs tabs--filled"
+                  aria-label="주문 상태 탭"
+                >
+                  <button
+                    role="tab"
+                    id="tab-filled-all"
+                    aria-selected="true"
+                    aria-controls="panel-filled-all"
+                    tabindex="0"
+                  >전체</button>
+                  <button
+                    role="tab"
+                    id="tab-filled-pending"
+                    aria-selected="false"
+                    aria-controls="panel-filled-pending"
+                    tabindex="-1"
+                  >처리 중</button>
+                  <button
+                    role="tab"
+                    id="tab-filled-complete"
+                    aria-selected="false"
+                    aria-controls="panel-filled-complete"
+                    tabindex="-1"
+                  >완료</button>
+                  <button
+                    role="tab"
+                    id="tab-filled-cancel"
+                    aria-selected="false"
+                    aria-controls="panel-filled-cancel"
+                    tabindex="-1"
+                  >취소</button>
+                </div>
+
+                <div
+                  id="panel-filled-all"
+                  role="tabpanel"
+                  aria-labelledby="tab-filled-all"
+                  tabindex="0"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    전체 주문 내역을 표시합니다. 최근 30일 기준으로 총 12건의 주문이 있습니다.
+                  </p>
+                </div>
+                <div
+                  id="panel-filled-pending"
+                  role="tabpanel"
+                  aria-labelledby="tab-filled-pending"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    현재 처리 중인 주문 3건을 표시합니다. 평균 처리 시간은 2~3일입니다.
+                  </p>
+                </div>
+                <div
+                  id="panel-filled-complete"
+                  role="tabpanel"
+                  aria-labelledby="tab-filled-complete"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    완료된 주문 8건을 표시합니다. 배송이 완료된 주문들입니다.
+                  </p>
+                </div>
+                <div
+                  id="panel-filled-cancel"
+                  role="tabpanel"
+                  aria-labelledby="tab-filled-cancel"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    취소된 주문 1건을 표시합니다. 환불 처리가 완료되었습니다.
+                  </p>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- Filled 변형: .tabs--filled 클래스 추가 --&gt;
+&lt;div role="tablist" class="tabs tabs--filled" aria-label="주문 상태 탭"&gt;
+  &lt;button role="tab" id="tab-all"
+    aria-selected="true" aria-controls="panel-all" tabindex="0"&gt;전체&lt;/button&gt;
+  &lt;button role="tab" id="tab-pending"
+    aria-selected="false" aria-controls="panel-pending" tabindex="-1"&gt;처리 중&lt;/button&gt;
+  &lt;button role="tab" id="tab-complete"
+    aria-selected="false" aria-controls="panel-complete" tabindex="-1"&gt;완료&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div id="panel-all" role="tabpanel" aria-labelledby="tab-all" tabindex="0"&gt;
+  전체 주문 내역...
+&lt;/div&gt;
+&lt;div id="panel-pending" role="tabpanel" aria-labelledby="tab-pending" tabindex="0" style="display:none;"&gt;
+  처리 중 주문...
+&lt;/div&gt;
+&lt;div id="panel-complete" role="tabpanel" aria-labelledby="tab-complete" tabindex="0" style="display:none;"&gt;
+  완료된 주문...
+&lt;/div&gt;'
+                data-css='/* Filled 변형: 배경색 컨테이너 */
+.tabs--filled {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom: none;
+  padding: 4px;
+  gap: 2px;
+}
+
+/* 탭 버튼: 배경 없음 */
+.tabs--filled [role="tab"] {
+  border-bottom: none;
+  margin-bottom: 0;
+  border-radius: var(--radius-sm);
+}
+
+/* 활성 탭: 흰색 배경 + 그림자 */
+.tabs--filled [role="tab"][aria-selected="true"] {
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  border-bottom: none;
+}
+
+/* 패널: 테두리로 구분 */
+.tabs--filled + [role="tabpanel"] {
+  border: 1px solid var(--color-border);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  padding: var(--spacing-lg);
+}'
+                data-js='// Filled 탭도 동일하게 Tabs.init()으로 자동 초기화
+// 별도 설정 불필요'
+                aria-label="Filled Tabs 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- Filled 변형: .tabs--filled 클래스 추가 --&gt;
+&lt;div role="tablist" class="tabs tabs--filled" aria-label="주문 상태 탭"&gt;
+  &lt;button role="tab" id="tab-all"
+    aria-selected="true"
+    aria-controls="panel-all"
+    tabindex="0"&gt;전체&lt;/button&gt;
+  &lt;button role="tab" id="tab-pending"
+    aria-selected="false"
+    aria-controls="panel-pending"
+    tabindex="-1"&gt;처리 중&lt;/button&gt;
+  &lt;button role="tab" id="tab-complete"
+    aria-selected="false"
+    aria-controls="panel-complete"
+    tabindex="-1"&gt;완료&lt;/button&gt;
+&lt;/div&gt;
+
+&lt;div id="panel-all" role="tabpanel"
+  aria-labelledby="tab-all" tabindex="0"&gt;
+  전체 주문 내역...
+&lt;/div&gt;
+&lt;div id="panel-pending" role="tabpanel"
+  aria-labelledby="tab-pending" tabindex="0"
+  style="display:none;"&gt;
+  처리 중 주문...
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* Filled 변형: 배경색 컨테이너 */
+.tabs--filled {
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  border-bottom: none;
+  padding: 4px;
+  gap: 2px;
+}
+
+/* 탭 버튼 */
+.tabs--filled [role="tab"] {
+  border-bottom: none;
+  margin-bottom: 0;
+  border-radius: var(--radius-sm);
+}
+
+/* 활성 탭: 흰색 배경 + 그림자 */
+.tabs--filled [role="tab"][aria-selected="true"] {
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  border-bottom: none;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// Filled 탭도 동일하게 Tabs.init()으로 자동 초기화
+// DOMContentLoaded 시 자동으로 실행됨
+document.addEventListener('DOMContentLoaded', () =&gt; {
+  Tabs.init(); // 페이지의 모든 [role="tablist"] 초기화
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: Vertical Tabs (수직 탭 변형)
+                 - .tabs--vertical: 세로 방향 탭 목록
+                 - .tabs-vertical-layout: 탭 + 패널 가로 배치
+                 ============================================ -->
+            <section class="demo-section" id="section-vertical" aria-labelledby="heading-vertical">
+              <h2 id="heading-vertical" class="demo-section-title">Vertical Tabs</h2>
+              <p class="demo-description">
+                탭을 세로 방향으로 배치하는 Vertical 변형입니다.
+                <code>.tabs--vertical</code> 클래스와
+                <code>.tabs-vertical-layout</code> 래퍼로 구성합니다.
+                사이드 네비게이션 패턴에 적합합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Vertical Tabs 데모">
+
+                <div class="tabs-vertical-layout">
+
+                  <!-- 수직 tablist -->
+                  <div
+                    role="tablist"
+                    class="tabs tabs--vertical"
+                    aria-label="문서 카테고리"
+                    aria-orientation="vertical"
+                  >
+                    <button
+                      role="tab"
+                      id="tab-vert-intro"
+                      aria-selected="true"
+                      aria-controls="panel-vert-intro"
+                      tabindex="0"
+                    >시작하기</button>
+                    <button
+                      role="tab"
+                      id="tab-vert-install"
+                      aria-selected="false"
+                      aria-controls="panel-vert-install"
+                      tabindex="-1"
+                    >설치</button>
+                    <button
+                      role="tab"
+                      id="tab-vert-usage"
+                      aria-selected="false"
+                      aria-controls="panel-vert-usage"
+                      tabindex="-1"
+                    >사용법</button>
+                    <button
+                      role="tab"
+                      id="tab-vert-api"
+                      aria-selected="false"
+                      aria-controls="panel-vert-api"
+                      tabindex="-1"
+                    >API</button>
+                  </div>
+
+                  <!-- 패널 영역 -->
+                  <div
+                    id="panel-vert-intro"
+                    role="tabpanel"
+                    aria-labelledby="tab-vert-intro"
+                    tabindex="0"
+                  >
+                    <h3 style="margin: 0 0 8px; font-size: var(--font-size-base); font-weight: 600; color: var(--color-text);">시작하기</h3>
+                    <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">
+                      이 라이브러리는 접근성과 사용성을 중시하는
+                      UI 컴포넌트 모음입니다. 간단한 HTML 마크업만으로 시작할 수 있습니다.
+                    </p>
+                  </div>
+                  <div
+                    id="panel-vert-install"
+                    role="tabpanel"
+                    aria-labelledby="tab-vert-install"
+                    tabindex="0"
+                    style="display: none;"
+                  >
+                    <h3 style="margin: 0 0 8px; font-size: var(--font-size-base); font-weight: 600; color: var(--color-text);">설치 방법</h3>
+                    <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">
+                      CSS와 JS 파일을 HTML에 포함하거나 CDN을 통해 로드합니다.
+                      별도의 빌드 도구가 필요하지 않습니다.
+                    </p>
+                  </div>
+                  <div
+                    id="panel-vert-usage"
+                    role="tabpanel"
+                    aria-labelledby="tab-vert-usage"
+                    tabindex="0"
+                    style="display: none;"
+                  >
+                    <h3 style="margin: 0 0 8px; font-size: var(--font-size-base); font-weight: 600; color: var(--color-text);">사용 방법</h3>
+                    <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">
+                      role="tablist", role="tab", role="tabpanel" ARIA 속성으로
+                      마크업을 구성하면 자동으로 초기화됩니다.
+                    </p>
+                  </div>
+                  <div
+                    id="panel-vert-api"
+                    role="tabpanel"
+                    aria-labelledby="tab-vert-api"
+                    tabindex="0"
+                    style="display: none;"
+                  >
+                    <h3 style="margin: 0 0 8px; font-size: var(--font-size-base); font-weight: 600; color: var(--color-text);">API 레퍼런스</h3>
+                    <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">
+                      <code>Tabs.init(container)</code>로 특정 영역만 초기화하거나
+                      전체 문서를 대상으로 초기화합니다.
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 수직 탭: .tabs-vertical-layout 래퍼 안에 구성 --&gt;
+&lt;div class="tabs-vertical-layout"&gt;
+
+  &lt;!-- .tabs--vertical: 세로 방향 탭 목록 --&gt;
+  &lt;div role="tablist" class="tabs tabs--vertical"
+    aria-label="문서 카테고리"
+    aria-orientation="vertical"
+  &gt;
+    &lt;button role="tab" id="tab-intro"
+      aria-selected="true" aria-controls="panel-intro" tabindex="0"
+    &gt;시작하기&lt;/button&gt;
+    &lt;button role="tab" id="tab-install"
+      aria-selected="false" aria-controls="panel-install" tabindex="-1"
+    &gt;설치&lt;/button&gt;
+    &lt;button role="tab" id="tab-api"
+      aria-selected="false" aria-controls="panel-api" tabindex="-1"
+    &gt;API&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 패널 영역 --&gt;
+  &lt;div id="panel-intro" role="tabpanel"
+    aria-labelledby="tab-intro" tabindex="0"&gt;
+    시작하기 내용...
+  &lt;/div&gt;
+  &lt;div id="panel-install" role="tabpanel"
+    aria-labelledby="tab-install" tabindex="0" style="display:none;"&gt;
+    설치 방법...
+  &lt;/div&gt;
+  &lt;div id="panel-api" role="tabpanel"
+    aria-labelledby="tab-api" tabindex="0" style="display:none;"&gt;
+    API 레퍼런스...
+  &lt;/div&gt;
+
+&lt;/div&gt;'
+                data-css='/* 수직 탭 목록 */
+.tabs--vertical {
+  flex-direction: column;
+  align-items: stretch;
+  border-bottom: none;
+  border-right: 2px solid var(--color-border);
+  min-width: 160px;
+}
+
+/* 수직 탭 버튼 */
+.tabs--vertical [role="tab"] {
+  text-align: left;
+  border-bottom: none;
+  border-right: 2px solid transparent;
+  margin-bottom: 0;
+  margin-right: -2px;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+/* 수직 탭 활성 상태 */
+.tabs--vertical [role="tab"][aria-selected="true"] {
+  border-right-color: var(--color-primary);
+  border-bottom-color: transparent;
+}
+
+/* 탭 + 패널 가로 배치 래퍼 */
+.tabs-vertical-layout {
+  display: flex;
+  align-items: flex-start;
+}
+
+.tabs-vertical-layout [role="tabpanel"] {
+  flex: 1;
+  padding: 0 var(--spacing-lg);
+}'
+                data-js='// 수직 탭도 동일하게 Tabs.init()으로 초기화
+// aria-orientation="vertical"은 현재 JS에서 참조하지 않지만
+// 스크린 리더에게 탭 방향 정보를 전달합니다'
+                aria-label="Vertical Tabs 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 수직 탭: .tabs-vertical-layout 래퍼 안에 구성 --&gt;
+&lt;div class="tabs-vertical-layout"&gt;
+
+  &lt;!-- .tabs--vertical: 세로 방향 탭 목록 --&gt;
+  &lt;div role="tablist" class="tabs tabs--vertical"
+    aria-label="문서 카테고리"
+    aria-orientation="vertical"
+  &gt;
+    &lt;button role="tab" id="tab-intro"
+      aria-selected="true"
+      aria-controls="panel-intro"
+      tabindex="0"&gt;시작하기&lt;/button&gt;
+    &lt;button role="tab" id="tab-install"
+      aria-selected="false"
+      aria-controls="panel-install"
+      tabindex="-1"&gt;설치&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;div id="panel-intro" role="tabpanel"
+    aria-labelledby="tab-intro" tabindex="0"&gt;
+    시작하기 내용...
+  &lt;/div&gt;
+  &lt;div id="panel-install" role="tabpanel"
+    aria-labelledby="tab-install" tabindex="0"
+    style="display:none;"&gt;
+    설치 방법...
+  &lt;/div&gt;
+
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 수직 탭 목록 */
+.tabs--vertical {
+  flex-direction: column;
+  align-items: stretch;
+  border-bottom: none;
+  border-right: 2px solid var(--color-border);
+  min-width: 160px;
+}
+
+/* 수직 탭 버튼 */
+.tabs--vertical [role="tab"] {
+  text-align: left;
+  border-bottom: none;
+  border-right: 2px solid transparent;
+  margin-bottom: 0;
+  margin-right: -2px;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+}
+
+/* 활성 수직 탭 */
+.tabs--vertical [role="tab"][aria-selected="true"] {
+  border-right-color: var(--color-primary);
+  border-bottom-color: transparent;
+}
+
+/* 탭 + 패널 가로 배치 */
+.tabs-vertical-layout {
+  display: flex;
+  align-items: flex-start;
+}
+
+.tabs-vertical-layout [role="tabpanel"] {
+  flex: 1;
+  padding: 0 var(--spacing-lg);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 수직 탭도 Tabs.init()으로 자동 초기화
+// aria-orientation="vertical"은 스크린 리더에게
+// 탭이 수직 방향임을 알려주는 ARIA 속성입니다
+// (현재 js에서 Arrow Up/Down 방향 키를 별도 처리하지 않음)</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: Disabled Tab (비활성 탭)
+                 - aria-disabled="true" + tabindex="-1"
+                 - 키보드 이동 시 비활성 탭 자동 건너뜀
+                 ============================================ -->
+            <section class="demo-section" id="section-disabled" aria-labelledby="heading-disabled">
+              <h2 id="heading-disabled" class="demo-section-title">Disabled Tab</h2>
+              <p class="demo-description">
+                개별 탭을 비활성화하려면 <code>disabled</code> 속성을 사용합니다.
+                비활성 탭은 클릭과 키보드 이동에서 모두 건너뜁니다.
+                <code>aria-disabled="true"</code>를 함께 사용해 스크린 리더에도 상태를 전달합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Disabled Tab 데모">
+
+                <div
+                  role="tablist"
+                  class="tabs"
+                  aria-label="서비스 탭"
+                >
+                  <button
+                    role="tab"
+                    id="tab-dis-overview"
+                    aria-selected="true"
+                    aria-controls="panel-dis-overview"
+                    tabindex="0"
+                  >개요</button>
+                  <button
+                    role="tab"
+                    id="tab-dis-analytics"
+                    aria-selected="false"
+                    aria-controls="panel-dis-analytics"
+                    tabindex="-1"
+                  >분석</button>
+                  <!-- 비활성 탭: disabled + aria-disabled -->
+                  <button
+                    role="tab"
+                    id="tab-dis-reports"
+                    aria-selected="false"
+                    aria-controls="panel-dis-reports"
+                    tabindex="-1"
+                    disabled
+                    aria-disabled="true"
+                  >리포트 (준비 중)</button>
+                  <button
+                    role="tab"
+                    id="tab-dis-export"
+                    aria-selected="false"
+                    aria-controls="panel-dis-export"
+                    tabindex="-1"
+                  >내보내기</button>
+                </div>
+
+                <div
+                  id="panel-dis-overview"
+                  role="tabpanel"
+                  aria-labelledby="tab-dis-overview"
+                  tabindex="0"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    서비스의 전체 현황을 한눈에 확인합니다.
+                    주요 지표와 최근 활동 내역을 표시합니다.
+                  </p>
+                </div>
+                <div
+                  id="panel-dis-analytics"
+                  role="tabpanel"
+                  aria-labelledby="tab-dis-analytics"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    사용자 행동 분석, 방문자 통계 등 상세 분석 데이터를 확인합니다.
+                  </p>
+                </div>
+                <div
+                  id="panel-dis-reports"
+                  role="tabpanel"
+                  aria-labelledby="tab-dis-reports"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    리포트 기능은 준비 중입니다.
+                  </p>
+                </div>
+                <div
+                  id="panel-dis-export"
+                  role="tabpanel"
+                  aria-labelledby="tab-dis-export"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    데이터를 CSV, Excel 등 다양한 형식으로 내보냅니다.
+                  </p>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 비활성 탭: disabled + aria-disabled="true" --&gt;
+&lt;div role="tablist" class="tabs" aria-label="서비스 탭"&gt;
+  &lt;button role="tab" id="tab-overview"
+    aria-selected="true" aria-controls="panel-overview" tabindex="0"
+  &gt;개요&lt;/button&gt;
+
+  &lt;button role="tab" id="tab-analytics"
+    aria-selected="false" aria-controls="panel-analytics" tabindex="-1"
+  &gt;분석&lt;/button&gt;
+
+  &lt;!--
+    비활성 탭:
+    - disabled: 클릭 차단 (네이티브)
+    - aria-disabled="true": 스크린 리더에 비활성 상태 전달
+    - tabindex="-1": 탭 포커스에서 제외
+    - tabs.js가 키보드 이동 시 자동으로 건너뜀
+  --&gt;
+  &lt;button role="tab" id="tab-reports"
+    aria-selected="false" aria-controls="panel-reports"
+    tabindex="-1"
+    disabled aria-disabled="true"
+  &gt;리포트 (준비 중)&lt;/button&gt;
+&lt;/div&gt;'
+                data-css='/* 비활성 탭: 반투명 + 클릭 차단 */
+.tabs [role="tab"][disabled],
+.tabs [role="tab"][aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}'
+                data-js='// 동적으로 탭 비활성화 예시
+const reportTab = document.getElementById("tab-reports");
+
+// 비활성화
+reportTab.disabled = true;
+reportTab.setAttribute("aria-disabled", "true");
+reportTab.setAttribute("tabindex", "-1");
+
+// 활성화
+reportTab.disabled = false;
+reportTab.removeAttribute("aria-disabled");
+reportTab.setAttribute("tabindex", "0");'
+                aria-label="Disabled Tab 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 비활성 탭: disabled + aria-disabled="true" --&gt;
+&lt;div role="tablist" class="tabs" aria-label="서비스 탭"&gt;
+  &lt;button role="tab" id="tab-overview"
+    aria-selected="true"
+    aria-controls="panel-overview"
+    tabindex="0"&gt;개요&lt;/button&gt;
+
+  &lt;button role="tab" id="tab-analytics"
+    aria-selected="false"
+    aria-controls="panel-analytics"
+    tabindex="-1"&gt;분석&lt;/button&gt;
+
+  &lt;!--
+    비활성 탭:
+    - disabled: 클릭 차단 (네이티브)
+    - aria-disabled="true": 스크린 리더에 상태 전달
+    - tabs.js가 Arrow 키 이동 시 자동으로 건너뜀
+  --&gt;
+  &lt;button role="tab" id="tab-reports"
+    aria-selected="false"
+    aria-controls="panel-reports"
+    tabindex="-1"
+    disabled
+    aria-disabled="true"&gt;리포트 (준비 중)&lt;/button&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 비활성 탭: 반투명 + 클릭 차단 */
+.tabs [role="tab"][disabled],
+.tabs [role="tab"][aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 동적으로 탭 비활성화
+const reportTab = document.getElementById('tab-reports');
+
+// 비활성화
+reportTab.disabled = true;
+reportTab.setAttribute('aria-disabled', 'true');
+reportTab.setAttribute('tabindex', '-1');
+
+// 활성화
+reportTab.disabled = false;
+reportTab.removeAttribute('aria-disabled');
+reportTab.setAttribute('tabindex', '0');</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 5: Tabs with Icon (아이콘 + 텍스트 탭)
+                 - Lucide 아이콘을 탭 버튼에 포함
+                 - aria-hidden으로 장식적 아이콘 처리
+                 ============================================ -->
+            <section class="demo-section" id="section-icon" aria-labelledby="heading-icon">
+              <h2 id="heading-icon" class="demo-section-title">Tabs with Icon</h2>
+              <p class="demo-description">
+                탭 버튼에 아이콘을 포함하여 시각적 식별성을 높입니다.
+                아이콘은 장식적 요소이므로 <code>aria-hidden="true"</code>를 적용하고,
+                탭 레이블 텍스트로 의미를 전달합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Tabs with Icon 데모">
+
+                <div
+                  role="tablist"
+                  class="tabs"
+                  aria-label="대시보드 탭"
+                >
+                  <button
+                    role="tab"
+                    id="tab-icon-home"
+                    aria-selected="true"
+                    aria-controls="panel-icon-home"
+                    tabindex="0"
+                  >
+                    <i data-lucide="home" aria-hidden="true" style="width:14px;height:14px;"></i>
+                    홈
+                  </button>
+                  <button
+                    role="tab"
+                    id="tab-icon-user"
+                    aria-selected="false"
+                    aria-controls="panel-icon-user"
+                    tabindex="-1"
+                  >
+                    <i data-lucide="user" aria-hidden="true" style="width:14px;height:14px;"></i>
+                    사용자
+                  </button>
+                  <button
+                    role="tab"
+                    id="tab-icon-bell"
+                    aria-selected="false"
+                    aria-controls="panel-icon-bell"
+                    tabindex="-1"
+                  >
+                    <i data-lucide="bell" aria-hidden="true" style="width:14px;height:14px;"></i>
+                    알림
+                  </button>
+                  <button
+                    role="tab"
+                    id="tab-icon-settings"
+                    aria-selected="false"
+                    aria-controls="panel-icon-settings"
+                    tabindex="-1"
+                  >
+                    <i data-lucide="settings" aria-hidden="true" style="width:14px;height:14px;"></i>
+                    설정
+                  </button>
+                </div>
+
+                <div
+                  id="panel-icon-home"
+                  role="tabpanel"
+                  aria-labelledby="tab-icon-home"
+                  tabindex="0"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    홈 대시보드 화면입니다. 전체 현황을 한눈에 확인할 수 있습니다.
+                  </p>
+                </div>
+                <div
+                  id="panel-icon-user"
+                  role="tabpanel"
+                  aria-labelledby="tab-icon-user"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    사용자 관리 화면입니다. 계정 목록과 권한을 설정합니다.
+                  </p>
+                </div>
+                <div
+                  id="panel-icon-bell"
+                  role="tabpanel"
+                  aria-labelledby="tab-icon-bell"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    알림 설정 화면입니다. 이메일, 푸시 알림 수신 여부를 조정합니다.
+                  </p>
+                </div>
+                <div
+                  id="panel-icon-settings"
+                  role="tabpanel"
+                  aria-labelledby="tab-icon-settings"
+                  tabindex="0"
+                  style="display: none;"
+                >
+                  <p style="margin: 0; font-size: var(--font-size-sm); color: var(--color-text-secondary);">
+                    시스템 설정 화면입니다. 언어, 시간대, 테마를 변경합니다.
+                  </p>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 아이콘 + 텍스트 탭: 아이콘은 aria-hidden="true" --&gt;
+&lt;div role="tablist" class="tabs" aria-label="대시보드 탭"&gt;
+  &lt;button role="tab" id="tab-home"
+    aria-selected="true" aria-controls="panel-home" tabindex="0"
+  &gt;
+    &lt;!-- 장식적 아이콘: aria-hidden으로 스크린 리더 무시 --&gt;
+    &lt;i data-lucide="home" aria-hidden="true"&gt;&lt;/i&gt;
+    홈
+  &lt;/button&gt;
+
+  &lt;button role="tab" id="tab-user"
+    aria-selected="false" aria-controls="panel-user" tabindex="-1"
+  &gt;
+    &lt;i data-lucide="user" aria-hidden="true"&gt;&lt;/i&gt;
+    사용자
+  &lt;/button&gt;
+
+  &lt;button role="tab" id="tab-settings"
+    aria-selected="false" aria-controls="panel-settings" tabindex="-1"
+  &gt;
+    &lt;i data-lucide="settings" aria-hidden="true"&gt;&lt;/i&gt;
+    설정
+  &lt;/button&gt;
+&lt;/div&gt;'
+                data-css='/* 탭 버튼: 아이콘 + 텍스트 정렬 */
+.tabs [role="tab"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 아이콘 크기 고정 */
+.tabs [role="tab"] svg,
+.tabs [role="tab"] i[data-lucide] {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}'
+                data-js='// 아이콘 탭도 Tabs.init()으로 자동 초기화
+// Lucide 아이콘은 common.js의 initIcons()가 렌더링
+
+// 아이콘만 있는 탭 (텍스트 없음)을 사용할 경우:
+// aria-label 속성으로 의미를 명시적으로 제공해야 합니다
+const iconOnlyTab = document.querySelector("[role=&quot;tab&quot;]");
+iconOnlyTab.setAttribute("aria-label", "홈으로 이동");'
+                aria-label="Tabs with Icon 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 아이콘 + 텍스트 탭 --&gt;
+&lt;div role="tablist" class="tabs" aria-label="대시보드 탭"&gt;
+
+  &lt;button role="tab" id="tab-home"
+    aria-selected="true"
+    aria-controls="panel-home"
+    tabindex="0"&gt;
+    &lt;!-- 장식적 아이콘: aria-hidden으로 스크린 리더 무시 --&gt;
+    &lt;i data-lucide="home" aria-hidden="true"&gt;&lt;/i&gt;
+    홈
+  &lt;/button&gt;
+
+  &lt;button role="tab" id="tab-user"
+    aria-selected="false"
+    aria-controls="panel-user"
+    tabindex="-1"&gt;
+    &lt;i data-lucide="user" aria-hidden="true"&gt;&lt;/i&gt;
+    사용자
+  &lt;/button&gt;
+
+  &lt;button role="tab" id="tab-settings"
+    aria-selected="false"
+    aria-controls="panel-settings"
+    tabindex="-1"&gt;
+    &lt;i data-lucide="settings" aria-hidden="true"&gt;&lt;/i&gt;
+    설정
+  &lt;/button&gt;
+
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 아이콘 + 텍스트 정렬 */
+.tabs [role="tab"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 아이콘 크기 */
+.tabs [role="tab"] svg,
+.tabs [role="tab"] i[data-lucide] {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* 아이콘만 있는 탭 (텍스트 없음) */
+.tabs [role="tab"].tab--icon-only {
+  padding: 10px;
+}
+
+/* aria-label로 의미를 제공하는 아이콘 전용 탭 */
+.tabs [role="tab"][aria-label] svg {
+  width: 16px;
+  height: 16px;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 아이콘 탭도 Tabs.init()으로 자동 초기화
+// Lucide 아이콘은 common.js의 initIcons()가 렌더링
+
+// 아이콘만 있는 탭을 사용할 경우:
+// aria-label 속성으로 의미를 명시적으로 제공해야 합니다
+const iconOnlyTabs = document.querySelectorAll('[role="tab"].tab--icon-only');
+iconOnlyTabs.forEach((tab, i) =&gt; {
+  const labels = ['홈', '사용자', '설정'];
+  tab.setAttribute('aria-label', labels[i]);
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Accordion 컴포넌트 -->
+                <a href="./accordion.html" class="detail-footer-link" aria-label="Accordion 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Accordion</span>
+                </a>
+                <!-- 다음: Modal 컴포넌트 -->
+                <a href="./modal.html" class="detail-footer-link" aria-label="Modal 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Modal</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS/JS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- Tabs 컴포넌트: WAI-ARIA 탭 전환, 키보드 네비게이션 -->
+  <script src="../assets/js/components/tabs.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>
