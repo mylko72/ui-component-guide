@@ -2,7 +2,7 @@
 - [Playwright ES6 모듈 CORS 문제](feedback_playwright_static_server.md) — file:// + import → 정적 서버(webServer) 필수
 - [WAI-ARIA Tabs 패턴](reference_aria_tabs_pattern.md) — role=tablist/tab/tabpanel, roving tabindex, 키보드 네비게이션 구현 레퍼런스
 - [ToastManager 싱글톤 패턴](reference_toast_singleton_pattern.md) — exit 애니메이션 중 _render 충돌 처리, aria-live 타입별 분기, 타이머 맵 관리
-- [ModalManager 싱글톤 패턴](reference_modal_singleton_pattern.md) — 포커스 트랩, 배경 aria-hidden 백업/복원, 바인딩된 핸들러로 리스너 정리
+- [Modal 컴포넌트 패턴](reference_modal_singleton_pattern.md) — dialog[open] 정적표시, removeAttribute('open')로 JS 전환, autofocus 감지, boundHandler 정리
 - [DetailPage 상속 패턴](reference_detail_page_pattern.md) — getComponentInfo + _renderDemos 오버라이드만으로 데모 페이지 구성
 - [Input 컴포넌트 패턴](reference_input_component_pattern.md) — data-input 속성 선택자, 아이콘 래퍼(.input-icon-wrap), 비밀번호 토글(.input-pw-toggle) 구현 레퍼런스
 - [Checkbox Indeterminate 패턴](reference_checkbox_indeterminate_pattern.md) — aria-checked="mixed" + element.indeterminate 조합, 부모-자식 data 속성 연동, 마운트 시 수동 초기화 필수

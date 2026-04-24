@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Modal 컴포넌트: 기본 모달, 크기 변형, 폼 모달, 위험 확인 모달 4가지 패턴. WAI-ARIA dialog 패턴, 포커스 트랩, 키보드 접근성 완전 지원.">
+  <title>Modal — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → modal (컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/modal.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: modal.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: modal.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Modal 컴포넌트 데모 4개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Modal</h1>
+              <p class="detail-description">
+                콘텐츠를 레이어 위에 표시하는 다이얼로그 컴포넌트입니다.
+                HTML 네이티브 <code>&lt;dialog&gt;</code> 요소를 기반으로
+                <code>showModal()</code> API를 활용하며, WAI-ARIA
+                <code>role="dialog"</code> 패턴을 준수합니다.
+                포커스 트랩으로 모달 내부에서만 Tab이 이동하고,
+                Esc 키로 닫을 수 있습니다.
+                JavaScript 없이도 <code>open</code> 속성이 있는
+                <code>&lt;dialog&gt;</code> 내용이 페이지에 정적으로 표시됩니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: 기본 모달 (Basic Modal)
+                 - role="dialog", aria-modal="true", aria-labelledby 완전 구현
+                 - JS 비활성화 시: open 속성으로 dialog 내용이 정적 표시
+                 - JS 활성화 후: modal.js가 showModal() / close() 제어
+                 ============================================ -->
+            <section class="demo-section" id="section-basic" aria-labelledby="heading-basic">
+              <h2 id="heading-basic" class="demo-section-title">Basic Modal</h2>
+              <p class="demo-description">
+                기본 모달입니다. <code>data-modal-trigger</code> 버튼이 클릭되면
+                <code>dialog.showModal()</code>을 호출하여 모달을 엽니다.
+                Esc 키 또는 닫기 버튼으로 닫을 수 있으며,
+                배경 클릭으로도 닫힙니다.
+                JavaScript 없이도 <code>open</code> 속성으로 정적 표시됩니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Basic Modal 데모">
+
+                <!-- 트리거 버튼: data-modal-target으로 대상 dialog 연결 -->
+                <button
+                  type="button"
+                  class="modal__btn modal__btn--confirm"
+                  data-modal-trigger
+                  data-modal-target="modal-basic"
+                  aria-haspopup="dialog"
+                >
+                  모달 열기
+                </button>
+
+                <!-- ============================================
+                     dialog 요소: JS 없을 때 open 속성으로 정적 표시
+                     JS 있을 때: showModal()이 open 속성을 자동 관리
+                     ============================================ -->
+                <dialog
+                  id="modal-basic"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="modal-basic-title"
+                  open
+                >
+                  <div class="modal modal--md">
+                    <!-- 모달 헤더 -->
+                    <header class="modal__header">
+                      <h2 id="modal-basic-title" class="modal__title">기본 모달</h2>
+                      <!-- 닫기 버튼: data-modal-close 속성으로 modal.js가 이벤트 연결 -->
+                      <button
+                        type="button"
+                        class="modal__close"
+                        data-modal-close
+                        aria-label="모달 닫기"
+                      >
+                        <i data-lucide="x" aria-hidden="true" style="width:16px;height:16px;"></i>
+                      </button>
+                    </header>
+
+                    <!-- 모달 본문 -->
+                    <div class="modal__body">
+                      <p>
+                        이것은 기본 모달 컴포넌트입니다. HTML 네이티브
+                        <code>&lt;dialog&gt;</code> 요소를 사용하여 구현했습니다.
+                      </p>
+                      <p>
+                        Esc 키를 누르거나 배경을 클릭하면 모달이 닫힙니다.
+                        Tab 키는 모달 내부에서만 이동합니다.
+                      </p>
+                    </div>
+
+                    <!-- 모달 푸터 -->
+                    <footer class="modal__footer">
+                      <button type="button" class="modal__btn modal__btn--cancel" data-modal-close>
+                        취소
+                      </button>
+                      <button type="button" class="modal__btn modal__btn--confirm" data-modal-close>
+                        확인
+                      </button>
+                    </footer>
+                  </div>
+                </dialog>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS/JS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 트리거 버튼: data-modal-target으로 dialog 연결 --&gt;
+&lt;button
+  type="button"
+  data-modal-trigger
+  data-modal-target="modal-basic"
+  aria-haspopup="dialog"
+&gt;
+  모달 열기
+&lt;/button&gt;
+
+&lt;!-- dialog: open 속성으로 JS 없을 때도 정적 표시 --&gt;
+&lt;dialog
+  id="modal-basic"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-basic-title"
+  open
+&gt;
+  &lt;div class="modal modal--md"&gt;
+    &lt;header class="modal__header"&gt;
+      &lt;h2 id="modal-basic-title" class="modal__title"&gt;기본 모달&lt;/h2&gt;
+      &lt;button type="button" class="modal__close"
+        data-modal-close aria-label="모달 닫기"&gt;
+        &lt;i data-lucide="x" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class="modal__body"&gt;
+      &lt;p&gt;모달 본문 내용입니다.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;footer class="modal__footer"&gt;
+      &lt;button type="button" class="modal__btn modal__btn--cancel"
+        data-modal-close&gt;취소&lt;/button&gt;
+      &lt;button type="button" class="modal__btn modal__btn--confirm"
+        data-modal-close&gt;확인&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;'
+                data-css='/* dialog 기본 스타일 */
+dialog {
+  border: none;
+  padding: 0;
+  background: transparent;
+  max-width: 560px;
+  width: 100%;
+  margin: var(--spacing-xl) auto;
+}
+
+/* dialog::backdrop: showModal() 시 자동 생성 */
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* .modal: 실제 모달 박스 */
+.modal {
+  background-color: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}'
+                data-js='// modal.js가 자동으로 초기화
+// 또는 특정 컨테이너만 초기화:
+Modal.init(document.querySelector(".my-container"));
+
+// 외부에서 프로그래밍 방식으로 열기:
+const dialog = document.getElementById("modal-basic");
+dialog.showModal();
+
+// 닫기:
+dialog.close();'
+                aria-label="Basic Modal 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-modal-basic-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-modal-basic-css"
+                    >CSS</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="js"
+                      aria-selected="false"
+                      aria-controls="cb-modal-basic-js"
+                    >JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-modal-basic-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- 트리거 버튼: data-modal-target으로 dialog 연결 --&gt;
+&lt;button
+  type="button"
+  data-modal-trigger
+  data-modal-target="modal-basic"
+  aria-haspopup="dialog"
+&gt;
+  모달 열기
+&lt;/button&gt;
+
+&lt;!--
+  dialog 요소:
+  - open: JS 없을 때도 정적으로 내용 표시
+  - role="dialog": WAI-ARIA 다이얼로그 역할
+  - aria-modal="true": 모달임을 스크린 리더에 전달
+  - aria-labelledby: h2 제목 요소와 연결
+--&gt;
+&lt;dialog
+  id="modal-basic"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-basic-title"
+  open
+&gt;
+  &lt;div class="modal modal--md"&gt;
+    &lt;header class="modal__header"&gt;
+      &lt;h2 id="modal-basic-title" class="modal__title"&gt;기본 모달&lt;/h2&gt;
+      &lt;button type="button" class="modal__close"
+        data-modal-close aria-label="모달 닫기"&gt;
+        &lt;i data-lucide="x" aria-hidden="true"&gt;&lt;/i&gt;
+      &lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class="modal__body"&gt;
+      &lt;p&gt;모달 본문 내용입니다.&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;footer class="modal__footer"&gt;
+      &lt;button type="button" class="modal__btn modal__btn--cancel"
+        data-modal-close&gt;취소&lt;/button&gt;
+      &lt;button type="button" class="modal__btn modal__btn--confirm"
+        data-modal-close&gt;확인&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-modal-basic-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* dialog 기본 스타일 */
+dialog {
+  border: none;
+  padding: 0;
+  background: transparent;
+  max-width: 560px;
+  width: 100%;
+  margin: var(--spacing-xl) auto;
+}
+
+/* dialog::backdrop: showModal() 시 자동 생성되는 오버레이 */
+dialog::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+  animation: modal-overlay-in var(--transition-normal) ease forwards;
+}
+
+/* .modal: 실제 모달 박스 */
+.modal {
+  background-color: var(--color-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modal-in var(--transition-normal) ease forwards;
+}
+
+/* 크기 변형 */
+.modal--sm { max-width: 400px; }
+.modal--md { max-width: 560px; }
+.modal--lg { max-width: 800px; }</pre>
+                    </div>
+                    <div
+                      id="cb-modal-basic-js"
+                      class="code-block__panel"
+                      data-code-block-panel="js"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">// modal.js 자동 초기화: DOMContentLoaded 시 Modal.init() 호출
+// 특정 컨테이너 범위만 초기화:
+Modal.init(document.querySelector('.my-container'));
+
+// 프로그래밍 방식으로 모달 열기:
+const dialog = document.getElementById('modal-basic');
+dialog.showModal(); // body scroll lock은 modal.js가 처리
+
+// 닫기:
+dialog.close();</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: Size Variants (크기 변형)
+                 - .modal--sm (400px), .modal--md (560px), .modal--lg (800px)
+                 ============================================ -->
+            <section class="demo-section" id="section-sizes" aria-labelledby="heading-sizes">
+              <h2 id="heading-sizes" class="demo-section-title">Size Variants</h2>
+              <p class="demo-description">
+                <code>.modal--sm</code>, <code>.modal--md</code>, <code>.modal--lg</code>
+                클래스로 모달 너비를 조정합니다.
+                각각 400px, 560px, 800px의 최대 너비를 가집니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Size Variants 데모">
+                <div style="display: flex; gap: var(--spacing-sm); flex-wrap: wrap;">
+
+                  <!-- Small 모달 트리거 -->
+                  <button
+                    type="button"
+                    class="modal__btn modal__btn--cancel"
+                    data-modal-trigger
+                    data-modal-target="modal-sm"
+                    aria-haspopup="dialog"
+                  >
+                    Small (400px)
+                  </button>
+
+                  <!-- Medium 모달 트리거 -->
+                  <button
+                    type="button"
+                    class="modal__btn modal__btn--confirm"
+                    data-modal-trigger
+                    data-modal-target="modal-md"
+                    aria-haspopup="dialog"
+                  >
+                    Medium (560px)
+                  </button>
+
+                  <!-- Large 모달 트리거 -->
+                  <button
+                    type="button"
+                    class="modal__btn modal__btn--confirm"
+                    style="background-color: var(--color-text-secondary); border-color: var(--color-text-secondary);"
+                    data-modal-trigger
+                    data-modal-target="modal-lg"
+                    aria-haspopup="dialog"
+                  >
+                    Large (800px)
+                  </button>
+                </div>
+
+                <!-- Small 모달 -->
+                <dialog
+                  id="modal-sm"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="modal-sm-title"
+                >
+                  <div class="modal modal--sm">
+                    <header class="modal__header">
+                      <h2 id="modal-sm-title" class="modal__title">Small 모달</h2>
+                      <button type="button" class="modal__close" data-modal-close aria-label="모달 닫기">
+                        <i data-lucide="x" aria-hidden="true" style="width:16px;height:16px;"></i>
+                      </button>
+                    </header>
+                    <div class="modal__body">
+                      <p>최대 너비 400px의 작은 모달입니다. 짧은 확인 메시지나 경고에 적합합니다.</p>
+                    </div>
+                    <footer class="modal__footer">
+                      <button type="button" class="modal__btn modal__btn--confirm" data-modal-close>확인</button>
+                    </footer>
+                  </div>
+                </dialog>
+
+                <!-- Medium 모달 -->
+                <dialog
+                  id="modal-md"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="modal-md-title"
+                >
+                  <div class="modal modal--md">
+                    <header class="modal__header">
+                      <h2 id="modal-md-title" class="modal__title">Medium 모달</h2>
+                      <button type="button" class="modal__close" data-modal-close aria-label="모달 닫기">
+                        <i data-lucide="x" aria-hidden="true" style="width:16px;height:16px;"></i>
+                      </button>
+                    </header>
+                    <div class="modal__body">
+                      <p>최대 너비 560px의 중간 모달입니다. 일반적인 정보 표시나 확인에 적합합니다.</p>
+                      <p>다수의 텍스트나 간단한 폼 요소를 포함할 수 있습니다.</p>
+                    </div>
+                    <footer class="modal__footer">
+                      <button type="button" class="modal__btn modal__btn--cancel" data-modal-close>취소</button>
+                      <button type="button" class="modal__btn modal__btn--confirm" data-modal-close>확인</button>
+                    </footer>
+                  </div>
+                </dialog>
+
+                <!-- Large 모달 -->
+                <dialog
+                  id="modal-lg"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="modal-lg-title"
+                >
+                  <div class="modal modal--lg">
+                    <header class="modal__header">
+                      <h2 id="modal-lg-title" class="modal__title">Large 모달</h2>
+                      <button type="button" class="modal__close" data-modal-close aria-label="모달 닫기">
+                        <i data-lucide="x" aria-hidden="true" style="width:16px;height:16px;"></i>
+                      </button>
+                    </header>
+                    <div class="modal__body">
+                      <p>최대 너비 800px의 큰 모달입니다. 상세 정보, 이미지, 복잡한 내용을 표시할 때 사용합니다.</p>
+                      <p>테이블, 차트, 긴 설명 텍스트 등 넓은 공간이 필요한 콘텐츠에 적합합니다.</p>
+                      <p>모바일에서는 자동으로 하단 시트 형태로 전환됩니다.</p>
+                    </div>
+                    <footer class="modal__footer">
+                      <button type="button" class="modal__btn modal__btn--cancel" data-modal-close>닫기</button>
+                      <button type="button" class="modal__btn modal__btn--confirm" data-modal-close>저장</button>
+                    </footer>
+                  </div>
+                </dialog>
+
+              </div>
+
+              <!-- CodeBlock: 크기 변형 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- Small: 최대 너비 400px --&gt;
+&lt;dialog id="modal-sm" role="dialog" aria-modal="true"
+  aria-labelledby="modal-sm-title"&gt;
+  &lt;div class="modal modal--sm"&gt;
+    &lt;header class="modal__header"&gt;
+      &lt;h2 id="modal-sm-title" class="modal__title"&gt;Small 모달&lt;/h2&gt;
+      &lt;button type="button" class="modal__close"
+        data-modal-close aria-label="모달 닫기"&gt;×&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class="modal__body"&gt;&lt;p&gt;내용...&lt;/p&gt;&lt;/div&gt;
+    &lt;footer class="modal__footer"&gt;
+      &lt;button class="modal__btn modal__btn--confirm"
+        data-modal-close&gt;확인&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;
+
+&lt;!-- Medium: 최대 너비 560px (기본값) --&gt;
+&lt;dialog id="modal-md" ...&gt;
+  &lt;div class="modal modal--md"&gt;...&lt;/div&gt;
+&lt;/dialog&gt;
+
+&lt;!-- Large: 최대 너비 800px --&gt;
+&lt;dialog id="modal-lg" ...&gt;
+  &lt;div class="modal modal--lg"&gt;...&lt;/div&gt;
+&lt;/dialog&gt;'
+                data-css='/* 크기 변형 클래스 */
+.modal--sm { max-width: 400px; }
+.modal--md { max-width: 560px; }
+.modal--lg { max-width: 800px; }
+
+/* 모바일: 모든 크기가 하단 시트로 전환 */
+@media (max-width: 767px) {
+  .modal--sm,
+  .modal--md,
+  .modal--lg {
+    max-width: 100%;
+  }
+}'
+                data-js='// 크기 변형도 동일하게 Modal.init()으로 자동 초기화
+// 클래스만 변경하면 됨, 별도 JS 설정 불필요'
+                aria-label="Size Variants 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- Small: .modal--sm (max-width: 400px) --&gt;
+&lt;dialog id="modal-sm" role="dialog"
+  aria-modal="true" aria-labelledby="modal-sm-title"&gt;
+  &lt;div class="modal modal--sm"&gt;
+    &lt;header class="modal__header"&gt;
+      &lt;h2 id="modal-sm-title" class="modal__title"&gt;Small 모달&lt;/h2&gt;
+      &lt;button type="button" class="modal__close"
+        data-modal-close aria-label="모달 닫기"&gt;×&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class="modal__body"&gt;&lt;p&gt;내용&lt;/p&gt;&lt;/div&gt;
+    &lt;footer class="modal__footer"&gt;
+      &lt;button class="modal__btn modal__btn--confirm"
+        data-modal-close&gt;확인&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;
+
+&lt;!-- Medium: .modal--md (max-width: 560px) --&gt;
+&lt;dialog id="modal-md" ...&gt;
+  &lt;div class="modal modal--md"&gt;...&lt;/div&gt;
+&lt;/dialog&gt;
+
+&lt;!-- Large: .modal--lg (max-width: 800px) --&gt;
+&lt;dialog id="modal-lg" ...&gt;
+  &lt;div class="modal modal--lg"&gt;...&lt;/div&gt;
+&lt;/dialog&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 크기 변형 클래스 */
+.modal--sm { max-width: 400px; }
+.modal--md { max-width: 560px; }
+.modal--lg { max-width: 800px; }
+
+/* 모바일에서는 모든 크기가 하단 시트로 */
+@media (max-width: 767px) {
+  .modal {
+    max-width: 100%;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  }
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 크기 변형도 Modal.init()으로 자동 초기화
+// 클래스만 변경하면 됨, 별도 설정 불필요
+document.addEventListener('DOMContentLoaded', () =&gt; {
+  Modal.init();
+});</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: Form Modal (폼이 포함된 모달)
+                 - 입력 필드가 있어 포커스 트랩 검증에 유용
+                 - 첫 번째 포커스: 이름 입력 필드로 자동 이동
+                 ============================================ -->
+            <section class="demo-section" id="section-form" aria-labelledby="heading-form">
+              <h2 id="heading-form" class="demo-section-title">Form Modal</h2>
+              <p class="demo-description">
+                폼 입력 요소가 포함된 모달입니다.
+                모달이 열리면 첫 번째 입력 필드로 포커스가 자동 이동합니다.
+                Tab 키로 입력 필드 간 이동하고, 마지막 요소에서 Tab 시 첫 번째 요소로 순환합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Form Modal 데모">
+
+                <button
+                  type="button"
+                  class="modal__btn modal__btn--confirm"
+                  data-modal-trigger
+                  data-modal-target="modal-form"
+                  aria-haspopup="dialog"
+                >
+                  프로필 편집
+                </button>
+
+                <dialog
+                  id="modal-form"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="modal-form-title"
+                >
+                  <div class="modal modal--md">
+                    <header class="modal__header">
+                      <h2 id="modal-form-title" class="modal__title">프로필 편집</h2>
+                      <button type="button" class="modal__close" data-modal-close aria-label="모달 닫기">
+                        <i data-lucide="x" aria-hidden="true" style="width:16px;height:16px;"></i>
+                      </button>
+                    </header>
+
+                    <!-- 폼이 포함된 모달 본문 -->
+                    <div class="modal__body">
+                      <form id="profile-form" novalidate style="display: flex; flex-direction: column; gap: var(--spacing-md);">
+
+                        <!-- 이름 필드 -->
+                        <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
+                          <label
+                            for="profile-name"
+                            style="font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text);"
+                          >
+                            이름
+                          </label>
+                          <input
+                            type="text"
+                            id="profile-name"
+                            name="name"
+                            placeholder="이름을 입력하세요"
+                            autocomplete="name"
+                            style="
+                              padding: 0.5rem var(--spacing-sm);
+                              border: 1px solid var(--color-border);
+                              border-radius: var(--radius-md);
+                              font-size: var(--font-size-sm);
+                              color: var(--color-text);
+                              background-color: var(--color-bg);
+                              outline: none;
+                              transition: border-color var(--transition-fast);
+                            "
+                          >
+                        </div>
+
+                        <!-- 이메일 필드 -->
+                        <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
+                          <label
+                            for="profile-email"
+                            style="font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text);"
+                          >
+                            이메일
+                          </label>
+                          <input
+                            type="email"
+                            id="profile-email"
+                            name="email"
+                            placeholder="이메일을 입력하세요"
+                            autocomplete="email"
+                            style="
+                              padding: 0.5rem var(--spacing-sm);
+                              border: 1px solid var(--color-border);
+                              border-radius: var(--radius-md);
+                              font-size: var(--font-size-sm);
+                              color: var(--color-text);
+                              background-color: var(--color-bg);
+                              outline: none;
+                              transition: border-color var(--transition-fast);
+                            "
+                          >
+                        </div>
+
+                        <!-- 소개 필드 -->
+                        <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
+                          <label
+                            for="profile-bio"
+                            style="font-size: var(--font-size-sm); font-weight: 500; color: var(--color-text);"
+                          >
+                            소개
+                          </label>
+                          <textarea
+                            id="profile-bio"
+                            name="bio"
+                            rows="3"
+                            placeholder="간단한 소개를 입력하세요"
+                            style="
+                              padding: 0.5rem var(--spacing-sm);
+                              border: 1px solid var(--color-border);
+                              border-radius: var(--radius-md);
+                              font-size: var(--font-size-sm);
+                              color: var(--color-text);
+                              background-color: var(--color-bg);
+                              resize: vertical;
+                              outline: none;
+                              font-family: inherit;
+                              transition: border-color var(--transition-fast);
+                            "
+                          ></textarea>
+                        </div>
+
+                      </form>
+                    </div>
+
+                    <footer class="modal__footer">
+                      <button type="button" class="modal__btn modal__btn--cancel" data-modal-close>
+                        취소
+                      </button>
+                      <button type="submit" form="profile-form" class="modal__btn modal__btn--confirm" data-modal-close>
+                        저장
+                      </button>
+                    </footer>
+                  </div>
+                </dialog>
+
+              </div>
+
+              <!-- CodeBlock: 폼 모달 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 폼이 포함된 모달: 열리면 첫 번째 input으로 포커스 이동 --&gt;
+&lt;dialog id="modal-form" role="dialog" aria-modal="true"
+  aria-labelledby="modal-form-title"&gt;
+  &lt;div class="modal modal--md"&gt;
+    &lt;header class="modal__header"&gt;
+      &lt;h2 id="modal-form-title" class="modal__title"&gt;프로필 편집&lt;/h2&gt;
+      &lt;button type="button" class="modal__close"
+        data-modal-close aria-label="모달 닫기"&gt;×&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class="modal__body"&gt;
+      &lt;form id="profile-form"&gt;
+        &lt;label for="profile-name"&gt;이름&lt;/label&gt;
+        &lt;input type="text" id="profile-name" name="name"&gt;
+
+        &lt;label for="profile-email"&gt;이메일&lt;/label&gt;
+        &lt;input type="email" id="profile-email" name="email"&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+    &lt;footer class="modal__footer"&gt;
+      &lt;button type="button" class="modal__btn modal__btn--cancel"
+        data-modal-close&gt;취소&lt;/button&gt;
+      &lt;!-- form 연결: form 속성으로 외부 버튼과 연결 --&gt;
+      &lt;button type="submit" form="profile-form"
+        class="modal__btn modal__btn--confirm"
+        data-modal-close&gt;저장&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;'
+                data-js='// modal.js가 열릴 때 첫 번째 focusable 요소(input)로 포커스 이동
+// _focusFirstElement()가 자동 실행됨
+
+// Tab 키 동작:
+// input[name="name"] → input[name="email"] → textarea → 취소 버튼 → 저장 버튼
+// → 닫기(×) 버튼 → (Shift+Tab으로 역순 이동)
+// 마지막 요소(저장 버튼)에서 Tab → 첫 번째(input)로 순환'
+                aria-label="Form Modal 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 폼 모달: 열리면 첫 번째 input으로 포커스 이동 --&gt;
+&lt;dialog id="modal-form" role="dialog"
+  aria-modal="true" aria-labelledby="modal-form-title"&gt;
+  &lt;div class="modal modal--md"&gt;
+    &lt;header class="modal__header"&gt;
+      &lt;h2 id="modal-form-title" class="modal__title"&gt;
+        프로필 편집
+      &lt;/h2&gt;
+      &lt;button type="button" class="modal__close"
+        data-modal-close aria-label="모달 닫기"&gt;×&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class="modal__body"&gt;
+      &lt;form id="profile-form"&gt;
+        &lt;label for="name"&gt;이름&lt;/label&gt;
+        &lt;input type="text" id="name" name="name"
+          placeholder="이름 입력"&gt;
+
+        &lt;label for="email"&gt;이메일&lt;/label&gt;
+        &lt;input type="email" id="email" name="email"
+          placeholder="이메일 입력"&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+    &lt;footer class="modal__footer"&gt;
+      &lt;button type="button"
+        class="modal__btn modal__btn--cancel"
+        data-modal-close&gt;취소&lt;/button&gt;
+      &lt;button type="submit" form="profile-form"
+        class="modal__btn modal__btn--confirm"
+        data-modal-close&gt;저장&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// modal.js가 열릴 때 첫 번째 focusable 요소(input)로
+// requestAnimationFrame을 통해 포커스 이동
+
+// 포커스 트랩 동작 순서:
+// input[name] → input[email] → textarea → 취소 → 저장 → 닫기(×)
+// → 마지막에서 Tab 시 첫 번째(input)로 순환
+// → 첫 번째에서 Shift+Tab 시 마지막(닫기)으로 순환
+
+// 포커스 트랩이 탐색하는 요소 유형:
+// 'a[href], button:not([disabled]), input:not([disabled]),
+//  select:not([disabled]), textarea:not([disabled]),
+//  [tabindex]:not([tabindex="-1"])'</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: Danger Confirmation Modal (위험 확인 모달)
+                 - 삭제/위험한 작업 전 사용자 확인을 요구하는 패턴
+                 - 취소 버튼에 초기 포커스 (실수로 확인 방지)
+                 ============================================ -->
+            <section class="demo-section" id="section-danger" aria-labelledby="heading-danger">
+              <h2 id="heading-danger" class="demo-section-title">Danger Confirmation</h2>
+              <p class="demo-description">
+                삭제 등 되돌릴 수 없는 작업 전 사용자 확인을 요구하는 패턴입니다.
+                취소 버튼에 <code>autofocus</code> 속성을 추가하면 실수로 확인 버튼을
+                누르는 것을 방지할 수 있습니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Danger Confirmation 데모">
+
+                <button
+                  type="button"
+                  class="modal__btn"
+                  style="background-color: var(--color-danger, #ef4444); border: 1px solid var(--color-danger, #ef4444); color: #fff;"
+                  data-modal-trigger
+                  data-modal-target="modal-danger"
+                  aria-haspopup="dialog"
+                >
+                  계정 삭제
+                </button>
+
+                <dialog
+                  id="modal-danger"
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="modal-danger-title"
+                  aria-describedby="modal-danger-desc"
+                >
+                  <div class="modal modal--sm">
+                    <header class="modal__header">
+                      <h2 id="modal-danger-title" class="modal__title" style="color: var(--color-danger, #ef4444);">
+                        계정 삭제
+                      </h2>
+                      <button type="button" class="modal__close" data-modal-close aria-label="모달 닫기">
+                        <i data-lucide="x" aria-hidden="true" style="width:16px;height:16px;"></i>
+                      </button>
+                    </header>
+
+                    <div class="modal__body">
+                      <p id="modal-danger-desc" style="color: var(--color-text);">
+                        이 작업은 <strong>되돌릴 수 없습니다.</strong>
+                        계정과 모든 관련 데이터가 영구적으로 삭제됩니다.
+                      </p>
+                      <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-top: var(--spacing-sm);">
+                        계속하려면 취소 대신 삭제 버튼을 클릭하세요.
+                      </p>
+                    </div>
+
+                    <footer class="modal__footer">
+                      <!--
+                        autofocus: 모달 열릴 때 취소 버튼으로 포커스 이동
+                        실수로 삭제 버튼을 누르는 것을 방지
+                      -->
+                      <button
+                        type="button"
+                        class="modal__btn modal__btn--cancel"
+                        data-modal-close
+                        autofocus
+                      >
+                        취소
+                      </button>
+                      <button
+                        type="button"
+                        class="modal__btn"
+                        style="background-color: var(--color-danger, #ef4444); border: 1px solid var(--color-danger, #ef4444); color: #fff;"
+                        data-modal-close
+                      >
+                        삭제
+                      </button>
+                    </footer>
+                  </div>
+                </dialog>
+
+              </div>
+
+              <!-- CodeBlock: Danger 모달 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- Danger 확인 모달:
+  - aria-describedby로 경고 내용 연결
+  - autofocus를 취소 버튼에 적용 (실수 방지)
+--&gt;
+&lt;dialog id="modal-danger" role="dialog" aria-modal="true"
+  aria-labelledby="modal-danger-title"
+  aria-describedby="modal-danger-desc"&gt;
+  &lt;div class="modal modal--sm"&gt;
+    &lt;header class="modal__header"&gt;
+      &lt;h2 id="modal-danger-title" class="modal__title"
+        style="color: var(--color-danger);"&gt;계정 삭제&lt;/h2&gt;
+      &lt;button type="button" class="modal__close"
+        data-modal-close aria-label="모달 닫기"&gt;×&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class="modal__body"&gt;
+      &lt;p id="modal-danger-desc"&gt;
+        이 작업은 &lt;strong&gt;되돌릴 수 없습니다.&lt;/strong&gt;
+        계정과 모든 관련 데이터가 영구적으로 삭제됩니다.
+      &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;footer class="modal__footer"&gt;
+      &lt;!--
+        autofocus: 실수로 삭제 버튼 클릭 방지
+        modal.js는 autofocus 요소가 있으면 해당 요소로 포커스 이동
+      --&gt;
+      &lt;button type="button" class="modal__btn modal__btn--cancel"
+        data-modal-close autofocus&gt;취소&lt;/button&gt;
+      &lt;button type="button" class="modal__btn modal__btn--danger"
+        data-modal-close&gt;삭제&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;'
+                data-js='// autofocus 속성이 있는 요소는 브라우저가 자동으로 포커스
+// dialog.showModal() 시 autofocus 요소가 우선적으로 포커스됨
+// (modal.js의 _focusFirstElement()는 autofocus가 없을 때 동작)
+
+// aria-describedby: 모달 설명 텍스트를 스크린 리더에 전달
+// role="alertdialog": 중요한 경고 모달에 사용하는 대안 role
+// (현재는 role="dialog"로 구현)'
+                aria-label="Danger Confirmation 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- Danger 확인 모달 --&gt;
+&lt;dialog id="modal-danger" role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-danger-title"
+  aria-describedby="modal-danger-desc"&gt;
+  &lt;div class="modal modal--sm"&gt;
+    &lt;header class="modal__header"&gt;
+      &lt;h2 id="modal-danger-title" class="modal__title"
+        style="color: var(--color-danger);"&gt;
+        계정 삭제
+      &lt;/h2&gt;
+      &lt;button type="button" class="modal__close"
+        data-modal-close aria-label="모달 닫기"&gt;×&lt;/button&gt;
+    &lt;/header&gt;
+    &lt;div class="modal__body"&gt;
+      &lt;p id="modal-danger-desc"&gt;
+        이 작업은 &lt;strong&gt;되돌릴 수 없습니다.&lt;/strong&gt;
+        계정과 모든 관련 데이터가 영구적으로 삭제됩니다.
+      &lt;/p&gt;
+    &lt;/div&gt;
+    &lt;footer class="modal__footer"&gt;
+      &lt;!-- autofocus: 실수로 삭제 버튼 클릭 방지 --&gt;
+      &lt;button type="button"
+        class="modal__btn modal__btn--cancel"
+        data-modal-close
+        autofocus&gt;취소&lt;/button&gt;
+      &lt;button type="button"
+        class="modal__btn modal__btn--danger"
+        data-modal-close&gt;삭제&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/dialog&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// autofocus 속성이 있으면 showModal() 시 해당 요소로 포커스
+// 취소 버튼에 autofocus → 실수로 삭제 버튼 클릭 방지
+
+// 위험 동작에 대한 추가 보호 예시:
+const dangerDialog = document.getElementById('modal-danger');
+const deleteBtn = dangerDialog.querySelector('[data-modal-close]:last-child');
+
+deleteBtn.addEventListener('click', () => {
+  // 삭제 버튼 클릭 시 실행할 콜백
+  console.log('계정 삭제 진행');
+  // API 호출 등의 위험한 작업 수행
+});
+
+// alertdialog: 중요 경고에 사용하는 대안 role
+// (현재는 role="dialog" 사용)
+// role="alertdialog"로 변경하면 스크린 리더가
+// 즉시 내용을 읽어줌</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Tabs 컴포넌트 -->
+                <a href="./tabs.html" class="detail-footer-link" aria-label="Tabs 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Tabs</span>
+                </a>
+                <!-- 다음: Dropdown 컴포넌트 -->
+                <a href="./dropdown.html" class="detail-footer-link" aria-label="Dropdown 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Dropdown</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS/JS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- Modal 컴포넌트: dialog.showModal(), 포커스 트랩, 스크롤 락, 포커스 복원 -->
+  <script src="../assets/js/components/modal.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>

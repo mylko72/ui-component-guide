@@ -1,10 +1,25 @@
 ---
-name: ModalManager 싱글톤 패턴
-description: 모달 open/close, 포커스 트랩, ARIA, body.overflow, 배경 aria-hidden, 메모리 정리 구현 레퍼런스
+name: Modal 컴포넌트 패턴 (정적 HTML + JS)
+description: dialog 네이티브 API, 포커스 트랩, ARIA, body.overflow, autofocus 감지, open 속성 정적 표시 구현 레퍼런스
 type: reference
 ---
 
-## 구현 위치
+## 구현 위치 (정적 HTML 버전)
+- `assets/js/components/modal.js` — Modal 클래스, static init(), 포커스 트랩
+- `assets/css/components/modal.css` — dialog 리셋 + ::backdrop 스타일
+- `pages/modal.html` — 4개 데모 섹션 (Basic, Size Variants, Form, Danger)
+
+## 정적 HTML 패턴 핵심
+- `<dialog open>` 속성으로 JS 없을 때 정적 표시
+- JS 초기화 시 `dialog.removeAttribute('open')` → showModal()로 제어 전환
+- `data-modal-trigger` + `data-modal-target` 속성으로 트리거-dialog 연결
+- `data-modal-close` 속성 요소들에 이벤트 자동 연결
+
+## JS 없을 때 (정적) 동작
+- `<dialog open>` → CSS `dialog[open] { display: block }` → 페이지에 정적 표시
+- `dialog::backdrop`은 showModal() 전용이므로 배경 없음
+
+## 구현 위치 (동적 렌더링 구버전)
 - `assets/js/ui/ModalManager.js`
 - `assets/css/components/modal.css`
 
