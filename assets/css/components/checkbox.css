@@ -363,6 +363,21 @@ input[type="checkbox"][data-checkbox][aria-checked="mixed"] + label[data-checkbo
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  /* position: relative: 직속 input[position:absolute]의 기준점 제공 */
+  position: relative;
+}
+
+/* 그룹 내 각 체크박스 래퍼 div:
+   input[position:absolute]의 기준점 제공 → 윈도우 스크롤 방지 */
+.checkbox-group > div {
+  position: relative;
+}
+
+/* 단독 체크박스 래퍼 패턴: demo-preview > div 등
+   input[data-checkbox]를 포함하는 div에 기준점 부여
+   :has() 선택자: Chrome 105+, Safari 15.4+, Firefox 121+ 지원 */
+div:has(> input[type="checkbox"][data-checkbox]) {
+  position: relative;
 }
 
 /* 수평 그룹 */

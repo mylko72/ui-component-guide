@@ -297,6 +297,13 @@ input[type="checkbox"][data-switch]:checked + label[data-switch-label][data-size
   gap: var(--spacing-sm);
 }
 
+/* 단독 스위치 래퍼 패턴:
+   input[position:absolute]의 기준점 제공 → 윈도우 스크롤 방지
+   :has() 선택자: Chrome 105+, Safari 15.4+, Firefox 121+ 지원 */
+div:has(> input[type="checkbox"][data-switch]) {
+  position: relative;
+}
+
 /* 수평 그룹 (인라인) */
 .switch-group--inline {
   flex-direction: row;
@@ -325,6 +332,12 @@ input[type="checkbox"][data-switch]:checked + label[data-switch-label][data-size
   gap: 2px;
   flex: 1;
   min-width: 0;
+}
+
+/* switch-row 내 스위치 래퍼 div:
+   input[position:absolute]의 기준점 제공 → 윈도우 스크롤 방지 */
+.switch-row > div {
+  position: relative;
 }
 
 /* 스위치 행 제목 */

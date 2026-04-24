@@ -336,6 +336,20 @@ label[data-radio-label][data-size="lg"]::after {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  /* position: relative: 직속 input[position:absolute]의 기준점 제공 */
+  position: relative;
+}
+
+/* 그룹 내 각 라디오 래퍼 div:
+   input[position:absolute]의 기준점 제공 → 윈도우 스크롤 방지 */
+.radio-group > div {
+  position: relative;
+}
+
+/* 단독 라디오 래퍼 패턴: fieldset > div, demo-preview > div 등
+   :has() 선택자: Chrome 105+, Safari 15.4+, Firefox 121+ 지원 */
+div:has(> input[type="radio"][data-radio]) {
+  position: relative;
 }
 
 /* 수평 그룹 */
