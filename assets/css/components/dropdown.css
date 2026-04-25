@@ -1,1 +1,191 @@
-/* Dropdown 컴포넌트 스타일 */
+/* ============================================
+   Dropdown 컴포넌트 스타일
+   WAI-ARIA menu/menuitem 패턴 준수
+   점진적 강화: JS 없을 때 목록이 펼쳐진 상태로 표시
+   ============================================ */
+
+/* ============================================
+   1. 드롭다운 래퍼 (포지셔닝 기준점)
+   ============================================ */
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* ============================================
+   2. 트리거 버튼
+   ============================================ */
+
+.dropdown__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs, 0.25rem);
+  padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem);
+  background-color: var(--color-bg, #fff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-md, 0.375rem);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 500;
+  color: var(--color-text, #1e293b);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.dropdown__trigger:hover {
+  background-color: var(--color-bg-secondary, #f8fafc);
+  border-color: var(--color-border-strong, #cbd5e1);
+}
+
+.dropdown__trigger:focus-visible {
+  outline: 2px solid var(--color-primary, #3b82f6);
+  outline-offset: 2px;
+}
+
+/* 트리거 아이콘: aria-expanded="true"일 때 180도 회전 */
+.dropdown__trigger .dropdown__chevron {
+  width: 16px;
+  height: 16px;
+  transition: transform 200ms ease;
+  flex-shrink: 0;
+}
+
+[data-dropdown-trigger][aria-expanded="true"] .dropdown__chevron {
+  transform: rotate(180deg);
+}
+
+/* ============================================
+   3. 드롭다운 메뉴 목록
+   ============================================ */
+
+.dropdown__menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 180px;
+  max-width: 280px;
+  padding: var(--spacing-xs, 0.25rem) 0;
+  background-color: var(--color-bg, #fff);
+  border: 1px solid var(--color-border, #e2e8f0);
+  border-radius: var(--radius-md, 0.375rem);
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.1),
+    0 2px 4px -2px rgb(0 0 0 / 0.1);
+  /* 다른 요소 위에 표시 */
+  z-index: 200;
+  list-style: none;
+  margin: 0;
+}
+
+/* JS 없을 때: 목록이 펼쳐진 상태 (점진적 강화) */
+/* JS 활성화 후: Dropdown.init()이 display 속성으로 직접 제어 */
+
+/* ============================================
+   4. 메뉴 아이템
+   ============================================ */
+
+.dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm, 0.5rem);
+  width: 100%;
+  padding: var(--spacing-sm, 0.5rem) var(--spacing-md, 1rem);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text, #1e293b);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  text-align: left;
+  white-space: nowrap;
+  transition: background-color 100ms ease, color 100ms ease;
+  /* 스크린 리더 접근성: role="menuitem"과 함께 사용 */
+}
+
+.dropdown__item:hover,
+.dropdown__item:focus {
+  background-color: var(--color-bg-secondary, #f8fafc);
+  outline: none;
+}
+
+/* 포커스 링: 키보드 탐색 시 현재 항목 표시 */
+.dropdown__item:focus-visible {
+  background-color: var(--color-bg-secondary, #f8fafc);
+  outline: none;
+}
+
+/* 활성화된 (포커스된) 메뉴 항목 */
+.dropdown__item[data-focused="true"] {
+  background-color: var(--color-bg-secondary, #f8fafc);
+  color: var(--color-primary, #3b82f6);
+}
+
+/* ============================================
+   5. 비활성 메뉴 아이템 (aria-disabled)
+   ============================================ */
+
+.dropdown__item[aria-disabled="true"] {
+  color: var(--color-text-disabled, #94a3b8);
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* ============================================
+   6. 구분선
+   ============================================ */
+
+.dropdown__divider {
+  height: 1px;
+  background-color: var(--color-border, #e2e8f0);
+  margin: var(--spacing-xs, 0.25rem) 0;
+}
+
+/* ============================================
+   7. 메뉴 아이템 아이콘
+   ============================================ */
+
+.dropdown__item-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-text-secondary, #64748b);
+}
+
+/* ============================================
+   8. 위험(danger) 메뉴 아이템 변형
+   ============================================ */
+
+.dropdown__item--danger {
+  color: var(--color-danger, #ef4444);
+}
+
+.dropdown__item--danger:hover,
+.dropdown__item--danger:focus,
+.dropdown__item--danger[data-focused="true"] {
+  background-color: var(--color-danger-bg, #fef2f2);
+  color: var(--color-danger, #ef4444);
+}
+
+.dropdown__item--danger .dropdown__item-icon {
+  color: var(--color-danger, #ef4444);
+}
+
+/* ============================================
+   9. 우측 정렬 드롭다운
+   ============================================ */
+
+.dropdown--right .dropdown__menu {
+  left: auto;
+  right: 0;
+}
+
+/* ============================================
+   10. 다크 테마 대응
+   ============================================ */
+
+[data-theme="dark"] .dropdown__menu {
+  box-shadow:
+    0 4px 6px -1px rgb(0 0 0 / 0.3),
+    0 2px 4px -2px rgb(0 0 0 / 0.2);
+}

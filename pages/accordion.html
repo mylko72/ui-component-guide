@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Accordion 컴포넌트: 기본 아코디언, 단일/다중 열림 모드, Flush 변형, 비활성 항목 4가지 패턴. WAI-ARIA Accordion 패턴, 키보드 네비게이션 완전 지원.">
+  <title>Accordion — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → accordion (컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/accordion.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: accordion.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: accordion.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Accordion 컴포넌트 데모 4개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Accordion</h1>
+              <p class="detail-description">
+                콘텐츠를 접었다 펼칠 수 있는 컴포넌트입니다.
+                WAI-ARIA Accordion 패턴을 준수하며
+                <code>data-component="accordion"</code>으로 컨테이너를 지정하고,
+                <code>data-accordion-trigger</code> 버튼과
+                <code>data-accordion-panel</code> 패널을
+                <code>aria-controls</code> / <code>aria-expanded</code>로 연결합니다.
+                JavaScript 없이도 모든 패널이 펼쳐진 상태로 접근 가능합니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: Default Accordion (다중 열림 모드, 기본)
+                 - data-accordion-mode="multiple" (기본값)
+                 - JS 비활성화 시: 모든 패널 펼쳐진 상태 (aria-expanded="true")
+                 - JS 활성화 후: Accordion.init()이 display 제어
+                 ============================================ -->
+            <section class="demo-section" id="section-default" aria-labelledby="heading-default">
+              <h2 id="heading-default" class="demo-section-title">Default Accordion</h2>
+              <p class="demo-description">
+                기본 아코디언입니다. 여러 패널을 동시에 열 수 있는
+                <strong>다중 열림 모드(multiple)</strong>가 기본값입니다.
+                JavaScript 없이도 모든 패널이 펼쳐진 상태로 접근할 수 있습니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Default Accordion 데모">
+
+                <!--
+                  data-component="accordion": Accordion.init()이 초기화 대상으로 감지
+                  data-accordion-mode="multiple": 다중 열림 모드 (기본값)
+                  JS 없을 때: 모든 패널이 aria-expanded="true"로 펼쳐진 상태
+                -->
+                <div
+                  class="accordion"
+                  data-component="accordion"
+                  data-accordion-mode="multiple"
+                >
+
+                  <!-- 아이템 1 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-default-1"
+                        id="trigger-default-1"
+                      >
+                        배송 정책은 어떻게 되나요?
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-default-1"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-default-1"
+                    >
+                      <div class="accordion__content">
+                        국내 배송은 주문 후 2~3 영업일 이내 발송되며, 제주 및 도서 산간 지역은
+                        추가 1~2일이 소요될 수 있습니다. 3만 원 이상 구매 시 무료 배송이 적용됩니다.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 아이템 2 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-default-2"
+                        id="trigger-default-2"
+                      >
+                        반품 및 교환은 어떻게 하나요?
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-default-2"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-default-2"
+                    >
+                      <div class="accordion__content">
+                        상품 수령 후 7일 이내 반품 및 교환이 가능합니다.
+                        단, 사용 흔적이 있거나 포장이 훼손된 경우에는 불가합니다.
+                        고객센터(1234-5678)로 연락 주시면 안내해 드리겠습니다.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 아이템 3 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-default-3"
+                        id="trigger-default-3"
+                      >
+                        결제 수단은 무엇이 있나요?
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-default-3"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-default-3"
+                    >
+                      <div class="accordion__content">
+                        신용카드, 체크카드, 무통장 입금, 카카오페이, 네이버페이, 토스페이 등
+                        다양한 결제 수단을 지원합니다. 할부는 신용카드 3~12개월 무이자 할부가 가능합니다.
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS/JS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- data-component="accordion": 초기화 대상 컨테이너 --&gt;
+&lt;!-- data-accordion-mode="multiple": 다중 열림 모드 --&gt;
+&lt;div class="accordion" data-component="accordion" data-accordion-mode="multiple"&gt;
+
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;!--
+        data-accordion-trigger: 트리거 버튼 식별자
+        aria-expanded="true": JS 없을 때 기본 펼침 상태
+        aria-controls: 연결된 패널 ID
+      --&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-1"
+        id="trigger-1"
+      &gt;
+        배송 정책은 어떻게 되나요?
+        &lt;span class="accordion__icon" aria-hidden="true"&gt;
+          &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+        &lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;!--
+      data-accordion-panel: 패널 식별자
+      role="region" + aria-labelledby: 스크린 리더에 패널 설명 제공
+    --&gt;
+    &lt;div
+      id="panel-1"
+      class="accordion__panel"
+      data-accordion-panel
+      role="region"
+      aria-labelledby="trigger-1"
+    &gt;
+      &lt;div class="accordion__content"&gt;
+        패널 내용...
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;'
+                data-css='/* 아코디언 컨테이너 */
+.accordion {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* 트리거 버튼 */
+.accordion__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+/* 아이콘: aria-expanded="true"일 때 180도 회전 */
+:where([aria-expanded='"'"'true'"'"']) .accordion__icon {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* 패널 콘텐츠 */
+.accordion__content {
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}'
+                data-js='// accordion.js가 자동으로 초기화
+// 또는 특정 컨테이너만 초기화:
+Accordion.init(document.querySelector(".my-container"));
+
+// 초기화 후 트리거 클릭으로 패널 토글
+// aria-expanded 토글 및 패널 display 제어 자동 처리'
+                aria-label="Default Accordion 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-accordion-default-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-accordion-default-css"
+                    >CSS</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="js"
+                      aria-selected="false"
+                      aria-controls="cb-accordion-default-js"
+                    >JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-accordion-default-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- data-component="accordion": Accordion.init() 초기화 대상 --&gt;
+&lt;div class="accordion" data-component="accordion"
+  data-accordion-mode="multiple"&gt;
+
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-1"
+        id="trigger-1"
+      &gt;
+        배송 정책은 어떻게 되나요?
+        &lt;span class="accordion__icon" aria-hidden="true"&gt;
+          &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+        &lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div
+      id="panel-1"
+      class="accordion__panel"
+      data-accordion-panel
+      role="region"
+      aria-labelledby="trigger-1"
+    &gt;
+      &lt;div class="accordion__content"&gt;
+        패널 내용...
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-accordion-default-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* aria-expanded 상태로 아이콘 제어 */
+:where([aria-expanded='true']) .accordion__icon {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+:where([aria-expanded='true']).accordion__trigger {
+  color: var(--color-primary);
+}
+
+/* 트리거 호버 */
+.accordion__trigger:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+/* 포커스 가시성 */
+.accordion__trigger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}</pre>
+                    </div>
+                    <div
+                      id="cb-accordion-default-js"
+                      class="code-block__panel"
+                      data-code-block-panel="js"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">// DOMContentLoaded 시 자동 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  Accordion.init(); // 페이지의 모든 [data-component="accordion"] 초기화
+});
+
+// 특정 컨테이너 범위만 초기화:
+Accordion.init(document.querySelector('.my-container'));</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: Single Mode (단일 열림 모드)
+                 - data-accordion-mode="single"
+                 - 한 번에 하나의 패널만 열림
+                 ============================================ -->
+            <section class="demo-section" id="section-single" aria-labelledby="heading-single">
+              <h2 id="heading-single" class="demo-section-title">Single Mode</h2>
+              <p class="demo-description">
+                <code>data-accordion-mode="single"</code>을 지정하면 한 번에 하나의 패널만 열 수 있습니다.
+                다른 항목을 클릭하면 열린 항목이 자동으로 닫힙니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Single Mode Accordion 데모">
+
+                <!--
+                  data-accordion-mode="single": 단일 열림 모드
+                  첫 번째 항목만 기본으로 열린 상태 (aria-expanded="true")
+                  나머지 항목은 닫힌 상태 (aria-expanded="false")
+                  JS 없을 때: 모든 항목이 펼쳐진 상태로 표시
+                -->
+                <div
+                  class="accordion"
+                  data-component="accordion"
+                  data-accordion-mode="single"
+                >
+
+                  <!-- 아이템 1: 기본 열림 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-single-1"
+                        id="trigger-single-1"
+                      >
+                        회원가입은 어떻게 하나요?
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-single-1"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-single-1"
+                    >
+                      <div class="accordion__content">
+                        홈페이지 우측 상단 '회원가입' 버튼을 클릭하거나
+                        소셜 로그인(카카오, 네이버, Google)으로 간편하게 가입할 수 있습니다.
+                        이메일 인증 후 즉시 서비스를 이용하실 수 있습니다.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 아이템 2 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-single-2"
+                        id="trigger-single-2"
+                      >
+                        비밀번호를 잊어버렸어요.
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-single-2"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-single-2"
+                    >
+                      <div class="accordion__content">
+                        로그인 페이지의 '비밀번호 찾기' 링크를 클릭하여
+                        가입한 이메일 주소를 입력하면 재설정 링크를 받을 수 있습니다.
+                        링크의 유효 시간은 30분입니다.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 아이템 3 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-single-3"
+                        id="trigger-single-3"
+                      >
+                        계정 탈퇴 후 데이터는 어떻게 되나요?
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-single-3"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-single-3"
+                    >
+                      <div class="accordion__content">
+                        탈퇴 후 30일 이내에는 데이터 복구가 가능하며,
+                        30일 경과 후에는 모든 개인정보가 완전히 삭제됩니다.
+                        다만, 법적 보관 의무가 있는 거래 내역은 관련 법령에 따라 보관됩니다.
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- data-accordion-mode="single": 단일 열림 모드 --&gt;
+&lt;div class="accordion" data-component="accordion" data-accordion-mode="single"&gt;
+
+  &lt;!-- 첫 번째 항목: aria-expanded="true" (기본 열림) --&gt;
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-1"
+        id="trigger-1"
+      &gt;
+        회원가입은 어떻게 하나요?
+        &lt;span class="accordion__icon" aria-hidden="true"&gt;...&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div id="panel-1" class="accordion__panel"
+      data-accordion-panel role="region" aria-labelledby="trigger-1"&gt;
+      &lt;div class="accordion__content"&gt;내용...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 나머지 항목: aria-expanded="true" (JS 없을 때 열림 보장) --&gt;
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-2"
+        id="trigger-2"
+      &gt;
+        비밀번호를 잊어버렸어요.
+        &lt;span class="accordion__icon" aria-hidden="true"&gt;...&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div id="panel-2" class="accordion__panel"
+      data-accordion-panel role="region" aria-labelledby="trigger-2"&gt;
+      &lt;div class="accordion__content"&gt;내용...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;'
+                data-css='/* 단일 모드는 별도 CSS 없음 — JS가 단일 열림 제어 */
+/* aria-expanded 상태가 변경되면 아이콘 자동 회전 */
+:where([aria-expanded='"'"'true'"'"']) .accordion__icon {
+  transform: rotate(180deg);
+}'
+                data-js='// data-accordion-mode="single" 설정만으로 단일 모드 활성화
+// JS 없을 때: 마크업의 aria-expanded="true" 기준으로 모든 패널 표시
+// JS 활성화 후: 첫 번째 aria-expanded="true" 항목만 열리고 나머지 닫힘
+
+// 동적으로 모드 전환 예시 (재초기화 필요):
+const accordion = document.querySelector("[data-component=&quot;accordion&quot;]");
+accordion.dataset.accordionMode = "multiple";
+// 재초기화:
+delete accordion.dataset.initialized;
+Accordion.init(accordion.parentElement);'
+                aria-label="Single Mode Accordion 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- data-accordion-mode="single": 단일 열림 모드 --&gt;
+&lt;div class="accordion" data-component="accordion"
+  data-accordion-mode="single"&gt;
+
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-1"
+        id="trigger-1"
+      &gt;
+        회원가입은 어떻게 하나요?
+        &lt;span class="accordion__icon" aria-hidden="true"&gt;
+          &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+        &lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div id="panel-1" class="accordion__panel"
+      data-accordion-panel
+      role="region"
+      aria-labelledby="trigger-1"&gt;
+      &lt;div class="accordion__content"&gt;내용...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 단일 모드는 JS가 동작 제어, 별도 CSS 없음 */
+/* aria-expanded 상태로 아이콘 제어 */
+:where([aria-expanded='true']) .accordion__icon {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// data-accordion-mode="single" 속성만으로 단일 모드 활성화
+// Accordion.init()이 자동으로 감지하여 처리
+
+// Single 모드 동작:
+// - 열린 항목 클릭 → 닫힘
+// - 닫힌 항목 클릭 → 나머지 모두 닫히고 해당 항목만 열림</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: Flush Accordion (테두리 없는 변형)
+                 - .accordion--flush 수정자 클래스
+                 - 외부 테두리 없이 구분선만 표시
+                 ============================================ -->
+            <section class="demo-section" id="section-flush" aria-labelledby="heading-flush">
+              <h2 id="heading-flush" class="demo-section-title">Flush Accordion</h2>
+              <p class="demo-description">
+                외부 테두리와 둥근 모서리를 제거한 Flush 변형입니다.
+                <code>.accordion--flush</code> 클래스를 추가하면 적용됩니다.
+                페이지 콘텐츠 영역이나 카드 내부에 삽입할 때 적합합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Flush Accordion 데모">
+
+                <div
+                  class="accordion accordion--flush"
+                  data-component="accordion"
+                  data-accordion-mode="multiple"
+                >
+
+                  <!-- 아이템 1 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-flush-1"
+                        id="trigger-flush-1"
+                      >
+                        HTML이란 무엇인가요?
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-flush-1"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-flush-1"
+                    >
+                      <div class="accordion__content">
+                        HyperText Markup Language의 약자로 웹 페이지의 구조를 정의하는 마크업 언어입니다.
+                        시맨틱 태그를 활용하면 검색 엔진 최적화(SEO)와 접근성을 향상시킬 수 있습니다.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 아이템 2 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-flush-2"
+                        id="trigger-flush-2"
+                      >
+                        CSS는 어떻게 작동하나요?
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-flush-2"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-flush-2"
+                    >
+                      <div class="accordion__content">
+                        Cascading Style Sheets는 HTML 요소의 표시 방식을 지정합니다.
+                        선택자, 속성, 값의 조합으로 스타일 규칙을 작성하며,
+                        CSS 변수(Custom Properties)를 사용하면 일관된 디자인 시스템을 구축할 수 있습니다.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 아이템 3 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-flush-3"
+                        id="trigger-flush-3"
+                      >
+                        JavaScript의 역할은 무엇인가요?
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-flush-3"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-flush-3"
+                    >
+                      <div class="accordion__content">
+                        JavaScript는 웹 페이지에 동적인 기능을 추가하는 프로그래밍 언어입니다.
+                        사용자 이벤트 처리, DOM 조작, 비동기 데이터 처리(AJAX) 등을 담당합니다.
+                        점진적 강화(Progressive Enhancement) 원칙에 따라 JS 없이도 기본 기능이 동작해야 합니다.
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- .accordion--flush: 외부 테두리 없는 변형 --&gt;
+&lt;div class="accordion accordion--flush"
+  data-component="accordion"
+  data-accordion-mode="multiple"
+&gt;
+
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-flush-1"
+        id="trigger-flush-1"
+      &gt;
+        HTML이란 무엇인가요?
+        &lt;span class="accordion__icon" aria-hidden="true"&gt;
+          &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+        &lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div id="panel-flush-1" class="accordion__panel"
+      data-accordion-panel role="region" aria-labelledby="trigger-flush-1"&gt;
+      &lt;div class="accordion__content"&gt;내용...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;'
+                data-css='/* Flush 변형: 외부 테두리 제거 */
+.accordion--flush {
+  border: none;
+  border-radius: 0;
+}
+
+/* 아이템 구분선은 유지 */
+.accordion--flush .accordion__item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.accordion--flush .accordion__item:last-child {
+  border-bottom: none;
+}'
+                data-js='// Flush 아코디언도 동일하게 Accordion.init()으로 초기화
+// .accordion--flush는 CSS 스타일 변형만 담당, JS 동작은 동일'
+                aria-label="Flush Accordion 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- .accordion--flush: 외부 테두리 없는 변형 --&gt;
+&lt;div class="accordion accordion--flush"
+  data-component="accordion"
+  data-accordion-mode="multiple"
+&gt;
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-flush-1"
+        id="trigger-flush-1"
+      &gt;
+        HTML이란 무엇인가요?
+        &lt;span class="accordion__icon" aria-hidden="true"&gt;
+          &lt;i data-lucide="chevron-down"&gt;&lt;/i&gt;
+        &lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div id="panel-flush-1" class="accordion__panel"
+      data-accordion-panel
+      role="region"
+      aria-labelledby="trigger-flush-1"
+    &gt;
+      &lt;div class="accordion__content"&gt;내용...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* Flush 변형 */
+.accordion--flush {
+  border: none;
+  border-radius: 0;
+}
+
+.accordion--flush .accordion__item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.accordion--flush .accordion__item:last-child {
+  border-bottom: none;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// Flush 아코디언도 동일하게 Accordion.init()으로 자동 초기화
+// .accordion--flush는 CSS 스타일 변형만 담당, JS 동작은 동일</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: Disabled Item (비활성 항목)
+                 - disabled + aria-disabled="true"
+                 - 키보드 이동 시 비활성 항목 자동 건너뜀
+                 ============================================ -->
+            <section class="demo-section" id="section-disabled" aria-labelledby="heading-disabled">
+              <h2 id="heading-disabled" class="demo-section-title">Disabled Item</h2>
+              <p class="demo-description">
+                개별 항목을 비활성화하려면 트리거 버튼에 <code>disabled</code> 속성을 사용합니다.
+                비활성 항목은 클릭과 키보드 이동에서 모두 건너뜁니다.
+                <code>aria-disabled="true"</code>를 함께 사용해 스크린 리더에도 상태를 전달합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Disabled Item Accordion 데모">
+
+                <div
+                  class="accordion"
+                  data-component="accordion"
+                  data-accordion-mode="multiple"
+                >
+
+                  <!-- 아이템 1: 정상 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-disabled-1"
+                        id="trigger-disabled-1"
+                      >
+                        이용 약관
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-disabled-1"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-disabled-1"
+                    >
+                      <div class="accordion__content">
+                        본 서비스는 만 14세 이상 사용자에게 제공됩니다.
+                        서비스 이용 시 관련 법령 및 본 약관을 준수해야 합니다.
+                        위반 시 서비스 이용이 제한될 수 있습니다.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 아이템 2: 비활성화 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-disabled-2"
+                        id="trigger-disabled-2"
+                        disabled
+                        aria-disabled="true"
+                      >
+                        개인정보 처리방침 (준비 중)
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-disabled-2"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-disabled-2"
+                    >
+                      <div class="accordion__content">
+                        개인정보 처리방침 내용이 준비 중입니다.
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 아이템 3: 정상 -->
+                  <div class="accordion__item">
+                    <h3 class="accordion__heading">
+                      <button
+                        class="accordion__trigger"
+                        type="button"
+                        data-accordion-trigger
+                        aria-expanded="true"
+                        aria-controls="panel-disabled-3"
+                        id="trigger-disabled-3"
+                      >
+                        쿠키 정책
+                        <span class="accordion__icon" aria-hidden="true">
+                          <i data-lucide="chevron-down" style="width:16px;height:16px;"></i>
+                        </span>
+                      </button>
+                    </h3>
+                    <div
+                      id="panel-disabled-3"
+                      class="accordion__panel"
+                      data-accordion-panel
+                      role="region"
+                      aria-labelledby="trigger-disabled-3"
+                    >
+                      <div class="accordion__content">
+                        본 사이트는 서비스 개선을 위해 쿠키를 사용합니다.
+                        필수 쿠키는 서비스 운영에 반드시 필요하며,
+                        선택적 쿠키는 사용자 설정에서 비활성화할 수 있습니다.
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 비활성 항목: disabled + aria-disabled="true" --&gt;
+&lt;div class="accordion" data-component="accordion"&gt;
+
+  &lt;!-- 정상 항목 --&gt;
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-1"
+        id="trigger-1"
+      &gt;
+        이용 약관
+        &lt;span class="accordion__icon" aria-hidden="true"&gt;...&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div id="panel-1" class="accordion__panel"
+      data-accordion-panel role="region" aria-labelledby="trigger-1"&gt;
+      &lt;div class="accordion__content"&gt;내용...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!--
+    비활성 항목:
+    - disabled: 클릭 차단 (네이티브)
+    - aria-disabled="true": 스크린 리더에 비활성 상태 전달
+    - accordion.js가 키보드 이동 시 자동으로 건너뜀
+  --&gt;
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-2"
+        id="trigger-2"
+        disabled
+        aria-disabled="true"
+      &gt;
+        개인정보 처리방침 (준비 중)
+        &lt;span class="accordion__icon" aria-hidden="true"&gt;...&lt;/span&gt;
+      &lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div id="panel-2" class="accordion__panel"
+      data-accordion-panel role="region" aria-labelledby="trigger-2"&gt;
+      &lt;div class="accordion__content"&gt;내용...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;'
+                data-css='/* 비활성 트리거: 반투명 + 클릭 차단 */
+.accordion__trigger[disabled],
+.accordion__trigger[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}'
+                data-js='// 동적으로 항목 비활성화 예시
+const trigger = document.getElementById("trigger-2");
+
+// 비활성화
+trigger.disabled = true;
+trigger.setAttribute("aria-disabled", "true");
+
+// 활성화
+trigger.disabled = false;
+trigger.removeAttribute("aria-disabled");'
+                aria-label="Disabled Item Accordion 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 비활성 항목: disabled + aria-disabled="true" --&gt;
+&lt;div class="accordion" data-component="accordion"&gt;
+
+  &lt;!-- 정상 항목 --&gt;
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-1"
+        id="trigger-1"
+      &gt;이용 약관&lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div id="panel-1" class="accordion__panel"
+      data-accordion-panel
+      role="region"
+      aria-labelledby="trigger-1"&gt;
+      &lt;div class="accordion__content"&gt;내용...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!--
+    비활성 항목:
+    - disabled: 클릭 차단 (네이티브)
+    - aria-disabled="true": 스크린 리더에 상태 전달
+    - accordion.js가 Arrow 키 이동 시 자동으로 건너뜀
+  --&gt;
+  &lt;div class="accordion__item"&gt;
+    &lt;h3 class="accordion__heading"&gt;
+      &lt;button
+        class="accordion__trigger"
+        type="button"
+        data-accordion-trigger
+        aria-expanded="true"
+        aria-controls="panel-2"
+        id="trigger-2"
+        disabled
+        aria-disabled="true"
+      &gt;개인정보 처리방침 (준비 중)&lt;/button&gt;
+    &lt;/h3&gt;
+    &lt;div id="panel-2" class="accordion__panel"
+      data-accordion-panel
+      role="region"
+      aria-labelledby="trigger-2"&gt;
+      &lt;div class="accordion__content"&gt;내용...&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 비활성 트리거: 반투명 + 클릭 차단 */
+.accordion__trigger[disabled],
+.accordion__trigger[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 동적으로 항목 비활성화
+const trigger = document.getElementById('trigger-2');
+
+// 비활성화
+trigger.disabled = true;
+trigger.setAttribute('aria-disabled', 'true');
+
+// 활성화
+trigger.disabled = false;
+trigger.removeAttribute('aria-disabled');</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Card 컴포넌트 -->
+                <a href="./card.html" class="detail-footer-link" aria-label="Card 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Card</span>
+                </a>
+                <!-- 다음: Tabs 컴포넌트 -->
+                <a href="./tabs.html" class="detail-footer-link" aria-label="Tabs 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Tabs</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS/JS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- Accordion 컴포넌트: WAI-ARIA Accordion 패턴, 키보드 네비게이션 -->
+  <script src="../assets/js/components/accordion.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>

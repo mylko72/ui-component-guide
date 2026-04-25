@@ -1,1 +1,145 @@
-/* Accordion 컴포넌트 스타일 */
+/* ============================================
+   Accordion 컴포넌트 스타일
+   WAI-ARIA Accordion 패턴 기반
+   :where([aria-expanded='true']) 선택자로 상태 제어
+   ============================================ */
+
+/* ============================================
+   1. 컨테이너
+   ============================================ */
+
+.accordion {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+/* ============================================
+   2. 아이템 (트리거 + 패널 한 쌍)
+   ============================================ */
+
+.accordion__item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* 마지막 아이템은 하단 테두리 제거 */
+.accordion__item:last-child {
+  border-bottom: none;
+}
+
+/* ============================================
+   3. 트리거 버튼 (헤더)
+   ============================================ */
+
+.accordion__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  color: var(--color-text);
+  text-align: left;
+  transition: background-color var(--transition-fast);
+}
+
+/* 호버 상태 */
+.accordion__trigger:hover {
+  background-color: var(--color-bg-secondary);
+}
+
+/* 포커스 가시성: 키보드 접근성 */
+.accordion__trigger:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  z-index: 1;
+  position: relative;
+}
+
+/* 아이콘 래퍼 */
+.accordion__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--color-text-secondary);
+  transition: transform var(--transition-normal);
+}
+
+/* aria-expanded="true"일 때 아이콘 180도 회전 */
+:where([aria-expanded='true']) .accordion__icon {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* aria-expanded="true"일 때 트리거 텍스트 색상 변경 */
+:where([aria-expanded='true']).accordion__trigger {
+  color: var(--color-primary);
+}
+
+/* ============================================
+   4. 패널 (콘텐츠 영역)
+   ============================================ */
+
+.accordion__panel {
+  overflow: hidden;
+}
+
+/* 패널 내부 콘텐츠 패딩 */
+.accordion__content {
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ============================================
+   5. Flush 변형 (테두리 없는 스타일)
+   ============================================ */
+
+.accordion--flush {
+  border: none;
+  border-radius: 0;
+}
+
+.accordion--flush .accordion__item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.accordion--flush .accordion__item:last-child {
+  border-bottom: none;
+}
+
+/* ============================================
+   6. 비활성화 상태
+   ============================================ */
+
+.accordion__trigger[disabled],
+.accordion__trigger[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ============================================
+   7. 반응형
+   ============================================ */
+
+@media (max-width: 480px) {
+  .accordion__trigger {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-sm);
+  }
+
+  .accordion__content {
+    padding: 0 var(--spacing-md) var(--spacing-md);
+  }
+}

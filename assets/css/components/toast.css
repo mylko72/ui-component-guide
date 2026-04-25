@@ -1,23 +1,84 @@
 /* Toast 컴포넌트 스타일 */
 
 /* ─────────────────────────────────────────────
-   컨테이너: body 우하단 고정 스택
+   컨테이너 공통 기반 스타일
+   JS가 .toast-container--{position} 클래스를 동적으로 생성
    ───────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  z-index: 9000;
+
+  /* 컨테이너 자체는 클릭 이벤트를 통과시킴 */
+  pointer-events: none;
+
+  /* toast 목록을 열 방향으로 쌓음 */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  /* 모바일: 전체 너비 */
+  width: min(360px, calc(100vw - 2rem));
+}
+
+/* ─────────────────────────────────────────────
+   위치별 컨테이너 변형
+   ───────────────────────────────────────────── */
+
+/* 우측 하단 (기본) */
+.toast-container--bottom-right {
+  bottom: 1.5rem;
+  right: 1.5rem;
+  /* 새 토스트가 위로 쌓이도록 역방향 */
+  flex-direction: column-reverse;
+}
+
+/* 좌측 하단 */
+.toast-container--bottom-left {
+  bottom: 1.5rem;
+  left: 1.5rem;
+  flex-direction: column-reverse;
+}
+
+/* 하단 중앙 */
+.toast-container--bottom-center {
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column-reverse;
+}
+
+/* 우측 상단 */
+.toast-container--top-right {
+  top: 1.5rem;
+  right: 1.5rem;
+  flex-direction: column;
+}
+
+/* 좌측 상단 */
+.toast-container--top-left {
+  top: 1.5rem;
+  left: 1.5rem;
+  flex-direction: column;
+}
+
+/* 상단 중앙 */
+.toast-container--top-center {
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+}
+
+/* 하위 호환: 기존 #toast-container ID 방식도 지원 */
 #toast-container {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
   z-index: 9000;
-
-  /* toast 목록을 아래에서 위로 쌓는 방향 */
   display: flex;
   flex-direction: column-reverse;
   gap: 0.5rem;
-
-  /* 컨테이너 자체는 클릭 이벤트를 통과시킴 */
   pointer-events: none;
-
-  /* 모바일: 전체 너비 */
   width: min(360px, calc(100vw - 2rem));
 }
 
@@ -209,17 +270,120 @@
 }
 
 /* ─────────────────────────────────────────────
+   상단 위치 컨테이너: 위에서 슬라이드 인 애니메이션
+   right 방향 → 위에서 아래로
+   left 방향  → 위에서 아래로
+   center     → 위에서 아래로
+   ───────────────────────────────────────────── */
+@keyframes toast-enter-top {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes toast-exit-top {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-1rem) scale(0.95);
+  }
+}
+
+/* 상단 컨테이너 안의 토스트는 위에서 슬라이드 인 */
+.toast-container--top-right .toast,
+.toast-container--top-left .toast,
+.toast-container--top-center .toast {
+  animation: toast-enter-top 220ms cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+
+/* 상단 컨테이너 안의 exit 토스트 */
+.toast-container--top-right .toast--exit,
+.toast-container--top-left .toast--exit,
+.toast-container--top-center .toast--exit {
+  animation: toast-exit-top 200ms cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
+}
+
+/* ─────────────────────────────────────────────
+   좌측 위치 컨테이너: 왼쪽에서 슬라이드 인 애니메이션
+   ───────────────────────────────────────────── */
+@keyframes toast-enter-left {
+  from {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toast-exit-left {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-100%) scale(0.9);
+  }
+}
+
+/* 좌측 하단 컨테이너: 왼쪽에서 슬라이드 인 */
+.toast-container--bottom-left .toast {
+  animation: toast-enter-left 220ms cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+.toast-container--bottom-left .toast--exit {
+  animation: toast-exit-left 200ms cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
+}
+
+/* 좌측 상단 컨테이너: 왼쪽에서 슬라이드 인 */
+.toast-container--top-left .toast {
+  animation: toast-enter-left 220ms cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+}
+.toast-container--top-left .toast--exit {
+  animation: toast-exit-left 200ms cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
+}
+
+/* ─────────────────────────────────────────────
    모바일 반응형
    ───────────────────────────────────────────── */
 @media (max-width: 480px) {
-  #toast-container {
+  /* 모바일에서 모든 위치 컨테이너를 하단 전체 너비로 통합 */
+  .toast-container {
     bottom: 1rem;
     right: 1rem;
     left: 1rem;
+    top: auto;
     width: auto;
+    transform: none;
+    flex-direction: column-reverse;
   }
 
-  /* 모바일: 화면 하단 중앙에서 슬라이드 업 */
+  /* 모바일: 화면 하단에서 슬라이드 업 (모든 위치 동일) */
+  .toast-container .toast,
+  .toast-container--top-right .toast,
+  .toast-container--top-left .toast,
+  .toast-container--top-center .toast,
+  .toast-container--bottom-left .toast {
+    animation: toast-enter 220ms cubic-bezier(0.21, 1.02, 0.73, 1) forwards;
+  }
+
+  .toast-container .toast--exit,
+  .toast-container--top-right .toast--exit,
+  .toast-container--top-left .toast--exit,
+  .toast-container--top-center .toast--exit,
+  .toast-container--bottom-left .toast--exit {
+    animation: toast-exit 200ms cubic-bezier(0.06, 0.71, 0.55, 1) forwards;
+  }
+
   @keyframes toast-enter {
     from {
       opacity: 0;
@@ -240,6 +404,14 @@
       opacity: 0;
       transform: translateY(1rem) scale(0.95);
     }
+  }
+
+  /* 기존 #toast-container도 모바일 반응형 */
+  #toast-container {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
   }
 }
 

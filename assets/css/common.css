@@ -249,8 +249,8 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 
 .main {
   flex: 1;
-  overflow-y: auto;
-  padding: var(--spacing-xl);
+  /* overflow-y: auto;
+  padding: var(--spacing-xl); */
   background-color: var(--color-bg);
 }
 
@@ -349,6 +349,7 @@ html[data-theme="dark"] .theme-toggle .icon-light {
   border-radius: var(--radius-md);
   overflow: hidden;
   background-color: var(--color-bg);
+  margin-bottom: var(--spacing-xl);
 }
 
 .code-block__header {
@@ -987,13 +988,12 @@ html[data-theme="dark"] .theme-toggle .icon-light {
   display: flex;
   flex-direction: row;
   gap: var(--spacing-xl);
-  max-width: 1400px;
-  margin: 0 auto;
   width: 100%;
-  max-height: 100%;
-  overflow: hidden;
+  height: calc(100vh - 56px);
+  overflow-x: hidden;
+  overflow-y: auto;
   box-sizing: border-box;
-  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-2xl);
+  padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-xl);
 }
 
 .detail-header {
@@ -1061,7 +1061,7 @@ html[data-theme="dark"] .theme-toggle .icon-light {
   flex-shrink: 0;
   width: 240px;
   position: sticky;
-  top: calc(56px + var(--spacing-lg));
+  top: var(--spacing-lg);
   max-height: calc(100vh - 56px - var(--spacing-lg) * 2);
   overflow-y: auto;
   padding: var(--spacing-sm) 0;
@@ -1088,7 +1088,8 @@ html[data-theme="dark"] .theme-toggle .icon-light {
   flex: 1;
   min-width: 0;
   padding: 0;
-  overflow-y: auto;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .demo-section {
@@ -1154,6 +1155,7 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 .detail-footer {
   margin-top: var(--spacing-xl);
   padding-top: var(--spacing-lg);
+  padding-bottom: var(--spacing-lg);
   border-top: 1px solid var(--color-border);
 }
 
@@ -1209,7 +1211,7 @@ html[data-theme="dark"] .theme-toggle .icon-light {
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .detail-page {
-    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-xl);
+    padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-lg);
   }
 
   .detail-content {

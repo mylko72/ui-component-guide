@@ -7,3 +7,6 @@
 - [Input 컴포넌트 패턴](reference_input_component_pattern.md) — data-input 속성 선택자, 아이콘 래퍼(.input-icon-wrap), 비밀번호 토글(.input-pw-toggle) 구현 레퍼런스
 - [Checkbox Indeterminate 패턴](reference_checkbox_indeterminate_pattern.md) — aria-checked="mixed" + element.indeterminate 조합, 부모-자식 data 속성 연동, 마운트 시 수동 초기화 필수
 - [Tabs 정적 HTML 패턴](reference_tabs_static_pattern.md) — CodeBlock 충돌 방지 필터, roving tabindex, disabled 건너뜀, JS 없을 때 display:none 마크업
+- [Accordion 컴포넌트 패턴](reference_accordion_pattern.md) — data-component 선택자, single/multiple 모드, :where([aria-expanded]) 아이콘 제어, 점진적 강화(모든 패널 aria-expanded=true)
+- [Tooltip 컴포넌트 패턴](reference_tooltip_component_pattern.md) — data-js-loaded로 CSS :hover 폴백 전환, disabled 버튼 래퍼 span 패턴, blur 딜레이 100ms 깜빡임 방지
+- [Dropdown 컴포넌트 패턴](reference_dropdown_component_pattern.md) — menu/menuitem 구조, 외부 클릭 attach/detach, focusout으로 포커스 이탈 감지, roving tabindex, aria-disabled 건너뜀
