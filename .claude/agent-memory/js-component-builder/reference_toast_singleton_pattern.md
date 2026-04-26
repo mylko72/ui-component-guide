@@ -48,7 +48,18 @@ type: reference
 - `toast.info(msg, opts)`, `toast.success(msg, opts)`, `toast.warning(msg, opts)`, `toast.error(msg, opts)`
 - `toast.dismiss(id)`, `toast.dismissAll()`
 
+## 데모 페이지 버튼 스타일
+- toast.html은 `button.css`를 추가 로드 (`link rel="stylesheet" href="../assets/css/components/button.css"`)
+- 데모 버튼은 BEM 클래스(`btn btn--primary`) 대신 프로젝트 표준 `data-variant` + `data-size` 속성 사용
+- 아이콘 size는 인라인 style 없이 `button[data-variant] i { width: 1em; height: 1em; }` 자동 적용
+
+## E2E 테스트
+- `tests/e2e/toast.spec.js`: 32개 시나리오 전체 통과
+- 사이드바 active 테스트: `window.location.pathname` 기반이라 정적 서버 URL 구조 따라 분기 필요
+  (common.js의 initSidebarNav가 pathname.endsWith(normalizedHref)로 매칭)
+
 ## 구현 파일
 - JS: `assets/js/components/toast.js`
 - CSS: `assets/css/components/toast.css`
 - 데모: `pages/toast.html`
+- E2E: `tests/e2e/toast.spec.js`
