@@ -781,7 +781,7 @@ html[data-theme="dark"] .theme-toggle .icon-light {
   gap: var(--spacing-2xl);
   max-width: 1440px;
   margin: 0 auto;
-  padding: var(--spacing-xl) 0;
+  padding: var(--spacing-xl);
 }
 
 .hero {
