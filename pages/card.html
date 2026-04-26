@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Card 컴포넌트: 기본 카드, 헤더·푸터 포함 카드, 가로형 카드, 인터랙티브 카드 4가지 패턴. BEM 클래스 구조, CSS-only 구현, 다크 모드 완전 지원.">
+  <title>Card — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → button(demo용) → card(컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/button.css">
+  <link rel="stylesheet" href="../assets/css/components/card.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: card.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 정적 컴포넌트 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">정적 컴포넌트</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: card.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- CSS 강화 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">CSS 강화</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- JS 인터랙션 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">JS 인터랙션</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Card 컴포넌트 데모 4개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Card</h1>
+              <p class="detail-description">
+                콘텐츠를 그룹화하고 시각적으로 분리하는 컨테이너 컴포넌트입니다.
+                BEM 패턴의 <code>.card</code>, <code>.card__header</code>, <code>.card__body</code>,
+                <code>.card__footer</code> 구조로 구성되며,
+                <code>.card--interactive</code>로 호버 효과를,
+                <code>.card--horizontal</code>로 가로형 레이아웃을 적용할 수 있습니다.
+                JavaScript 없이 CSS만으로 완전히 동작합니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: 기본 Card (Default Card)
+                 - .card > .card__body > .card__title + .card__description
+                 - 헤더/푸터 없는 심플한 카드 4종 예시
+                 - 색상 변형(primary, success, warning, error) 포함
+                 ============================================ -->
+            <section class="demo-section" id="section-basic" aria-labelledby="heading-basic">
+              <h2 id="heading-basic" class="demo-section-title">기본 Card</h2>
+              <p class="demo-description">
+                가장 기본적인 카드 형태입니다.
+                <code>.card</code> 컨테이너 안에 <code>.card__body</code>를 배치하고,
+                <code>.card__title</code>과 <code>.card__description</code>으로 콘텐츠를 구성합니다.
+                색상 변형 클래스(<code>--primary</code>, <code>--success</code>,
+                <code>--warning</code>, <code>--error</code>)로 의미론적 강조를 추가할 수 있습니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="기본 Card 데모">
+
+                <!-- 기본 카드 4종 그리드 배치 -->
+                <div class="card-grid" style="max-width: 860px;">
+
+                  <!-- 기본 카드 (변형 없음) -->
+                  <article class="card" aria-label="기본 카드 예시">
+                    <div class="card__body">
+                      <h3 class="card__title">기본 카드</h3>
+                      <p class="card__description">
+                        가장 심플한 카드 형태입니다. 헤더와 푸터 없이 본문만 표시합니다.
+                        콘텐츠를 그룹화하여 시각적으로 분리하는 용도로 사용합니다.
+                      </p>
+                    </div>
+                  </article>
+
+                  <!-- primary 색상 변형 -->
+                  <article class="card card--primary" aria-label="Primary 카드 예시">
+                    <div class="card__body">
+                      <h3 class="card__title">Primary 카드</h3>
+                      <p class="card__description">
+                        <code>.card--primary</code> 클래스로 파란색 계열 테두리 강조를 적용합니다.
+                        주요 정보나 행동 유도(CTA)에 활용하세요.
+                      </p>
+                    </div>
+                  </article>
+
+                  <!-- success 색상 변형 -->
+                  <article class="card card--success" aria-label="Success 카드 예시">
+                    <div class="card__body">
+                      <h3 class="card__title">Success 카드</h3>
+                      <p class="card__description">
+                        <code>.card--success</code> 클래스로 초록색 계열 강조를 적용합니다.
+                        완료 상태, 성공 메시지 표시에 적합합니다.
+                      </p>
+                    </div>
+                  </article>
+
+                  <!-- warning 색상 변형 -->
+                  <article class="card card--warning" aria-label="Warning 카드 예시">
+                    <div class="card__body">
+                      <h3 class="card__title">Warning 카드</h3>
+                      <p class="card__description">
+                        <code>.card--warning</code> 클래스로 노란색 계열 강조를 적용합니다.
+                        주의가 필요한 정보나 경고 메시지에 사용합니다.
+                      </p>
+                    </div>
+                  </article>
+
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 기본 카드 구조 --&gt;
+&lt;article class="card"&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;카드 제목&lt;/h3&gt;
+    &lt;p class="card__description"&gt;
+      카드 설명 텍스트입니다.
+    &lt;/p&gt;
+  &lt;/div&gt;
+&lt;/article&gt;
+
+&lt;!-- 색상 변형: primary / success / warning / error --&gt;
+&lt;article class="card card--primary"&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;Primary 카드&lt;/h3&gt;
+    &lt;p class="card__description"&gt;파란색 강조 테두리&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/article&gt;'
+                data-css='/* 베이스 카드 */
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* 본문 영역 */
+.card__body {
+  padding: var(--spacing-md);
+  flex: 1;
+}
+
+/* 제목 */
+.card__title {
+  font-size: var(--font-size-lg); /* 1.125rem */
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* 설명 텍스트 */
+.card__description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+/* 색상 변형 (primary) */
+.card--primary {
+  border-color: var(--color-primary);
+  border-left: 4px solid var(--color-primary);
+}'
+                aria-label="기본 Card 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-card-basic-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-card-basic-css"
+                    >CSS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-card-basic-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- 기본 카드 구조 --&gt;
+&lt;article class="card"&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;카드 제목&lt;/h3&gt;
+    &lt;p class="card__description"&gt;
+      카드 설명 텍스트입니다.
+    &lt;/p&gt;
+  &lt;/div&gt;
+&lt;/article&gt;
+
+&lt;!-- 색상 변형: primary / success / warning / error --&gt;
+&lt;article class="card card--primary"&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;Primary 카드&lt;/h3&gt;
+    &lt;p class="card__description"&gt;파란색 강조 테두리&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/article&gt;
+
+&lt;!-- 반응형 그리드 배치 --&gt;
+&lt;div class="card-grid"&gt;
+  &lt;article class="card"&gt;...&lt;/article&gt;
+  &lt;article class="card card--success"&gt;...&lt;/article&gt;
+  &lt;article class="card card--warning"&gt;...&lt;/article&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-card-basic-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* 베이스 카드 */
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* 본문 영역 */
+.card__body {
+  padding: var(--spacing-md);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* 제목 */
+.card__title {
+  font-size: var(--font-size-lg);  /* 1.125rem / 18px */
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* 설명 텍스트 */
+.card__description {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+/* 색상 변형 */
+.card--primary {
+  border-color: var(--color-primary);
+  border-left: 4px solid var(--color-primary);
+}
+.card--success {
+  border-color: var(--color-success);
+  border-left: 4px solid var(--color-success);
+}
+.card--warning {
+  border-color: var(--color-warning);
+  border-left: 4px solid var(--color-warning);
+}
+.card--error {
+  border-color: var(--color-danger);
+  border-left: 4px solid var(--color-danger);
+}
+
+/* 반응형 그리드 */
+.card-grid {
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .card-grid { grid-template-columns: repeat(3, 1fr); }
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: 헤더+푸터 포함 Card
+                 - .card__header (이미지 커버 or 색상 배경)
+                 - .card__body (제목 + 설명)
+                 - .card__footer (액션 버튼)
+                 ============================================ -->
+            <section class="demo-section" id="section-header-footer" aria-labelledby="heading-header-footer">
+              <h2 id="heading-header-footer" class="demo-section-title">헤더와 푸터를 포함한 Card</h2>
+              <p class="demo-description">
+                <code>.card__header</code>로 상단 강조 영역을, <code>.card__footer</code>로 하단 액션 영역을 추가합니다.
+                헤더에는 커버 이미지(<code>.card__header--image</code>) 또는 색상 배경(<code>.card__header--primary</code>)을 적용할 수 있습니다.
+                푸터는 <code>.card__footer--end</code>로 우측 정렬, <code>.card__footer--between</code>으로 양끝 정렬이 가능합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="헤더+푸터 카드 데모">
+
+                <!-- 3열 그리드로 카드 배치 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; max-width: 900px;">
+
+                  <!-- 카드 1: 색상 헤더 + 푸터 버튼 -->
+                  <article class="card" aria-label="색상 헤더 카드">
+                    <!-- 파란색 배경 헤더 -->
+                    <header class="card__header card__header--primary">
+                      <i data-lucide="star" aria-hidden="true" style="width:20px;height:20px;"></i>
+                      <span style="font-weight:600;">추천 콘텐츠</span>
+                    </header>
+                    <div class="card__body">
+                      <h3 class="card__title">디자인 시스템 구축하기</h3>
+                      <p class="card__description">
+                        일관된 UI를 위한 디자인 토큰과 컴포넌트 라이브러리를 만드는 방법을 알아보세요.
+                      </p>
+                    </div>
+                    <footer class="card__footer card__footer--end">
+                      <button
+                        type="button"
+                        data-variant="primary"
+                        data-size="sm"
+                        aria-label="디자인 시스템 구축하기 더 보기"
+                      >자세히 보기</button>
+                    </footer>
+                  </article>
+
+                  <!-- 카드 2: 회색 헤더 + 양끝 정렬 푸터 -->
+                  <article class="card" aria-label="회색 헤더 카드">
+                    <header class="card__header">
+                      <i data-lucide="file-text" aria-hidden="true" style="width:20px;height:20px;color:var(--color-text-secondary);"></i>
+                      <span style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">문서</span>
+                    </header>
+                    <div class="card__body">
+                      <h3 class="card__title">접근성 가이드라인</h3>
+                      <p class="card__description">
+                        WCAG 2.1 기준을 준수하는 접근성 높은 UI를 만드는 실전 가이드입니다.
+                      </p>
+                    </div>
+                    <footer class="card__footer card__footer--between">
+                      <span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">2026-04-25</span>
+                      <button
+                        type="button"
+                        data-variant="outline"
+                        data-size="sm"
+                        aria-label="접근성 가이드라인 읽기"
+                      >읽기</button>
+                    </footer>
+                  </article>
+
+                  <!-- 카드 3: 이미지 헤더 + 푸터 -->
+                  <article class="card" aria-label="이미지 헤더 카드">
+                    <!-- 커버 이미지 헤더 (SVG 플레이스홀더) -->
+                    <header class="card__header--image" aria-hidden="true">
+                      <svg
+                        class="card__cover"
+                        viewBox="0 0 400 180"
+                        xmlns="http://www.w3.org/2000/svg"
+                        role="img"
+                        aria-label="카드 커버 이미지"
+                        style="width:100%;height:180px;display:block;"
+                      >
+                        <defs>
+                          <linearGradient id="grad-card-cover" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                          </linearGradient>
+                        </defs>
+                        <rect width="400" height="180" fill="url(#grad-card-cover)" />
+                        <!-- 장식 원 -->
+                        <circle cx="320" cy="40" r="60" fill="rgba(255,255,255,0.1)" />
+                        <circle cx="80" cy="140" r="40" fill="rgba(255,255,255,0.08)" />
+                        <!-- 중앙 텍스트 -->
+                        <text x="200" y="95" text-anchor="middle" fill="white" font-size="18" font-weight="600" font-family="sans-serif">Cover Image</text>
+                        <text x="200" y="118" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="13" font-family="sans-serif">400 × 180</text>
+                      </svg>
+                    </header>
+                    <div class="card__body">
+                      <h3 class="card__title">UI 컴포넌트 패턴</h3>
+                      <p class="card__description">
+                        재사용 가능한 UI 컴포넌트를 설계하는 패턴과 원칙을 소개합니다.
+                      </p>
+                    </div>
+                    <footer class="card__footer card__footer--between">
+                      <span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">5분 읽기</span>
+                      <div style="display:flex;gap:0.5rem;">
+                        <button
+                          type="button"
+                          data-variant="ghost"
+                          data-size="sm"
+                          aria-label="북마크"
+                        >
+                          <i data-lucide="bookmark" aria-hidden="true"></i>
+                        </button>
+                        <button
+                          type="button"
+                          data-variant="primary"
+                          data-size="sm"
+                          aria-label="UI 컴포넌트 패턴 읽기"
+                        >읽기</button>
+                      </div>
+                    </footer>
+                  </article>
+
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 헤더 + 바디 + 푸터 전체 구조 --&gt;
+&lt;article class="card"&gt;
+
+  &lt;!-- 색상 배경 헤더 --&gt;
+  &lt;header class="card__header card__header--primary"&gt;
+    &lt;span&gt;추천 콘텐츠&lt;/span&gt;
+  &lt;/header&gt;
+
+  &lt;!-- 본문 --&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;카드 제목&lt;/h3&gt;
+    &lt;p class="card__description"&gt;카드 설명입니다.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 우측 정렬 푸터 --&gt;
+  &lt;footer class="card__footer card__footer--end"&gt;
+    &lt;button type="button"&gt;자세히 보기&lt;/button&gt;
+  &lt;/footer&gt;
+
+&lt;/article&gt;
+
+&lt;!-- 이미지 헤더 변형 --&gt;
+&lt;article class="card"&gt;
+  &lt;header class="card__header--image"&gt;
+    &lt;img
+      src="cover.jpg"
+      alt="카드 커버 이미지"
+      class="card__cover"
+    &gt;
+  &lt;/header&gt;
+  &lt;div class="card__body"&gt;...&lt;/div&gt;
+  &lt;footer class="card__footer card__footer--between"&gt;
+    &lt;span&gt;5분 읽기&lt;/span&gt;
+    &lt;button type="button"&gt;읽기&lt;/button&gt;
+  &lt;/footer&gt;
+&lt;/article&gt;'
+                data-css='/* 헤더 영역 */
+.card__header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 색상 배경 헤더 */
+.card__header--primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-bottom-color: transparent;
+}
+
+/* 이미지 전용 헤더 */
+.card__header--image {
+  padding: 0;
+  overflow: hidden;
+}
+.card__header--image img,
+.card__header--image .card__cover {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+/* 푸터 영역 */
+.card__footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 푸터 정렬 변형 */
+.card__footer--end     { justify-content: flex-end; }
+.card__footer--between { justify-content: space-between; }'
+                aria-label="헤더+푸터 카드 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 헤더 + 바디 + 푸터 전체 구조 --&gt;
+&lt;article class="card"&gt;
+
+  &lt;!-- 색상 배경 헤더 --&gt;
+  &lt;header class="card__header card__header--primary"&gt;
+    &lt;span&gt;추천 콘텐츠&lt;/span&gt;
+  &lt;/header&gt;
+
+  &lt;!-- 본문 --&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;카드 제목&lt;/h3&gt;
+    &lt;p class="card__description"&gt;카드 설명입니다.&lt;/p&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 우측 정렬 푸터 --&gt;
+  &lt;footer class="card__footer card__footer--end"&gt;
+    &lt;button type="button"&gt;자세히 보기&lt;/button&gt;
+  &lt;/footer&gt;
+
+&lt;/article&gt;
+
+&lt;!-- 이미지 헤더 변형 --&gt;
+&lt;article class="card"&gt;
+  &lt;header class="card__header--image"&gt;
+    &lt;img src="cover.jpg" alt="커버 이미지" class="card__cover"&gt;
+  &lt;/header&gt;
+  &lt;div class="card__body"&gt;...&lt;/div&gt;
+  &lt;footer class="card__footer card__footer--between"&gt;
+    &lt;span&gt;5분 읽기&lt;/span&gt;
+    &lt;button type="button"&gt;읽기&lt;/button&gt;
+  &lt;/footer&gt;
+&lt;/article&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 헤더 영역 */
+.card__header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 색상 배경 헤더 */
+.card__header--primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-bottom-color: transparent;
+}
+
+/* 이미지 전용 헤더 */
+.card__header--image {
+  padding: 0;
+  overflow: hidden;
+}
+.card__header--image img,
+.card__header--image .card__cover {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+/* 푸터 영역 */
+.card__footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 푸터 정렬 변형 */
+.card__footer--end     { justify-content: flex-end; }
+.card__footer--between { justify-content: space-between; }</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: 가로형 Card (Horizontal Card)
+                 - .card--horizontal: flex-direction: row
+                 - .card__image: 좌측 고정 너비 이미지
+                 - 우측: .card__body + .card__footer (선택)
+                 ============================================ -->
+            <section class="demo-section" id="section-horizontal" aria-labelledby="heading-horizontal">
+              <h2 id="heading-horizontal" class="demo-section-title">가로형 Card — 이미지 + 텍스트</h2>
+              <p class="demo-description">
+                <code>.card--horizontal</code> 클래스로 이미지와 콘텐츠를 좌우로 나란히 배치합니다.
+                <code>.card__image</code>는 좌측 고정 너비(160px)로 표시되며,
+                모바일(480px 이하)에서는 자동으로 세로형으로 전환됩니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="가로형 카드 데모">
+
+                <!-- 가로형 카드 목록 -->
+                <div style="display: flex; flex-direction: column; gap: 1rem; max-width: 700px;">
+
+                  <!-- 가로형 카드 1 -->
+                  <article class="card card--horizontal" aria-label="가로형 카드 예시 1">
+                    <!-- 좌측 이미지 (SVG 플레이스홀더) -->
+                    <svg
+                      class="card__image"
+                      viewBox="0 0 160 160"
+                      xmlns="http://www.w3.org/2000/svg"
+                      role="img"
+                      aria-label="카드 이미지: 컴포넌트 아이콘"
+                      style="width:160px;min-width:160px;height:auto;display:block;"
+                    >
+                      <rect width="160" height="160" fill="#dbeafe" />
+                      <rect x="40" y="40" width="80" height="80" rx="8" fill="#3b82f6" />
+                      <rect x="55" y="55" width="50" height="8" rx="4" fill="white" />
+                      <rect x="55" y="70" width="35" height="8" rx="4" fill="rgba(255,255,255,0.7)" />
+                      <rect x="55" y="85" width="42" height="8" rx="4" fill="rgba(255,255,255,0.5)" />
+                    </svg>
+                    <!-- 우측 콘텐츠 -->
+                    <div class="card__body">
+                      <h3 class="card__title">컴포넌트 기반 설계</h3>
+                      <p class="card__description">
+                        재사용 가능한 UI 컴포넌트를 중심으로 인터페이스를 설계하면
+                        유지보수성과 일관성이 크게 향상됩니다.
+                      </p>
+                      <div class="card__meta">
+                        <span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);background:var(--color-bg-secondary);padding:0.125rem 0.5rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);">CSS</span>
+                        <span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);background:var(--color-bg-secondary);padding:0.125rem 0.5rem;border-radius:var(--radius-sm);border:1px solid var(--color-border);">BEM</span>
+                      </div>
+                    </div>
+                  </article>
+
+                  <!-- 가로형 카드 2 (푸터 포함) -->
+                  <article class="card card--horizontal" aria-label="가로형 카드 예시 2 (푸터 포함)">
+                    <svg
+                      class="card__image"
+                      viewBox="0 0 160 160"
+                      xmlns="http://www.w3.org/2000/svg"
+                      role="img"
+                      aria-label="카드 이미지: 접근성 아이콘"
+                      style="width:160px;min-width:160px;height:auto;display:block;"
+                    >
+                      <rect width="160" height="160" fill="#d1fae5" />
+                      <circle cx="80" cy="65" r="25" fill="#10b981" />
+                      <circle cx="80" cy="55" r="8" fill="white" />
+                      <path d="M60 90 Q80 110 100 90" stroke="white" stroke-width="4" fill="none" stroke-linecap="round" />
+                    </svg>
+                    <div style="display:flex;flex-direction:column;flex:1;min-width:0;">
+                      <div class="card__body">
+                        <h3 class="card__title">접근성 우선 개발</h3>
+                        <p class="card__description">
+                          모든 사용자를 위한 접근 가능한 인터페이스를 처음부터 설계하는
+                          WAI-ARIA 가이드라인 준수 방법을 소개합니다.
+                        </p>
+                      </div>
+                      <footer class="card__footer card__footer--between">
+                        <span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">WAI-ARIA 2.1</span>
+                        <button
+                          type="button"
+                          data-variant="outline"
+                          data-size="sm"
+                          aria-label="접근성 우선 개발 자세히 보기"
+                        >자세히 보기</button>
+                      </footer>
+                    </div>
+                  </article>
+
+                  <!-- 가로형 카드 3 (primary 색상 변형) -->
+                  <article class="card card--horizontal card--primary" aria-label="가로형 Primary 카드">
+                    <div
+                      class="card__image-placeholder"
+                      role="img"
+                      aria-label="이미지 플레이스홀더"
+                      style="width:160px;min-width:160px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--color-primary) 10%,var(--color-bg));border-radius:var(--radius-md) 0 0 var(--radius-md);"
+                    >
+                      <i data-lucide="layers" aria-hidden="true" style="width:40px;height:40px;color:var(--color-primary);"></i>
+                    </div>
+                    <div class="card__body">
+                      <h3 class="card__title">레이어드 아키텍처</h3>
+                      <p class="card__description">
+                        토큰 → 기본 스타일 → 컴포넌트 스타일로 이어지는 CSS 계층 구조로
+                        테마 변경과 유지보수가 쉬운 스타일 시스템을 구성합니다.
+                      </p>
+                    </div>
+                  </article>
+
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 가로형 카드: .card--horizontal --&gt;
+&lt;article class="card card--horizontal"&gt;
+
+  &lt;!-- 좌측 이미지: 고정 너비 160px --&gt;
+  &lt;img
+    class="card__image"
+    src="thumbnail.jpg"
+    alt="카드 이미지 설명"
+    width="160"
+    height="160"
+  &gt;
+
+  &lt;!-- 우측 콘텐츠 --&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;카드 제목&lt;/h3&gt;
+    &lt;p class="card__description"&gt;카드 설명입니다.&lt;/p&gt;
+  &lt;/div&gt;
+
+&lt;/article&gt;
+
+&lt;!-- 푸터 포함 가로형 카드 --&gt;
+&lt;article class="card card--horizontal"&gt;
+  &lt;img class="card__image" src="thumbnail.jpg" alt="이미지"&gt;
+  &lt;div style="display:flex;flex-direction:column;flex:1;"&gt;
+    &lt;div class="card__body"&gt;
+      &lt;h3 class="card__title"&gt;카드 제목&lt;/h3&gt;
+      &lt;p class="card__description"&gt;설명&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;footer class="card__footer card__footer--between"&gt;
+      &lt;span&gt;부가 정보&lt;/span&gt;
+      &lt;button type="button"&gt;자세히&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/article&gt;'
+                data-css='/* 가로형 카드: flex-direction: row */
+.card--horizontal {
+  flex-direction: row;
+}
+
+/* 좌측 이미지 영역 */
+.card--horizontal .card__image {
+  width: 160px;
+  min-width: 160px;
+  max-width: 160px;
+  height: auto;
+  object-fit: cover;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  display: block;
+}
+
+/* 이미지 플레이스홀더 */
+.card--horizontal .card__image-placeholder {
+  width: 160px;
+  min-width: 160px;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 우측 콘텐츠 영역 */
+.card--horizontal .card__body {
+  flex: 1;
+  min-width: 0; /* flex item 오버플로우 방지 */
+}
+
+/* 모바일: 세로형으로 전환 */
+@media (max-width: 480px) {
+  .card--horizontal {
+    flex-direction: column;
+  }
+  .card--horizontal .card__image,
+  .card--horizontal .card__image-placeholder {
+    width: 100%;
+    min-width: unset;
+    height: 180px;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+}'
+                aria-label="가로형 카드 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 가로형 카드: .card--horizontal --&gt;
+&lt;article class="card card--horizontal"&gt;
+
+  &lt;!-- 좌측 이미지 (160px 고정 너비) --&gt;
+  &lt;img
+    class="card__image"
+    src="thumbnail.jpg"
+    alt="카드 이미지 설명"
+    width="160"
+    height="160"
+  &gt;
+
+  &lt;!-- 우측 콘텐츠 --&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;카드 제목&lt;/h3&gt;
+    &lt;p class="card__description"&gt;카드 설명입니다.&lt;/p&gt;
+  &lt;/div&gt;
+
+&lt;/article&gt;
+
+&lt;!-- 푸터 포함 가로형 카드 --&gt;
+&lt;article class="card card--horizontal"&gt;
+  &lt;img class="card__image" src="thumbnail.jpg" alt="이미지"&gt;
+  &lt;div style="display:flex;flex-direction:column;flex:1;"&gt;
+    &lt;div class="card__body"&gt;
+      &lt;h3 class="card__title"&gt;카드 제목&lt;/h3&gt;
+      &lt;p class="card__description"&gt;설명&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;footer class="card__footer card__footer--between"&gt;
+      &lt;span&gt;부가 정보&lt;/span&gt;
+      &lt;button type="button"&gt;자세히&lt;/button&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+&lt;/article&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 가로형 카드 */
+.card--horizontal {
+  flex-direction: row;
+}
+
+/* 좌측 이미지 */
+.card--horizontal .card__image {
+  width: 160px;
+  min-width: 160px;
+  max-width: 160px;
+  height: auto;
+  object-fit: cover;
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  display: block;
+}
+
+/* 우측 콘텐츠 */
+.card--horizontal .card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 모바일: 세로형 전환 (480px 이하) */
+@media (max-width: 480px) {
+  .card--horizontal {
+    flex-direction: column;
+  }
+  .card--horizontal .card__image {
+    width: 100%;
+    min-width: unset;
+    height: 180px;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: 인터랙티브 Card (Interactive Card)
+                 - .card--interactive: cursor:pointer
+                 - :hover { box-shadow 증가 + translateY(-3px) }
+                 - :focus-visible { outline: 2px solid primary }
+                 - CSS transition 200ms ease로 부드러운 효과
+                 - JS 없이 CSS만으로 동작 (tabindex 접근성 지원)
+                 ============================================ -->
+            <section class="demo-section" id="section-interactive" aria-labelledby="heading-interactive">
+              <h2 id="heading-interactive" class="demo-section-title">인터랙티브 Card — 호버 효과</h2>
+              <p class="demo-description">
+                <code>.card--interactive</code> 클래스를 추가하면 마우스 호버 시 그림자가 커지고
+                카드가 살짝 위로 이동합니다. CSS <code>transition</code>과 <code>transform</code>만을
+                사용하며 JavaScript가 전혀 필요 없습니다. 키보드 탐색 시
+                <code>:focus-visible</code>로 명확한 포커스 링을 표시합니다.
+                <strong>마우스를 올려보세요.</strong>
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="인터랙티브 카드 데모">
+
+                <!-- 인터랙티브 카드 3종 그리드 -->
+                <div class="card-grid" style="max-width: 860px;">
+
+                  <!-- 인터랙티브 카드 1: 기본 -->
+                  <article
+                    class="card card--interactive"
+                    tabindex="0"
+                    aria-label="인터랙티브 카드 — 호버 또는 포커스 시 강조"
+                  >
+                    <div class="card__body">
+                      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                        <span style="width:36px;height:36px;border-radius:50%;background:var(--color-bg-secondary);border:1px solid var(--color-border);display:flex;align-items:center;justify-content:center;">
+                          <i data-lucide="zap" aria-hidden="true" style="width:18px;height:18px;color:var(--color-primary);"></i>
+                        </span>
+                        <h3 class="card__title">빠른 성능</h3>
+                      </div>
+                      <p class="card__description">
+                        최적화된 렌더링 파이프라인으로 60fps의 부드러운
+                        사용자 경험을 제공합니다.
+                      </p>
+                    </div>
+                    <footer class="card__footer card__footer--end">
+                      <span style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">마우스를 올려보세요 ↑</span>
+                    </footer>
+                  </article>
+
+                  <!-- 인터랙티브 카드 2: 이미지 헤더 포함 -->
+                  <article
+                    class="card card--interactive"
+                    tabindex="0"
+                    aria-label="이미지 헤더 인터랙티브 카드"
+                  >
+                    <header class="card__header--image">
+                      <svg
+                        viewBox="0 0 400 140"
+                        xmlns="http://www.w3.org/2000/svg"
+                        role="img"
+                        aria-label="반응형 디자인 이미지"
+                        style="width:100%;height:140px;display:block;"
+                      >
+                        <rect width="400" height="140" fill="#fef3c7" />
+                        <!-- 데스크톱 프레임 -->
+                        <rect x="60" y="25" width="120" height="90" rx="4" fill="#f59e0b" opacity="0.8" />
+                        <rect x="64" y="35" width="112" height="72" rx="2" fill="#fffbeb" />
+                        <!-- 태블릿 프레임 -->
+                        <rect x="195" y="35" width="75" height="80" rx="4" fill="#f59e0b" opacity="0.6" />
+                        <rect x="199" y="43" width="67" height="64" rx="2" fill="#fffbeb" />
+                        <!-- 모바일 프레임 -->
+                        <rect x="285" y="45" width="45" height="70" rx="4" fill="#f59e0b" opacity="0.4" />
+                        <rect x="289" y="53" width="37" height="54" rx="2" fill="#fffbeb" />
+                      </svg>
+                    </header>
+                    <div class="card__body">
+                      <h3 class="card__title">반응형 디자인</h3>
+                      <p class="card__description">
+                        모바일, 태블릿, 데스크톱 모든 화면 크기에 자동으로 최적화됩니다.
+                      </p>
+                    </div>
+                  </article>
+
+                  <!-- 인터랙티브 카드 3: primary 색상 변형 -->
+                  <article
+                    class="card card--interactive card--primary"
+                    tabindex="0"
+                    aria-label="Primary 인터랙티브 카드"
+                  >
+                    <div class="card__body">
+                      <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                        <span style="width:36px;height:36px;border-radius:50%;background:color-mix(in srgb,var(--color-primary) 15%,var(--color-bg));display:flex;align-items:center;justify-content:center;">
+                          <i data-lucide="shield-check" aria-hidden="true" style="width:18px;height:18px;color:var(--color-primary);"></i>
+                        </span>
+                        <h3 class="card__title">접근성 보장</h3>
+                      </div>
+                      <p class="card__description">
+                        WCAG 2.1 AA 기준을 준수하며, 키보드 탐색과
+                        스크린 리더를 완전히 지원합니다.
+                      </p>
+                      <p style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-top:auto;padding-top:0.5rem;">
+                        Tab 키로 포커스 이동 후 Enter/Space로 활성화
+                      </p>
+                    </div>
+                  </article>
+
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 인터랙티브 카드: .card--interactive --&gt;
+&lt;!-- tabindex="0": 키보드 탐색 가능하게 --&gt;
+&lt;article
+  class="card card--interactive"
+  tabindex="0"
+  aria-label="클릭 가능한 카드"
+&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;인터랙티브 카드&lt;/h3&gt;
+    &lt;p class="card__description"&gt;
+      마우스를 올리거나 포커스를 주면 효과가 나타납니다.
+    &lt;/p&gt;
+  &lt;/div&gt;
+&lt;/article&gt;
+
+&lt;!-- 링크로 감쌀 때는 tabindex 불필요 --&gt;
+&lt;a href="/detail" class="card card--interactive" aria-label="상세 페이지로 이동"&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;링크 카드&lt;/h3&gt;
+    &lt;p class="card__description"&gt;클릭하면 상세 페이지로 이동합니다.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/a&gt;'
+                data-css='/* 인터랙티브 카드: 커서 + 트랜지션 */
+.card--interactive {
+  cursor: pointer;
+  /* .card 기본 트랜지션 상속:
+     box-shadow 200ms ease, transform 200ms ease */
+}
+
+/* 호버: 그림자 증가 + 위로 이동 */
+.card--interactive:hover {
+  box-shadow: var(--shadow-lg);
+  /* 0 10px 15px -3px rgba(0,0,0,0.1) */
+  transform: translateY(-3px);
+  border-color: var(--color-border-hover);
+}
+
+/* 눌림: 살짝 내려옴 */
+.card--interactive:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 키보드 포커스 링 (접근성) */
+.card--interactive:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 모션 감소 설정 시 트랜지션 비활성화 */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card--interactive {
+    transition: none;
+  }
+  .card--interactive:hover {
+    transform: none;
+  }
+}'
+                aria-label="인터랙티브 카드 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 인터랙티브 카드: .card--interactive --&gt;
+&lt;!-- tabindex="0": 키보드 포커스 가능 --&gt;
+&lt;article
+  class="card card--interactive"
+  tabindex="0"
+  aria-label="클릭 가능한 카드"
+&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;인터랙티브 카드&lt;/h3&gt;
+    &lt;p class="card__description"&gt;
+      마우스를 올리면 효과가 나타납니다.
+    &lt;/p&gt;
+  &lt;/div&gt;
+&lt;/article&gt;
+
+&lt;!-- 링크 카드: tabindex 불필요 --&gt;
+&lt;a
+  href="/detail"
+  class="card card--interactive"
+  aria-label="상세 페이지로 이동"
+&gt;
+  &lt;div class="card__body"&gt;
+    &lt;h3 class="card__title"&gt;링크 카드&lt;/h3&gt;
+    &lt;p class="card__description"&gt;클릭하면 이동합니다.&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/a&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 인터랙티브 카드 */
+.card--interactive {
+  cursor: pointer;
+  /* transition은 .card 기본 스타일에서 정의:
+     box-shadow 200ms ease, transform 200ms ease */
+}
+
+/* 호버: 그림자 증가 + 위로 이동 */
+.card--interactive:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  border-color: var(--color-border-hover);
+}
+
+/* 눌림: 살짝 내려옴 */
+.card--interactive:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 키보드 포커스 링 */
+.card--interactive:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 모션 감소 설정 준수 */
+@media (prefers-reduced-motion: reduce) {
+  .card--interactive {
+    transition: none;
+  }
+  .card--interactive:hover {
+    transform: none;
+  }
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Badge 컴포넌트 -->
+                <a href="./badge.html" class="detail-footer-link" aria-label="Badge 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Badge</span>
+                </a>
+                <!-- 다음: Skeleton 컴포넌트 -->
+                <a href="./skeleton.html" class="detail-footer-link" aria-label="Skeleton 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Skeleton</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>

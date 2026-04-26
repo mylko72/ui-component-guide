@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Progress 컴포넌트: 기본 진행률 표시, 크기 변형, 색상 변형, 비활성 상태 4가지 패턴. WAI-ARIA progressbar 패턴, role/aria-valuenow/aria-valuemin/aria-valuemax 접근성 완전 지원.">
+  <title>Progress — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → progress (컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/progress.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: progress.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <!-- 현재 페이지: progress.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Progress 컴포넌트 데모 4개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Progress</h1>
+              <p class="detail-description">
+                작업 진행 상태를 시각적으로 표현하는 컴포넌트입니다.
+                WAI-ARIA <code>progressbar</code> 패턴을 준수하며
+                <code>data-component="progress"</code>로 컨테이너를 지정합니다.
+                <code>role="progressbar"</code>,
+                <code>aria-valuenow</code>, <code>aria-valuemin</code>, <code>aria-valuemax</code>로
+                스크린 리더에 진행률을 전달합니다.
+                JavaScript 없이도 CSS 변수 기반으로 진행률이 시각적으로 표시됩니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: Default Progress (기본 진행률 표시)
+                 - 다양한 진행률 예시 (0%, 25%, 50%, 75%, 100%)
+                 - 라벨 + 퍼센트 텍스트 표시
+                 - JS 없을 때도 CSS 변수로 너비 표시
+                 ============================================ -->
+            <section class="demo-section" id="section-default" aria-labelledby="heading-default">
+              <h2 id="heading-default" class="demo-section-title">Default Progress</h2>
+              <p class="demo-description">
+                기본 Progress 바입니다. 라벨과 퍼센트 텍스트를 함께 표시합니다.
+                JavaScript 없이도 <code>style="--progress-value:N"</code>으로 너비가 표시됩니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Default Progress 데모">
+
+                <!--
+                  .progress-wrapper: 라벨 + 트랙을 수직으로 묶는 컨테이너
+                  data-component="progress": Progress.init()이 초기화 대상으로 감지
+                  JS 없을 때: CSS 변수(--progress-value)로 바 너비 직접 제어
+                  JS 활성화 후: Progress.init()이 aria 속성 동기화 및 값 제어
+                -->
+
+                <!-- 0% -->
+                <div class="progress-wrapper">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-0">초기화</span>
+                    <span class="progress-value-text" aria-hidden="true">0%</span>
+                  </div>
+                  <!--
+                    role="progressbar": WAI-ARIA progressbar 역할
+                    aria-valuenow: 현재 진행률 (스크린 리더 읽기)
+                    aria-valuemin/max: 범위 선언 (0~100)
+                    aria-labelledby: 라벨 요소 연결
+                    data-component="progress": JS 초기화 대상
+                    data-progress: JS가 참조하는 초기 값
+                  -->
+                  <div
+                    class="progress"
+                    data-component="progress"
+                    data-progress="0"
+                    role="progressbar"
+                    aria-valuenow="0"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-0"
+                  >
+                    <div class="progress__bar" style="--progress-value: 0;"></div>
+                  </div>
+                </div>
+
+                <!-- 25% -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-25">파일 다운로드</span>
+                    <span class="progress-value-text" aria-hidden="true">25%</span>
+                  </div>
+                  <div
+                    class="progress"
+                    data-component="progress"
+                    data-progress="25"
+                    role="progressbar"
+                    aria-valuenow="25"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-25"
+                  >
+                    <div class="progress__bar" style="--progress-value: 25;"></div>
+                  </div>
+                </div>
+
+                <!-- 50% -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-50">데이터 처리</span>
+                    <span class="progress-value-text" aria-hidden="true">50%</span>
+                  </div>
+                  <div
+                    class="progress"
+                    data-component="progress"
+                    data-progress="50"
+                    role="progressbar"
+                    aria-valuenow="50"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-50"
+                  >
+                    <div class="progress__bar" style="--progress-value: 50;"></div>
+                  </div>
+                </div>
+
+                <!-- 75% -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-75">업로드</span>
+                    <span class="progress-value-text" aria-hidden="true">75%</span>
+                  </div>
+                  <div
+                    class="progress"
+                    data-component="progress"
+                    data-progress="75"
+                    role="progressbar"
+                    aria-valuenow="75"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-75"
+                  >
+                    <div class="progress__bar" style="--progress-value: 75;"></div>
+                  </div>
+                </div>
+
+                <!-- 100% -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-100">설치 완료</span>
+                    <span class="progress-value-text" aria-hidden="true">100%</span>
+                  </div>
+                  <div
+                    class="progress progress--success"
+                    data-component="progress"
+                    data-progress="100"
+                    role="progressbar"
+                    aria-valuenow="100"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-100"
+                  >
+                    <div class="progress__bar" style="--progress-value: 100;"></div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS/JS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- .progress-wrapper: 라벨 + 트랙 묶음 --&gt;
+&lt;div class="progress-wrapper"&gt;
+
+  &lt;!-- 상단 헤더: 라벨과 퍼센트 텍스트 --&gt;
+  &lt;div class="progress-header"&gt;
+    &lt;span class="progress-label" id="progress-label-1"&gt;파일 다운로드&lt;/span&gt;
+    &lt;span class="progress-value-text" aria-hidden="true"&gt;75%&lt;/span&gt;
+  &lt;/div&gt;
+
+  &lt;!--
+    role="progressbar": WAI-ARIA progressbar 역할
+    aria-valuenow: 현재 진행률 (스크린 리더 읽기)
+    aria-valuemin/max: 범위 선언 (0~100)
+    aria-labelledby: 라벨 요소 연결
+    data-component="progress": JS 초기화 대상
+    data-progress: JS가 읽는 초기 진행률 값
+  --&gt;
+  &lt;div
+    class="progress"
+    data-component="progress"
+    data-progress="75"
+    role="progressbar"
+    aria-valuenow="75"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-labelledby="progress-label-1"
+  &gt;
+    &lt;!--
+      .progress__bar: 실제 진행률 바
+      --progress-value: CSS 변수로 너비 제어 (JS 없을 때도 동작)
+    --&gt;
+    &lt;div class="progress__bar" style="--progress-value: 75;"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;'
+                data-css='/* 트랙: 회색 배경 컨테이너 */
+.progress {
+  position: relative;
+  width: 100%;
+  height: 0.5rem;
+  background-color: var(--color-border);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+/* 바: CSS 변수로 너비 제어 */
+.progress__bar {
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--color-primary);
+  width: calc(var(--progress-value, 0) * 1%);
+  transition: width var(--transition-normal);
+}
+
+/* 상단 메타 정보 레이아웃 */
+.progress-wrapper { display: flex; flex-direction: column; gap: 0.375rem; }
+.progress-header { display: flex; justify-content: space-between; }
+.progress-label { font-size: var(--font-size-sm); font-weight: 500; }
+.progress-value-text { font-size: var(--font-size-xs); font-weight: 600; color: var(--color-text-secondary); }'
+                data-js='// Progress.init()이 DOMContentLoaded 시 자동 초기화
+// 또는 특정 컨테이너만 초기화:
+Progress.init(document.querySelector(".my-container"));
+
+// 초기화 후 인스턴스로 setValue() 호출:
+const el = document.querySelector("[data-component=progress]");
+const progress = el._progressInstance;
+
+progress.setValue(75);    // 75%로 설정
+progress.getValue();      // 현재 값 반환: 75
+progress.increment(10);   // 85%로 증가
+progress.decrement(20);   // 65%로 감소
+progress.complete();      // 100%로 완료
+progress.reset();         // 0%로 초기화'
+                aria-label="Default Progress 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-progress-default-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-progress-default-css"
+                    >CSS</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="js"
+                      aria-selected="false"
+                      aria-controls="cb-progress-default-js"
+                    >JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-progress-default-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;div class="progress-wrapper"&gt;
+  &lt;div class="progress-header"&gt;
+    &lt;span class="progress-label" id="progress-label-1"&gt;파일 다운로드&lt;/span&gt;
+    &lt;span class="progress-value-text" aria-hidden="true"&gt;75%&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div
+    class="progress"
+    data-component="progress"
+    data-progress="75"
+    role="progressbar"
+    aria-valuenow="75"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-labelledby="progress-label-1"
+  &gt;
+    &lt;div class="progress__bar" style="--progress-value: 75;"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-progress-default-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* 트랙: 회색 배경 컨테이너 */
+.progress {
+  position: relative;
+  width: 100%;
+  height: 0.5rem; /* 8px */
+  background-color: var(--color-border);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+/* 바: CSS 변수(--progress-value)로 너비 제어 */
+.progress__bar {
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--color-primary);
+  width: calc(var(--progress-value, 0) * 1%);
+  transition: width var(--transition-normal);
+}
+
+/* 래퍼 레이아웃 */
+.progress-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}</pre>
+                    </div>
+                    <div
+                      id="cb-progress-default-js"
+                      class="code-block__panel"
+                      data-code-block-panel="js"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">// DOMContentLoaded 시 자동 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  Progress.init(); // 페이지의 모든 [data-component="progress"] 초기화
+});
+
+// 인스턴스 접근 및 setValue 호출:
+const el = document.querySelector('[data-component="progress"]');
+const progress = el._progressInstance;
+
+progress.setValue(75);   // 75%로 설정 (0~100 자동 클램핑)
+progress.getValue();     // 현재 값 반환
+progress.increment(10);  // 현재 값 + 10
+progress.decrement(5);   // 현재 값 - 5
+progress.complete();     // 100%로 설정
+progress.reset();        // 0%로 초기화</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: Sizes (크기 변형)
+                 - sm(4px), md(8px, 기본), lg(12px)
+                 ============================================ -->
+            <section class="demo-section" id="section-sizes" aria-labelledby="heading-sizes">
+              <h2 id="heading-sizes" class="demo-section-title">Sizes</h2>
+              <p class="demo-description">
+                <code>.progress--sm</code>, <code>.progress--md</code>, <code>.progress--lg</code>
+                클래스로 3가지 높이를 지원합니다.
+                크기에 따라 좁은 공간(sm), 기본(md), 강조(lg) 용도로 활용합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Progress 크기 변형 데모">
+
+                <!-- sm: 4px — 하위 정보, 좁은 공간 -->
+                <div class="progress-wrapper">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-sm">Small (4px)</span>
+                    <span class="progress-value-text" aria-hidden="true">60%</span>
+                  </div>
+                  <!--
+                    .progress--sm: 높이 4px (컴팩트 크기)
+                  -->
+                  <div
+                    class="progress progress--sm"
+                    data-component="progress"
+                    data-progress="60"
+                    role="progressbar"
+                    aria-valuenow="60"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-sm"
+                  >
+                    <div class="progress__bar" style="--progress-value: 60;"></div>
+                  </div>
+                </div>
+
+                <!-- md: 8px — 기본 크기 (기본값) -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-md">Medium (8px, 기본)</span>
+                    <span class="progress-value-text" aria-hidden="true">60%</span>
+                  </div>
+                  <!--
+                    .progress--md: 높이 8px (기본값과 동일)
+                  -->
+                  <div
+                    class="progress progress--md"
+                    data-component="progress"
+                    data-progress="60"
+                    role="progressbar"
+                    aria-valuenow="60"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-md"
+                  >
+                    <div class="progress__bar" style="--progress-value: 60;"></div>
+                  </div>
+                </div>
+
+                <!-- lg: 12px — 강조, 헤딩 하단 등 -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-lg">Large (12px)</span>
+                    <span class="progress-value-text" aria-hidden="true">60%</span>
+                  </div>
+                  <!--
+                    .progress--lg: 높이 12px (강조 크기)
+                  -->
+                  <div
+                    class="progress progress--lg"
+                    data-component="progress"
+                    data-progress="60"
+                    role="progressbar"
+                    aria-valuenow="60"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-lg"
+                  >
+                    <div class="progress__bar" style="--progress-value: 60;"></div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- sm: 4px 높이 (좁은 공간용) --&gt;
+&lt;div class="progress progress--sm"
+  role="progressbar" aria-valuenow="60"
+  aria-valuemin="0" aria-valuemax="100"
+  aria-label="Small 진행률"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 60;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- md: 8px 높이 (기본) --&gt;
+&lt;div class="progress progress--md"
+  role="progressbar" aria-valuenow="60"
+  aria-valuemin="0" aria-valuemax="100"
+  aria-label="Medium 진행률"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 60;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- lg: 12px 높이 (강조) --&gt;
+&lt;div class="progress progress--lg"
+  role="progressbar" aria-valuenow="60"
+  aria-valuemin="0" aria-valuemax="100"
+  aria-label="Large 진행률"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 60;"&gt;&lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* 크기 변형 */
+.progress--sm { height: 0.25rem; }   /* 4px */
+.progress--md { height: 0.5rem; }    /* 8px */
+.progress--lg { height: 0.75rem; }   /* 12px */
+
+/* 기본(클래스 없음): 8px */
+.progress { height: 0.5rem; }'
+                data-js='// 크기는 CSS 클래스로만 제어 — JS 설정 불필요
+// Progress.init() 호출 시 모든 크기 변형이 자동 초기화됨'
+                aria-label="Progress 크기 변형 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- sm: 4px (좁은 공간) --&gt;
+&lt;div class="progress progress--sm"
+  role="progressbar"
+  aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+  aria-label="Small 진행률"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 60;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- md: 8px (기본) --&gt;
+&lt;div class="progress progress--md"
+  role="progressbar"
+  aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+  aria-label="Medium 진행률"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 60;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- lg: 12px (강조) --&gt;
+&lt;div class="progress progress--lg"
+  role="progressbar"
+  aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+  aria-label="Large 진행률"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 60;"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 크기 변형: 클래스로 높이만 변경 */
+.progress--sm { height: 0.25rem; } /* 4px */
+.progress--md { height: 0.5rem; }  /* 8px - 기본값과 동일 */
+.progress--lg { height: 0.75rem; } /* 12px */</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 크기 변형은 CSS 클래스로만 결정
+// JS에서 별도 처리 불필요
+// Progress.init()이 모든 크기 변형 자동 초기화</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: Colors / Types (색상 및 의미론적 변형)
+                 - primary, success, warning, error, info
+                 - 진행 상태의 의미를 색상으로 전달
+                 ============================================ -->
+            <section class="demo-section" id="section-colors" aria-labelledby="heading-colors">
+              <h2 id="heading-colors" class="demo-section-title">Colors &amp; Types</h2>
+              <p class="demo-description">
+                <code>.progress--primary</code>, <code>.progress--success</code>,
+                <code>.progress--warning</code>, <code>.progress--error</code>,
+                <code>.progress--info</code> 클래스로 진행 상태의 의미를 색상으로 전달합니다.
+                색상만으로 의미를 전달하지 않도록 라벨도 함께 제공합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="Progress 색상 변형 데모">
+
+                <!-- primary: 파란색 — 기본 진행 상태 -->
+                <div class="progress-wrapper">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-primary">Primary — 기본 진행</span>
+                    <span class="progress-value-text" aria-hidden="true">70%</span>
+                  </div>
+                  <!--
+                    .progress--primary: 파란색 (기본 진행 상태)
+                  -->
+                  <div
+                    class="progress progress--primary"
+                    data-component="progress"
+                    data-progress="70"
+                    role="progressbar"
+                    aria-valuenow="70"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-primary"
+                  >
+                    <div class="progress__bar" style="--progress-value: 70;"></div>
+                  </div>
+                </div>
+
+                <!-- success: 초록색 — 완료/성공 상태 -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-success">Success — 완료</span>
+                    <span class="progress-value-text" aria-hidden="true">100%</span>
+                  </div>
+                  <!--
+                    .progress--success: 초록색 (완료, 성공 상태)
+                  -->
+                  <div
+                    class="progress progress--success"
+                    data-component="progress"
+                    data-progress="100"
+                    role="progressbar"
+                    aria-valuenow="100"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-success"
+                  >
+                    <div class="progress__bar" style="--progress-value: 100;"></div>
+                  </div>
+                </div>
+
+                <!-- warning: 노란색 — 주의/경고 상태 -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-warning">Warning — 저장 공간 부족</span>
+                    <span class="progress-value-text" aria-hidden="true">85%</span>
+                  </div>
+                  <!--
+                    .progress--warning: 노란색 (주의, 경고 상태)
+                  -->
+                  <div
+                    class="progress progress--warning"
+                    data-component="progress"
+                    data-progress="85"
+                    role="progressbar"
+                    aria-valuenow="85"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-warning"
+                  >
+                    <div class="progress__bar" style="--progress-value: 85;"></div>
+                  </div>
+                </div>
+
+                <!-- error: 빨간색 — 실패/오류 상태 -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-error">Error — 업로드 실패</span>
+                    <span class="progress-value-text" aria-hidden="true">40%</span>
+                  </div>
+                  <!--
+                    .progress--error: 빨간색 (실패, 오류 상태)
+                  -->
+                  <div
+                    class="progress progress--error"
+                    data-component="progress"
+                    data-progress="40"
+                    role="progressbar"
+                    aria-valuenow="40"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-error"
+                  >
+                    <div class="progress__bar" style="--progress-value: 40;"></div>
+                  </div>
+                </div>
+
+                <!-- info: 정보 파란색 — 정보성 진행 상태 -->
+                <div class="progress-wrapper" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-info">Info — 데이터 로드</span>
+                    <span class="progress-value-text" aria-hidden="true">55%</span>
+                  </div>
+                  <!--
+                    .progress--info: 정보 파란색 (정보성 진행 상태)
+                  -->
+                  <div
+                    class="progress progress--info"
+                    data-component="progress"
+                    data-progress="55"
+                    role="progressbar"
+                    aria-valuenow="55"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-info"
+                  >
+                    <div class="progress__bar" style="--progress-value: 55;"></div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- primary: 기본 진행 --&gt;
+&lt;div class="progress progress--primary"
+  role="progressbar" aria-valuenow="70"
+  aria-valuemin="0" aria-valuemax="100"
+  aria-label="기본 진행률"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 70;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- success: 완료/성공 --&gt;
+&lt;div class="progress progress--success"
+  role="progressbar" aria-valuenow="100"
+  aria-valuemin="0" aria-valuemax="100"
+  aria-label="완료"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 100;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- warning: 경고 상태 --&gt;
+&lt;div class="progress progress--warning"
+  role="progressbar" aria-valuenow="85"
+  aria-valuemin="0" aria-valuemax="100"
+  aria-label="저장 공간 부족"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 85;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- error: 오류/실패 --&gt;
+&lt;div class="progress progress--error"
+  role="progressbar" aria-valuenow="40"
+  aria-valuemin="0" aria-valuemax="100"
+  aria-label="업로드 실패"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 40;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- info: 정보성 진행 --&gt;
+&lt;div class="progress progress--info"
+  role="progressbar" aria-valuenow="55"
+  aria-valuemin="0" aria-valuemax="100"
+  aria-label="데이터 로드"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 55;"&gt;&lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* 색상 변형: .progress__bar의 background-color만 변경 */
+.progress--primary .progress__bar { background-color: var(--color-primary); }
+.progress--success .progress__bar { background-color: var(--color-success); }
+.progress--warning .progress__bar { background-color: var(--color-warning); }
+.progress--error   .progress__bar { background-color: var(--color-danger); }
+.progress--info    .progress__bar { background-color: var(--color-info); }'
+                data-js='// 색상 변형은 CSS 클래스로만 결정
+// JS에서 동적으로 색상을 변경하려면:
+const el = document.querySelector(".progress");
+el.classList.remove("progress--primary");
+el.classList.add("progress--success");
+
+// 또는 진행률에 따라 자동으로 색상 변경:
+const progress = el._progressInstance;
+const value = progress.getValue();
+if (value >= 90) el.classList.add("progress--warning");
+if (value >= 100) {
+  el.classList.remove("progress--warning");
+  el.classList.add("progress--success");
+}'
+                aria-label="Progress 색상 변형 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- primary: 기본 진행 --&gt;
+&lt;div class="progress progress--primary" role="progressbar"
+  aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"
+  aria-label="기본 진행률"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 70;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- success: 완료/성공 --&gt;
+&lt;div class="progress progress--success" role="progressbar"
+  aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+  aria-label="완료"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 100;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- warning: 경고 상태 --&gt;
+&lt;div class="progress progress--warning" role="progressbar"
+  aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"
+  aria-label="저장 공간 부족 경고"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 85;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- error: 오류/실패 --&gt;
+&lt;div class="progress progress--error" role="progressbar"
+  aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"
+  aria-label="업로드 실패"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 40;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- info: 정보성 진행 --&gt;
+&lt;div class="progress progress--info" role="progressbar"
+  aria-valuenow="55" aria-valuemin="0" aria-valuemax="100"
+  aria-label="데이터 로드"&gt;
+  &lt;div class="progress__bar" style="--progress-value: 55;"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 색상 변형: .progress__bar의 background-color만 변경 */
+.progress--primary .progress__bar {
+  background-color: var(--color-primary);   /* #3b82f6 */
+}
+.progress--success .progress__bar {
+  background-color: var(--color-success);   /* #10b981 */
+}
+.progress--warning .progress__bar {
+  background-color: var(--color-warning);   /* #f59e0b */
+}
+.progress--error .progress__bar {
+  background-color: var(--color-danger);    /* #ef4444 */
+}
+.progress--info .progress__bar {
+  background-color: var(--color-info);      /* #3b82f6 */
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 색상은 CSS 클래스로만 제어
+// 동적으로 색상 변경:
+const el = document.querySelector('.progress');
+el.classList.remove('progress--primary');
+el.classList.add('progress--success');
+
+// 진행률에 따라 색상 자동 전환:
+const progress = el._progressInstance;
+progress.setValue(100);
+el.classList.replace('progress--primary', 'progress--success');</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: Disabled State + Interactive Demo
+                 - aria-disabled="true": 비활성 상태 접근성 표시
+                 - 동적 업데이트 예시: 버튼으로 진행률 제어
+                 ============================================ -->
+            <section class="demo-section" id="section-disabled" aria-labelledby="heading-disabled">
+              <h2 id="heading-disabled" class="demo-section-title">Disabled State &amp; Interactive Demo</h2>
+              <p class="demo-description">
+                <code>aria-disabled="true"</code>로 비활성 상태를 표현합니다.
+                하단의 인터랙티브 데모에서 버튼으로 진행률을 동적으로 업데이트하는 패턴을 확인할 수 있습니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="비활성 및 인터랙티브 Progress 데모">
+
+                <!-- 비활성 상태 예시들 -->
+                <div class="progress-wrapper" aria-disabled="true">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-disabled-1">비활성 Progress (기본)</span>
+                    <span class="progress-value-text" aria-hidden="true">45%</span>
+                  </div>
+                  <!--
+                    aria-disabled="true": 비활성 상태를 스크린 리더에 전달
+                    CSS: opacity 0.4, 바는 회색으로 표시
+                    data-component 없음: JS 초기화 제외 (정적 데모용)
+                  -->
+                  <div
+                    class="progress"
+                    role="progressbar"
+                    aria-valuenow="45"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-disabled-1"
+                    aria-disabled="true"
+                  >
+                    <div class="progress__bar" style="--progress-value: 45;"></div>
+                  </div>
+                </div>
+
+                <div class="progress-wrapper" aria-disabled="true" style="margin-top: 1.25rem;">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-disabled-2">비활성 Progress (Large)</span>
+                    <span class="progress-value-text" aria-hidden="true">70%</span>
+                  </div>
+                  <div
+                    class="progress progress--lg"
+                    role="progressbar"
+                    aria-valuenow="70"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-disabled-2"
+                    aria-disabled="true"
+                  >
+                    <div class="progress__bar" style="--progress-value: 70;"></div>
+                  </div>
+                </div>
+
+                <!-- 인터랙티브 데모 구분선 -->
+                <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--color-border);" aria-hidden="true">
+
+                <!-- 인터랙티브 데모: JS setValue()로 동적 업데이트 -->
+                <div class="progress-wrapper">
+                  <div class="progress-header">
+                    <span class="progress-label" id="progress-label-interactive">동적 진행률 업데이트</span>
+                    <!--
+                      aria-hidden="true": 시각적 퍼센트 텍스트 (스크린 리더는 aria-valuenow 읽음)
+                      JS가 textContent를 업데이트
+                    -->
+                    <span class="progress-value-text" id="progress-interactive-text" aria-hidden="true">0%</span>
+                  </div>
+                  <div
+                    class="progress progress--primary progress--lg"
+                    id="progress-interactive"
+                    data-component="progress"
+                    data-progress="0"
+                    role="progressbar"
+                    aria-valuenow="0"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-labelledby="progress-label-interactive"
+                  >
+                    <div class="progress__bar" style="--progress-value: 0;"></div>
+                  </div>
+                </div>
+
+                <!-- 인터랙티브 컨트롤 버튼들 -->
+                <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:1rem;">
+                  <button
+                    type="button"
+                    class="btn btn--sm btn--outlined"
+                    id="btn-reset"
+                    aria-label="진행률 0%로 초기화"
+                    style="padding:0.375rem 0.75rem;font-size:0.875rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-text);cursor:pointer;"
+                  >
+                    초기화 (0%)
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-increment"
+                    aria-label="진행률 10% 증가"
+                    style="padding:0.375rem 0.75rem;font-size:0.875rem;border:1px solid var(--color-primary);border-radius:var(--radius-sm);background:var(--color-primary);color:#fff;cursor:pointer;"
+                  >
+                    +10%
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-decrement"
+                    aria-label="진행률 10% 감소"
+                    style="padding:0.375rem 0.75rem;font-size:0.875rem;border:1px solid var(--color-border);border-radius:var(--radius-sm);background:transparent;color:var(--color-text);cursor:pointer;"
+                  >
+                    -10%
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-complete"
+                    aria-label="진행률 100%로 완료"
+                    style="padding:0.375rem 0.75rem;font-size:0.875rem;border:1px solid var(--color-success);border-radius:var(--radius-sm);background:var(--color-success);color:#fff;cursor:pointer;"
+                  >
+                    완료 (100%)
+                  </button>
+                  <button
+                    type="button"
+                    id="btn-simulate"
+                    aria-label="진행률 자동 증가 시뮬레이션"
+                    style="padding:0.375rem 0.75rem;font-size:0.875rem;border:1px solid var(--color-info);border-radius:var(--radius-sm);background:var(--color-info);color:#fff;cursor:pointer;"
+                  >
+                    시뮬레이션
+                  </button>
+                </div>
+
+                <!-- 시뮬레이션 상태 메시지 (스크린 리더용 live region) -->
+                <p
+                  id="progress-status"
+                  role="status"
+                  aria-live="polite"
+                  aria-atomic="true"
+                  style="margin-top:0.75rem;font-size:0.875rem;color:var(--color-text-secondary);min-height:1.5em;"
+                ></p>
+
+              </div>
+
+              <div
+                data-code-block
+                data-html='&lt;!-- 비활성 상태: aria-disabled="true" --&gt;
+&lt;div class="progress-wrapper" aria-disabled="true"&gt;
+  &lt;div class="progress-header"&gt;
+    &lt;span class="progress-label" id="progress-label-d"&gt;비활성 Progress&lt;/span&gt;
+    &lt;span class="progress-value-text" aria-hidden="true"&gt;45%&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;!--
+    aria-disabled="true": 스크린 리더에 비활성 상태 전달
+    CSS: opacity 0.4, 바는 회색으로 자동 적용
+  --&gt;
+  &lt;div
+    class="progress"
+    role="progressbar"
+    aria-valuenow="45"
+    aria-valuemin="0"
+    aria-valuemax="100"
+    aria-labelledby="progress-label-d"
+    aria-disabled="true"
+  &gt;
+    &lt;div class="progress__bar" style="--progress-value: 45;"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* 비활성 상태: 흐릿하게 표시 */
+.progress[aria-disabled="true"],
+.progress-wrapper[aria-disabled="true"] .progress {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 비활성 바: 회색으로 변경 */
+.progress[aria-disabled="true"] .progress__bar,
+.progress-wrapper[aria-disabled="true"] .progress__bar {
+  background-color: var(--color-text-secondary);
+}
+
+/* 비활성 레이블/텍스트: 함께 흐릿하게 */
+.progress-wrapper[aria-disabled="true"] .progress-label,
+.progress-wrapper[aria-disabled="true"] .progress-value-text {
+  opacity: 0.5;
+}'
+                data-js='// 동적 진행률 업데이트:
+const el = document.getElementById("progress-interactive");
+const progress = el._progressInstance; // JS 초기화 후 인스턴스 접근
+
+// 수동 증가/감소:
+progress.increment(10); // +10%
+progress.decrement(10); // -10%
+progress.setValue(75);  // 특정 값으로 설정
+
+// 시뮬레이션 예시 (setInterval 사용):
+let timer = null;
+
+function simulate() {
+  if (timer) return; // 이미 실행 중이면 무시
+  timer = setInterval(() => {
+    if (progress.getValue() >= 100) {
+      clearInterval(timer);
+      timer = null;
+      return;
+    }
+    progress.increment(5);
+  }, 300);
+}
+
+simulate();'
+                aria-label="비활성 및 인터랙티브 Progress 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="js" aria-selected="false">JS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 비활성: aria-disabled="true" --&gt;
+&lt;div class="progress-wrapper" aria-disabled="true"&gt;
+  &lt;div class="progress-header"&gt;
+    &lt;span class="progress-label" id="lbl"&gt;비활성 Progress&lt;/span&gt;
+    &lt;span class="progress-value-text" aria-hidden="true"&gt;45%&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class="progress"
+    role="progressbar"
+    aria-valuenow="45" aria-valuemin="0" aria-valuemax="100"
+    aria-labelledby="lbl"
+    aria-disabled="true"&gt;
+    &lt;div class="progress__bar" style="--progress-value: 45;"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 동적 업데이트용 스크린 리더 live region --&gt;
+&lt;p role="status" aria-live="polite" aria-atomic="true"&gt;&lt;/p&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 비활성 상태 */
+.progress[aria-disabled="true"],
+.progress-wrapper[aria-disabled="true"] .progress {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 비활성 바: 회색으로 */
+.progress[aria-disabled="true"] .progress__bar,
+.progress-wrapper[aria-disabled="true"] .progress__bar {
+  background-color: var(--color-text-secondary);
+}
+
+/* 비활성 레이블 */
+.progress-wrapper[aria-disabled="true"] .progress-label,
+.progress-wrapper[aria-disabled="true"] .progress-value-text {
+  opacity: 0.5;
+}</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="js" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">// 인스턴스 접근 (Progress.init() 이후):
+const el = document.getElementById('progress-interactive');
+const progress = el._progressInstance;
+
+// 기본 조작:
+progress.setValue(75);   // 특정 값 설정 (0~100 자동 클램핑)
+progress.increment(10);  // +10% 증가
+progress.decrement(5);   // -5% 감소
+progress.complete();     // 100%로 완료
+progress.reset();        // 0%로 초기화
+
+// 시뮬레이션: setInterval로 자동 증가
+let timer = null;
+function simulate() {
+  if (timer) return;
+  progress.reset();
+  timer = setInterval(() => {
+    if (progress.getValue() >= 100) {
+      clearInterval(timer);
+      timer = null;
+      return;
+    }
+    progress.increment(5);
+  }, 300);
+}
+
+// live region: 완료 시 스크린 리더에 알림
+const statusEl = document.querySelector('[role="status"]');
+statusEl.textContent = '작업이 완료되었습니다.';</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Tooltip 컴포넌트 -->
+                <a href="./tooltip.html" class="detail-footer-link" aria-label="Tooltip 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Tooltip</span>
+                </a>
+                <!-- 다음: Skeleton 컴포넌트 -->
+                <a href="./skeleton.html" class="detail-footer-link" aria-label="Skeleton 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Skeleton</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS/JS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- Progress 컴포넌트: WAI-ARIA progressbar 패턴, setValue/getValue, CSS 변수 제어 -->
+  <script src="../assets/js/components/progress.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+  <!-- 인터랙티브 데모: 버튼 클릭으로 Progress 동적 업데이트 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // 인터랙티브 Progress 인스턴스 가져오기
+      var interactiveEl = document.getElementById('progress-interactive');
+      var statusEl = document.getElementById('progress-status');
+      var simulateTimer = null;
+
+      // Progress.init() 이후 인스턴스 접근
+      // DOMContentLoaded 내에서 progress.js가 먼저 실행되므로 _progressInstance 접근 가능
+      var progress = interactiveEl ? interactiveEl._progressInstance : null;
+
+      if (!progress) return;
+
+      /**
+       * 색상 클래스를 진행률에 따라 업데이트
+       * - 100%: success(초록색)
+       * - 80% 이상: warning(노란색)
+       * - 나머지: primary(파란색)
+       * @param {number} value - 현재 진행률
+       */
+      function updateColorClass(value) {
+        interactiveEl.classList.remove(
+          'progress--primary',
+          'progress--success',
+          'progress--warning'
+        );
+        if (value >= 100) {
+          interactiveEl.classList.add('progress--success');
+        } else if (value >= 80) {
+          interactiveEl.classList.add('progress--warning');
+        } else {
+          interactiveEl.classList.add('progress--primary');
+        }
+      }
+
+      /**
+       * 상태 메시지 업데이트 (스크린 리더 live region)
+       * @param {string} message - 표시할 메시지
+       */
+      function updateStatus(message) {
+        if (statusEl) {
+          statusEl.textContent = message;
+        }
+      }
+
+      // 시뮬레이션 타이머 중지
+      function stopSimulation() {
+        if (simulateTimer) {
+          clearInterval(simulateTimer);
+          simulateTimer = null;
+        }
+      }
+
+      // 초기화 버튼: 0%로 리셋
+      var btnReset = document.getElementById('btn-reset');
+      if (btnReset) {
+        btnReset.addEventListener('click', function () {
+          stopSimulation();
+          progress.reset();
+          updateColorClass(0);
+          updateStatus('진행률이 0%로 초기화되었습니다.');
+        });
+      }
+
+      // +10% 버튼: 10% 증가
+      var btnIncrement = document.getElementById('btn-increment');
+      if (btnIncrement) {
+        btnIncrement.addEventListener('click', function () {
+          stopSimulation();
+          progress.increment(10);
+          var value = progress.getValue();
+          updateColorClass(value);
+          if (value >= 100) {
+            updateStatus('진행률이 100%에 도달했습니다. 작업이 완료되었습니다.');
+          } else {
+            updateStatus('진행률: ' + value + '%');
+          }
+        });
+      }
+
+      // -10% 버튼: 10% 감소
+      var btnDecrement = document.getElementById('btn-decrement');
+      if (btnDecrement) {
+        btnDecrement.addEventListener('click', function () {
+          stopSimulation();
+          progress.decrement(10);
+          var value = progress.getValue();
+          updateColorClass(value);
+          updateStatus('진행률: ' + value + '%');
+        });
+      }
+
+      // 완료 버튼: 100%로 설정
+      var btnComplete = document.getElementById('btn-complete');
+      if (btnComplete) {
+        btnComplete.addEventListener('click', function () {
+          stopSimulation();
+          progress.complete();
+          updateColorClass(100);
+          updateStatus('진행률이 100%에 도달했습니다. 작업이 완료되었습니다.');
+        });
+      }
+
+      // 시뮬레이션 버튼: 0%에서 100%까지 자동 증가
+      var btnSimulate = document.getElementById('btn-simulate');
+      if (btnSimulate) {
+        btnSimulate.addEventListener('click', function () {
+          // 이미 실행 중이면 중지
+          if (simulateTimer) {
+            stopSimulation();
+            updateStatus('시뮬레이션이 중지되었습니다.');
+            return;
+          }
+
+          // 초기화 후 시작
+          progress.reset();
+          updateColorClass(0);
+          updateStatus('시뮬레이션을 시작합니다...');
+
+          // 300ms마다 5%씩 증가
+          simulateTimer = setInterval(function () {
+            if (progress.getValue() >= 100) {
+              stopSimulation();
+              updateColorClass(100);
+              updateStatus('시뮬레이션 완료! 진행률이 100%에 도달했습니다.');
+              return;
+            }
+            progress.increment(5);
+            updateColorClass(progress.getValue());
+          }, 300);
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

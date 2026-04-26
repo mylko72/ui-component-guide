@@ -1,1 +1,232 @@
-/* Progress 컴포넌트 스타일 */
+/* ============================================
+   Progress 컴포넌트 스타일
+   WAI-ARIA progressbar 패턴, CSS 변수 기반 진행률 제어
+   WCAG 2.1 AA 대비비 준수
+   ============================================ */
+
+/* ============================================
+   1. Progress 기본 구조
+   트랙(배경) + 바(진행률) + 레이블 텍스트
+   ============================================ */
+
+/* 컨테이너: 레이블과 트랙을 수직 배치 */
+.progress-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  width: 100%;
+}
+
+/* 상단 메타 정보 행: 라벨과 퍼센트 텍스트를 좌우로 배치 */
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+/* 라벨 텍스트: 좌측 표시 */
+.progress-label {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
+  line-height: var(--line-height-tight);
+}
+
+/* 진행률 퍼센트 텍스트: 우측 표시 */
+.progress-value-text {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  line-height: var(--line-height-tight);
+  /* JS가 aria-valuenow를 업데이트하면 data-progress-text 속성으로 값 표시 */
+  font-variant-numeric: tabular-nums;
+}
+
+/* 트랙: 회색 배경의 진행률 컨테이너 */
+.progress {
+  position: relative;
+  width: 100%;
+  background-color: var(--color-border);
+  border-radius: 9999px; /* pill 형태 */
+  overflow: hidden;
+
+  /* 기본 높이: md */
+  height: 0.5rem; /* 8px */
+
+  /* JS 없을 때도 기본 구조 보임 */
+}
+
+/* role="progressbar" 지정 요소: 접근성 포커스 표시 */
+.progress:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* 바: 실제 진행률을 나타내는 채워진 부분 */
+.progress__bar {
+  height: 100%;
+  border-radius: inherit;
+  background-color: var(--color-primary);
+
+  /* CSS 변수로 width 제어: JS가 --progress-value를 업데이트 */
+  width: calc(var(--progress-value, 0) * 1%);
+
+  /* 부드러운 전환 애니메이션 */
+  transition: width var(--transition-normal);
+
+  /* 최소/최대 너비 제한 */
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* ============================================
+   2. 크기 변형
+   sm / md(기본) / lg
+   ============================================ */
+
+/* sm: 컴팩트 (4px) — 하위 정보, 좁은 공간 */
+.progress--sm {
+  height: 0.25rem; /* 4px */
+}
+
+/* md: 기본 크기 (8px) */
+.progress--md {
+  height: 0.5rem; /* 8px */
+}
+
+/* lg: 강조 크기 (12px) */
+.progress--lg {
+  height: 0.75rem; /* 12px */
+}
+
+/* ============================================
+   3. 색상 변형
+   primary(기본) / success / warning / error / info
+   ============================================ */
+
+/* primary: 파란색 — 일반 진행 상태 */
+.progress--primary .progress__bar {
+  background-color: var(--color-primary);
+}
+
+/* success: 초록색 — 완료, 성공 상태 */
+.progress--success .progress__bar {
+  background-color: var(--color-success);
+}
+
+/* warning: 노란색 — 주의, 경고 상태 */
+.progress--warning .progress__bar {
+  background-color: var(--color-warning);
+}
+
+/* error: 빨간색 — 실패, 오류 상태 */
+.progress--error .progress__bar {
+  background-color: var(--color-danger);
+}
+
+/* info: 정보 파란색 — 정보성 진행 상태 */
+.progress--info .progress__bar {
+  background-color: var(--color-info);
+}
+
+/* ============================================
+   4. 비활성 상태 (Disabled)
+   시각적으로 흐릿하게, 상호작용 불가
+   ============================================ */
+
+.progress[aria-disabled="true"],
+.progress-wrapper[aria-disabled="true"] .progress {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* 비활성 바: 회색으로 표시 */
+.progress[aria-disabled="true"] .progress__bar,
+.progress-wrapper[aria-disabled="true"] .progress__bar {
+  background-color: var(--color-text-secondary);
+}
+
+/* 비활성 레이블: 흐릿하게 */
+.progress-wrapper[aria-disabled="true"] .progress-label,
+.progress-wrapper[aria-disabled="true"] .progress-value-text {
+  opacity: 0.5;
+}
+
+/* ============================================
+   5. Indeterminate 상태 (불확정 진행)
+   진행률을 알 수 없을 때 반복 애니메이션
+   ============================================ */
+
+/* 불확정 상태: width 고정, 애니메이션으로 이동 */
+.progress--indeterminate .progress__bar {
+  width: 40%;
+  transition: none; /* 애니메이션 중 transition 비활성화 */
+  animation: progress-indeterminate 1.5s ease-in-out infinite;
+}
+
+@keyframes progress-indeterminate {
+  0% {
+    transform: translateX(-100%);
+  }
+  50% {
+    transform: translateX(150%);
+  }
+  100% {
+    transform: translateX(150%);
+  }
+}
+
+/* ============================================
+   6. Striped 패턴 (선택적 장식)
+   줄무늬로 진행 중임을 강조
+   ============================================ */
+
+.progress--striped .progress__bar {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+}
+
+/* 줄무늬 애니메이션 (선택적) */
+.progress--striped.progress--animated .progress__bar {
+  animation: progress-stripes 1s linear infinite;
+}
+
+@keyframes progress-stripes {
+  from {
+    background-position: 1rem 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
+
+/* ============================================
+   7. 다크 모드 보정
+   트랙 배경색 및 텍스트 색상 보정
+   ============================================ */
+
+/* 다크 모드: 트랙 배경 약간 밝게 */
+:root[data-theme="dark"] .progress {
+  background-color: var(--color-border);
+}
+
+/* 다크 모드: warning 바 — 대비비 확보 */
+:root[data-theme="dark"] .progress--warning .progress__bar {
+  background-color: var(--color-warning);
+}
+
+/* 다크 모드: 퍼센트 텍스트 */
+:root[data-theme="dark"] .progress-value-text {
+  color: var(--color-text-secondary);
+}

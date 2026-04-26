@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Skeleton 컴포넌트: 텍스트, 카드, 테이블, 아바타 4가지 로딩 플레이스홀더 패턴. CSS @keyframes 시머 애니메이션, WAI-ARIA 접근성, 다크 모드 완전 지원.">
+  <title>Skeleton — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → skeleton(컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/skeleton.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: skeleton.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 정적 컴포넌트 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">정적 컴포넌트</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- CSS 강화 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">CSS 강화</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <!-- 현재 페이지: skeleton.html — active 클래스는 common.js가 자동 적용 -->
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- JS 인터랙션 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">JS 인터랙션</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Skeleton 컴포넌트 데모 4개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Skeleton</h1>
+              <p class="detail-description">
+                콘텐츠가 로딩되는 동안 실제 레이아웃을 미리 표시하는 플레이스홀더 컴포넌트입니다.
+                <code>.skeleton__line</code>으로 텍스트 줄을, <code>.skeleton-card</code>로 카드 레이아웃을,
+                <code>.skeleton-table</code>로 테이블 행을, <code>.skeleton-avatar</code>로 아바타를 표현합니다.
+                JavaScript 없이 CSS <code>@keyframes</code> 시머 애니메이션만으로 동작하며,
+                <code>prefers-reduced-motion</code>을 완전히 지원합니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션 1: 텍스트 Skeleton (Text Skeleton)
+                 - .skeleton > .skeleton__line 여러 줄
+                 - 마지막 줄: .skeleton__line--short (60% 너비)
+                 - aria-busy="true", aria-label로 로딩 상태 알림
+                 ============================================ -->
+            <section class="demo-section" id="section-text" aria-labelledby="heading-text">
+              <h2 id="heading-text" class="demo-section-title">텍스트 Skeleton</h2>
+              <p class="demo-description">
+                가장 기본적인 텍스트 로딩 상태입니다.
+                <code>.skeleton</code> 컨테이너 안에 <code>.skeleton__line</code>을 배치하여
+                여러 줄의 텍스트가 로딩 중임을 표현합니다.
+                <code>.skeleton__line--short</code>로 문단 마지막 줄의 짧은 끝을 자연스럽게 표현합니다.
+                스크린 리더에 <code>aria-busy="true"</code>와 <code>aria-label</code>로 로딩 상태를 알립니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="텍스트 Skeleton 데모">
+
+                <!-- 텍스트 스켈레톤 예시들 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; max-width: 900px;">
+
+                  <!-- 기본 텍스트 스켈레톤 (3줄) -->
+                  <div
+                    class="skeleton"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="텍스트 로딩 중"
+                  >
+                    <div class="skeleton__line skeleton__line--title"></div>
+                    <div class="skeleton__line"></div>
+                    <div class="skeleton__line"></div>
+                    <div class="skeleton__line--short skeleton__line"></div>
+                  </div>
+
+                  <!-- 긴 문단 텍스트 스켈레톤 (5줄) -->
+                  <div
+                    class="skeleton"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="본문 텍스트 로딩 중"
+                  >
+                    <div class="skeleton__line skeleton__line--title"></div>
+                    <div class="skeleton__line"></div>
+                    <div class="skeleton__line"></div>
+                    <div class="skeleton__line"></div>
+                    <div class="skeleton__line skeleton__line--medium"></div>
+                    <div class="skeleton__line skeleton__line--short"></div>
+                  </div>
+
+                  <!-- 짧은 텍스트 스켈레톤 (2줄, 미리보기 카드용) -->
+                  <div
+                    class="skeleton"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="미리보기 텍스트 로딩 중"
+                  >
+                    <div class="skeleton__line skeleton__line--title"></div>
+                    <div class="skeleton__line skeleton__line--medium"></div>
+                    <div class="skeleton__line skeleton__line--short"></div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 텍스트 스켈레톤: 여러 줄 로딩 표현 --&gt;
+&lt;div
+  class="skeleton"
+  role="status"
+  aria-busy="true"
+  aria-label="텍스트 로딩 중"
+&gt;
+  &lt;!-- 제목 줄: 더 두꺼운 높이 --&gt;
+  &lt;div class="skeleton__line skeleton__line--title"&gt;&lt;/div&gt;
+
+  &lt;!-- 본문 줄: 전체 너비 --&gt;
+  &lt;div class="skeleton__line"&gt;&lt;/div&gt;
+  &lt;div class="skeleton__line"&gt;&lt;/div&gt;
+
+  &lt;!-- 마지막 줄: 60% 너비로 문단 끝 표현 --&gt;
+  &lt;div class="skeleton__line skeleton__line--short"&gt;&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;!-- 중간 너비 줄 --&gt;
+&lt;div class="skeleton__line skeleton__line--medium"&gt;&lt;/div&gt;'
+                data-css='/* 베이스 컨테이너 */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 로딩 바 공통 스타일 */
+.skeleton__line {
+  height: 12px;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  display: block;
+
+  /* 시머 그래디언트 + 애니메이션 */
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-border)       25%,
+    var(--color-bg-secondary) 50%,
+    var(--color-border)       75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* 짧은 줄 (60%) */
+.skeleton__line--short  { width: 60%; }
+
+/* 중간 줄 (80%) */
+.skeleton__line--medium { width: 80%; }
+
+/* 제목 줄 (높이 20px, 너비 70%) */
+.skeleton__line--title  { height: 20px; width: 70%; }
+
+/* 시머 키프레임 */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -1000px 0; }
+  100% { background-position:  1000px 0; }
+}'
+                aria-label="텍스트 Skeleton 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button
+                      class="code-block__tab active"
+                      role="tab"
+                      data-code-block-tab="html"
+                      aria-selected="true"
+                      aria-controls="cb-skeleton-text-html"
+                    >HTML</button>
+                    <button
+                      class="code-block__tab"
+                      role="tab"
+                      data-code-block-tab="css"
+                      aria-selected="false"
+                      aria-controls="cb-skeleton-text-css"
+                    >CSS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div
+                      id="cb-skeleton-text-html"
+                      class="code-block__panel"
+                      data-code-block-panel="html"
+                      role="tabpanel"
+                      aria-expanded="true"
+                    >
+                      <pre class="code-block__content">&lt;!-- 텍스트 스켈레톤: 여러 줄 로딩 표현 --&gt;
+&lt;div
+  class="skeleton"
+  role="status"
+  aria-busy="true"
+  aria-label="텍스트 로딩 중"
+&gt;
+  &lt;!-- 제목 줄: 두꺼운 높이 --&gt;
+  &lt;div class="skeleton__line skeleton__line--title"&gt;&lt;/div&gt;
+
+  &lt;!-- 본문 줄: 전체 너비 --&gt;
+  &lt;div class="skeleton__line"&gt;&lt;/div&gt;
+  &lt;div class="skeleton__line"&gt;&lt;/div&gt;
+
+  &lt;!-- 마지막 줄: 60% 너비로 문단 끝 표현 --&gt;
+  &lt;div class="skeleton__line skeleton__line--short"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div
+                      id="cb-skeleton-text-css"
+                      class="code-block__panel"
+                      data-code-block-panel="css"
+                      role="tabpanel"
+                      aria-expanded="false"
+                    >
+                      <pre class="code-block__content">/* 베이스 컨테이너 */
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 로딩 바 */
+.skeleton__line {
+  height: 12px;
+  width: 100%;
+  border-radius: var(--radius-sm);
+  display: block;
+
+  /* 시머 그래디언트 */
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-border)       25%,
+    var(--color-bg-secondary) 50%,
+    var(--color-border)       75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* 너비 변형 */
+.skeleton__line--short  { width: 60%; }
+.skeleton__line--medium { width: 80%; }
+.skeleton__line--title  { height: 20px; width: 70%; }
+
+/* 키프레임 */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -1000px 0; }
+  100% { background-position:  1000px 0; }
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 2: 카드 Skeleton (Card Skeleton)
+                 - .skeleton-card > .skeleton-card__header + .skeleton-card__body
+                 - 이미지 영역 200px + 텍스트 줄 조합
+                 - 반응형 그리드 배치
+                 ============================================ -->
+            <section class="demo-section" id="section-card" aria-labelledby="heading-card">
+              <h2 id="heading-card" class="demo-section-title">카드 Skeleton</h2>
+              <p class="demo-description">
+                Card 컴포넌트의 로딩 상태를 표현합니다.
+                <code>.skeleton-card__header</code>는 이미지 커버 영역(200px)을,
+                <code>.skeleton-card__body</code> 안의 <code>.skeleton__line</code>들은
+                제목과 설명 텍스트의 로딩을 나타냅니다.
+                반응형 그리드(<code>.skeleton-card-grid</code>)로 여러 카드를 배치합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="카드 Skeleton 데모">
+
+                <!-- 카드 스켈레톤 3열 그리드 -->
+                <div class="skeleton-card-grid" style="max-width: 900px;">
+
+                  <!-- 카드 스켈레톤 1 -->
+                  <div
+                    class="skeleton-card"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="카드 콘텐츠 로딩 중"
+                  >
+                    <!-- 이미지 커버 영역 플레이스홀더 -->
+                    <div class="skeleton-card__header" aria-hidden="true"></div>
+                    <!-- 텍스트 콘텐츠 영역 -->
+                    <div class="skeleton-card__body">
+                      <div class="skeleton__line skeleton__line--title"></div>
+                      <div class="skeleton__line"></div>
+                      <div class="skeleton__line skeleton__line--short"></div>
+                    </div>
+                  </div>
+
+                  <!-- 카드 스켈레톤 2 -->
+                  <div
+                    class="skeleton-card"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="카드 콘텐츠 로딩 중"
+                  >
+                    <div class="skeleton-card__header" aria-hidden="true"></div>
+                    <div class="skeleton-card__body">
+                      <div class="skeleton__line skeleton__line--title"></div>
+                      <div class="skeleton__line skeleton__line--medium"></div>
+                      <div class="skeleton__line skeleton__line--short"></div>
+                    </div>
+                  </div>
+
+                  <!-- 카드 스켈레톤 3 -->
+                  <div
+                    class="skeleton-card"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="카드 콘텐츠 로딩 중"
+                  >
+                    <div class="skeleton-card__header" aria-hidden="true"></div>
+                    <div class="skeleton-card__body">
+                      <div class="skeleton__line skeleton__line--title"></div>
+                      <div class="skeleton__line"></div>
+                      <div class="skeleton__line skeleton__line--medium"></div>
+                      <div class="skeleton__line skeleton__line--short"></div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 카드 스켈레톤 그리드 --&gt;
+&lt;div class="skeleton-card-grid"&gt;
+
+  &lt;!-- 카드 스켈레톤 단일 아이템 --&gt;
+  &lt;div
+    class="skeleton-card"
+    role="status"
+    aria-busy="true"
+    aria-label="카드 콘텐츠 로딩 중"
+  &gt;
+    &lt;!-- 이미지 커버 영역 (200px) --&gt;
+    &lt;div class="skeleton-card__header" aria-hidden="true"&gt;&lt;/div&gt;
+
+    &lt;!-- 텍스트 콘텐츠 영역 --&gt;
+    &lt;div class="skeleton-card__body"&gt;
+      &lt;!-- 제목 줄 --&gt;
+      &lt;div class="skeleton__line skeleton__line--title"&gt;&lt;/div&gt;
+      &lt;!-- 설명 줄 --&gt;
+      &lt;div class="skeleton__line"&gt;&lt;/div&gt;
+      &lt;!-- 짧은 마지막 줄 --&gt;
+      &lt;div class="skeleton__line skeleton__line--short"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;'
+                data-css='/* 카드 스켈레톤 */
+.skeleton-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* 이미지 커버 영역 */
+.skeleton-card__header {
+  height: 200px;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-border)       25%,
+    var(--color-bg-secondary) 50%,
+    var(--color-border)       75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* 본문 영역 */
+.skeleton-card__body {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 반응형 그리드 */
+.skeleton-card-grid {
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .skeleton-card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .skeleton-card-grid { grid-template-columns: repeat(3, 1fr); }
+}'
+                aria-label="카드 Skeleton 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 카드 스켈레톤 그리드 --&gt;
+&lt;div class="skeleton-card-grid"&gt;
+
+  &lt;!-- 카드 스켈레톤 단일 아이템 --&gt;
+  &lt;div
+    class="skeleton-card"
+    role="status"
+    aria-busy="true"
+    aria-label="카드 콘텐츠 로딩 중"
+  &gt;
+    &lt;!-- 이미지 커버 영역 (200px) --&gt;
+    &lt;div class="skeleton-card__header" aria-hidden="true"&gt;&lt;/div&gt;
+
+    &lt;!-- 텍스트 콘텐츠 영역 --&gt;
+    &lt;div class="skeleton-card__body"&gt;
+      &lt;div class="skeleton__line skeleton__line--title"&gt;&lt;/div&gt;
+      &lt;div class="skeleton__line"&gt;&lt;/div&gt;
+      &lt;div class="skeleton__line skeleton__line--short"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 카드 스켈레톤 */
+.skeleton-card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* 이미지 커버 영역 */
+.skeleton-card__header {
+  height: 200px;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-border)       25%,
+    var(--color-bg-secondary) 50%,
+    var(--color-border)       75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* 본문 영역 */
+.skeleton-card__body {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 반응형 그리드 */
+.skeleton-card-grid {
+  display: grid;
+  gap: var(--spacing-md);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 640px) {
+  .skeleton-card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) {
+  .skeleton-card-grid { grid-template-columns: repeat(3, 1fr); }
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 3: 테이블 행 Skeleton (Table Row Skeleton)
+                 - table.skeleton-table > tbody > tr.skeleton-row > td.skeleton-cell
+                 - 각 셀 내부에 .skeleton__line
+                 - 4개 행 표현
+                 ============================================ -->
+            <section class="demo-section" id="section-table" aria-labelledby="heading-table">
+              <h2 id="heading-table" class="demo-section-title">테이블 행 Skeleton</h2>
+              <p class="demo-description">
+                테이블 형태의 데이터가 로딩 중임을 표현합니다.
+                <code>table.skeleton-table</code> 구조 안에서 각 행(<code>tr.skeleton-row</code>)과
+                셀(<code>td.skeleton-cell</code>) 안에 <code>.skeleton__line</code>을 배치합니다.
+                열 너비에 따라 로딩 바의 너비를 다르게 조정할 수 있습니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="테이블 행 Skeleton 데모">
+
+                <!-- 테이블 스켈레톤 -->
+                <div style="max-width: 900px;">
+                  <table
+                    class="skeleton-table"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="테이블 데이터 로딩 중"
+                  >
+                    <!-- 테이블 헤더: 실제 컬럼명 표시 (선택사항) -->
+                    <thead>
+                      <tr style="border-bottom: 2px solid var(--color-border);">
+                        <th class="skeleton-cell" style="font-size: var(--font-size-xs); color: var(--color-text-secondary); font-weight: 600; text-align: left; padding-bottom: var(--spacing-sm);">
+                          #
+                        </th>
+                        <th class="skeleton-cell" style="font-size: var(--font-size-xs); color: var(--color-text-secondary); font-weight: 600; text-align: left; padding-bottom: var(--spacing-sm);">
+                          이름
+                        </th>
+                        <th class="skeleton-cell" style="font-size: var(--font-size-xs); color: var(--color-text-secondary); font-weight: 600; text-align: left; padding-bottom: var(--spacing-sm);">
+                          이메일
+                        </th>
+                        <th class="skeleton-cell" style="font-size: var(--font-size-xs); color: var(--color-text-secondary); font-weight: 600; text-align: left; padding-bottom: var(--spacing-sm);">
+                          상태
+                        </th>
+                        <th class="skeleton-cell" style="font-size: var(--font-size-xs); color: var(--color-text-secondary); font-weight: 600; text-align: right; padding-bottom: var(--spacing-sm);">
+                          액션
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+
+                      <!-- 테이블 행 1 -->
+                      <tr class="skeleton-row">
+                        <!-- 첫 번째 셀: 번호/체크박스 영역 -->
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 20px; height: 12px;"></div>
+                        </td>
+                        <!-- 이름 셀 -->
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 100px;"></div>
+                        </td>
+                        <!-- 이메일 셀 -->
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 160px;"></div>
+                        </td>
+                        <!-- 상태 셀: 배지 형태 표현 -->
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 60px; border-radius: 9999px;"></div>
+                        </td>
+                        <!-- 액션 셀: 버튼 형태 표현 -->
+                        <td class="skeleton-cell" style="text-align: right;">
+                          <div class="skeleton__line" style="width: 56px; height: 28px; border-radius: var(--radius-md); margin-left: auto;"></div>
+                        </td>
+                      </tr>
+
+                      <!-- 테이블 행 2 -->
+                      <tr class="skeleton-row">
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 20px; height: 12px;"></div>
+                        </td>
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 120px;"></div>
+                        </td>
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 140px;"></div>
+                        </td>
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 72px; border-radius: 9999px;"></div>
+                        </td>
+                        <td class="skeleton-cell" style="text-align: right;">
+                          <div class="skeleton__line" style="width: 56px; height: 28px; border-radius: var(--radius-md); margin-left: auto;"></div>
+                        </td>
+                      </tr>
+
+                      <!-- 테이블 행 3 -->
+                      <tr class="skeleton-row">
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 20px; height: 12px;"></div>
+                        </td>
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 90px;"></div>
+                        </td>
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 180px;"></div>
+                        </td>
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 60px; border-radius: 9999px;"></div>
+                        </td>
+                        <td class="skeleton-cell" style="text-align: right;">
+                          <div class="skeleton__line" style="width: 56px; height: 28px; border-radius: var(--radius-md); margin-left: auto;"></div>
+                        </td>
+                      </tr>
+
+                      <!-- 테이블 행 4 -->
+                      <tr class="skeleton-row">
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 20px; height: 12px;"></div>
+                        </td>
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 110px;"></div>
+                        </td>
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 150px;"></div>
+                        </td>
+                        <td class="skeleton-cell">
+                          <div class="skeleton__line" style="width: 80px; border-radius: 9999px;"></div>
+                        </td>
+                        <td class="skeleton-cell" style="text-align: right;">
+                          <div class="skeleton__line" style="width: 56px; height: 28px; border-radius: var(--radius-md); margin-left: auto;"></div>
+                        </td>
+                      </tr>
+
+                    </tbody>
+                  </table>
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 테이블 스켈레톤 --&gt;
+&lt;table
+  class="skeleton-table"
+  role="status"
+  aria-busy="true"
+  aria-label="테이블 데이터 로딩 중"
+&gt;
+  &lt;tbody&gt;
+
+    &lt;!-- 스켈레톤 행 반복 --&gt;
+    &lt;tr class="skeleton-row"&gt;
+
+      &lt;!-- 번호 셀 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line" style="width:20px;"&gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+      &lt;!-- 이름 셀 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line" style="width:100px;"&gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+      &lt;!-- 이메일 셀 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line" style="width:160px;"&gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+      &lt;!-- 배지형 상태 셀 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line"
+          style="width:60px; border-radius:9999px;"
+        &gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+      &lt;!-- 액션 버튼 셀 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line"
+          style="width:56px; height:28px;
+                 border-radius:var(--radius-md);
+                 margin-left:auto;"
+        &gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+    &lt;/tr&gt;
+
+  &lt;/tbody&gt;
+&lt;/table&gt;'
+                data-css='/* 테이블 스켈레톤 */
+.skeleton-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* 행 구분선 */
+.skeleton-row {
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* 마지막 행 구분선 제거 */
+.skeleton-row:last-child {
+  border-bottom: none;
+}
+
+/* 셀 여백 */
+.skeleton-cell {
+  padding: var(--spacing-md) var(--spacing-sm);
+  vertical-align: middle;
+}
+
+/* 모바일 여백 조정 */
+@media (max-width: 480px) {
+  .skeleton-cell {
+    padding: var(--spacing-sm) var(--spacing-xs);
+  }
+}'
+                aria-label="테이블 행 Skeleton 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 테이블 스켈레톤 --&gt;
+&lt;table
+  class="skeleton-table"
+  role="status"
+  aria-busy="true"
+  aria-label="테이블 데이터 로딩 중"
+&gt;
+  &lt;tbody&gt;
+
+    &lt;!-- 스켈레톤 행 (4행 반복) --&gt;
+    &lt;tr class="skeleton-row"&gt;
+
+      &lt;!-- 번호 셀 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line" style="width:20px;"&gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+      &lt;!-- 이름 셀 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line" style="width:100px;"&gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+      &lt;!-- 이메일 셀 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line" style="width:160px;"&gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+      &lt;!-- 배지형 상태 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line"
+          style="width:60px;border-radius:9999px;"&gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+      &lt;!-- 버튼형 액션 --&gt;
+      &lt;td class="skeleton-cell"&gt;
+        &lt;div class="skeleton__line"
+          style="width:56px;height:28px;
+                 border-radius:var(--radius-md);
+                 margin-left:auto;"&gt;&lt;/div&gt;
+      &lt;/td&gt;
+
+    &lt;/tr&gt;
+
+  &lt;/tbody&gt;
+&lt;/table&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 테이블 스켈레톤 */
+.skeleton-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* 행 하단 구분선 */
+.skeleton-row {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.skeleton-row:last-child {
+  border-bottom: none;
+}
+
+/* 셀 여백 */
+.skeleton-cell {
+  padding: var(--spacing-md) var(--spacing-sm);
+  vertical-align: middle;
+}
+
+/* 모바일 조정 */
+@media (max-width: 480px) {
+  .skeleton-cell {
+    padding: var(--spacing-sm) var(--spacing-xs);
+  }
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- ============================================
+                 섹션 4: 아바타 Skeleton (Avatar Skeleton)
+                 - .skeleton-avatar: 원형 이미지 + 텍스트 조합
+                 - .skeleton-avatar__image: 48px 원형
+                 - .skeleton-avatar__content: 이름 + 설명 줄
+                 - .skeleton-avatar-list: 여러 아바타 행 컨테이너
+                 ============================================ -->
+            <section class="demo-section" id="section-avatar" aria-labelledby="heading-avatar">
+              <h2 id="heading-avatar" class="demo-section-title">아바타 Skeleton</h2>
+              <p class="demo-description">
+                사용자 프로필이나 코멘트 목록에서 자주 사용되는 아바타 + 텍스트 조합의 로딩 상태입니다.
+                <code>.skeleton-avatar__image</code>로 원형(48px) 아바타를,
+                <code>.skeleton-avatar__content</code>로 이름과 설명 텍스트 줄을 표현합니다.
+                <code>.skeleton-avatar-list</code>로 여러 아바타 행을 일정 간격으로 나열합니다.
+              </p>
+
+              <div class="demo-preview" role="group" aria-label="아바타 Skeleton 데모">
+
+                <!-- 아바타 스켈레톤 목록 -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; max-width: 900px;">
+
+                  <!-- 기본 아바타 목록 (48px 원형) -->
+                  <div
+                    class="skeleton-avatar-list"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="사용자 목록 로딩 중"
+                  >
+                    <!-- 아바타 행 1 -->
+                    <div class="skeleton-avatar">
+                      <div class="skeleton-avatar__image" aria-hidden="true"></div>
+                      <div class="skeleton-avatar__content">
+                        <div class="skeleton__line" style="width: 120px;"></div>
+                        <div class="skeleton__line skeleton__line--short" style="width: 80px;"></div>
+                      </div>
+                    </div>
+
+                    <!-- 아바타 행 2 -->
+                    <div class="skeleton-avatar">
+                      <div class="skeleton-avatar__image" aria-hidden="true"></div>
+                      <div class="skeleton-avatar__content">
+                        <div class="skeleton__line" style="width: 100px;"></div>
+                        <div class="skeleton__line skeleton__line--short" style="width: 70px;"></div>
+                      </div>
+                    </div>
+
+                    <!-- 아바타 행 3 -->
+                    <div class="skeleton-avatar">
+                      <div class="skeleton-avatar__image" aria-hidden="true"></div>
+                      <div class="skeleton-avatar__content">
+                        <div class="skeleton__line" style="width: 140px;"></div>
+                        <div class="skeleton__line skeleton__line--short" style="width: 90px;"></div>
+                      </div>
+                    </div>
+
+                    <!-- 아바타 행 4 -->
+                    <div class="skeleton-avatar">
+                      <div class="skeleton-avatar__image" aria-hidden="true"></div>
+                      <div class="skeleton-avatar__content">
+                        <div class="skeleton__line" style="width: 110px;"></div>
+                        <div class="skeleton__line skeleton__line--short" style="width: 75px;"></div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- 코멘트형 아바타 (3줄 텍스트) -->
+                  <div
+                    class="skeleton-avatar-list"
+                    role="status"
+                    aria-busy="true"
+                    aria-label="코멘트 목록 로딩 중"
+                  >
+                    <!-- 코멘트 행 1 -->
+                    <div class="skeleton-avatar">
+                      <div class="skeleton-avatar__image" aria-hidden="true" style="width: 40px; height: 40px;"></div>
+                      <div class="skeleton-avatar__content">
+                        <div class="skeleton__line" style="width: 90px;"></div>
+                        <div class="skeleton__line"></div>
+                        <div class="skeleton__line skeleton__line--medium"></div>
+                        <div class="skeleton__line skeleton__line--short"></div>
+                      </div>
+                    </div>
+
+                    <!-- 코멘트 행 2 -->
+                    <div class="skeleton-avatar">
+                      <div class="skeleton-avatar__image" aria-hidden="true" style="width: 40px; height: 40px;"></div>
+                      <div class="skeleton-avatar__content">
+                        <div class="skeleton__line" style="width: 110px;"></div>
+                        <div class="skeleton__line skeleton__line--medium"></div>
+                        <div class="skeleton__line skeleton__line--short"></div>
+                      </div>
+                    </div>
+
+                    <!-- 코멘트 행 3 -->
+                    <div class="skeleton-avatar">
+                      <div class="skeleton-avatar__image" aria-hidden="true" style="width: 40px; height: 40px;"></div>
+                      <div class="skeleton-avatar__content">
+                        <div class="skeleton__line" style="width: 80px;"></div>
+                        <div class="skeleton__line"></div>
+                        <div class="skeleton__line skeleton__line--short"></div>
+                      </div>
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- CodeBlock: HTML/CSS 코드 예시 -->
+              <div
+                data-code-block
+                data-html='&lt;!-- 아바타 스켈레톤 목록 --&gt;
+&lt;div
+  class="skeleton-avatar-list"
+  role="status"
+  aria-busy="true"
+  aria-label="사용자 목록 로딩 중"
+&gt;
+
+  &lt;!-- 아바타 행 (4회 반복) --&gt;
+  &lt;div class="skeleton-avatar"&gt;
+
+    &lt;!-- 원형 아바타 이미지 (48px) --&gt;
+    &lt;div class="skeleton-avatar__image" aria-hidden="true"&gt;&lt;/div&gt;
+
+    &lt;!-- 이름 + 설명 텍스트 영역 --&gt;
+    &lt;div class="skeleton-avatar__content"&gt;
+      &lt;!-- 이름 줄 --&gt;
+      &lt;div class="skeleton__line" style="width:120px;"&gt;&lt;/div&gt;
+      &lt;!-- 설명/역할 줄 --&gt;
+      &lt;div class="skeleton__line skeleton__line--short"
+           style="width:80px;"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;!-- 코멘트형: 텍스트 3줄 --&gt;
+&lt;div class="skeleton-avatar"&gt;
+  &lt;div class="skeleton-avatar__image"
+       style="width:40px;height:40px;" aria-hidden="true"&gt;&lt;/div&gt;
+  &lt;div class="skeleton-avatar__content"&gt;
+    &lt;div class="skeleton__line" style="width:90px;"&gt;&lt;/div&gt;
+    &lt;div class="skeleton__line"&gt;&lt;/div&gt;
+    &lt;div class="skeleton__line skeleton__line--short"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;'
+                data-css='/* 아바타 스켈레톤 */
+.skeleton-avatar {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+}
+
+/* 원형 아바타 이미지 영역 */
+.skeleton-avatar__image {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  /* 시머 애니메이션 직접 적용 */
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-border)       25%,
+    var(--color-bg-secondary) 50%,
+    var(--color-border)       75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* 텍스트 콘텐츠 영역 */
+.skeleton-avatar__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding-top: var(--spacing-xs);
+}
+
+/* 목록 래퍼 */
+.skeleton-avatar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}'
+                aria-label="아바타 Skeleton 코드 예시"
+              >
+                <div class="code-block">
+                  <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                    <button class="code-block__tab active" role="tab" data-code-block-tab="html" aria-selected="true">HTML</button>
+                    <button class="code-block__tab" role="tab" data-code-block-tab="css" aria-selected="false">CSS</button>
+                  </div>
+                  <div class="code-block__panels">
+                    <div class="code-block__panel" data-code-block-panel="html" role="tabpanel" aria-expanded="true">
+                      <pre class="code-block__content">&lt;!-- 아바타 스켈레톤 목록 --&gt;
+&lt;div
+  class="skeleton-avatar-list"
+  role="status"
+  aria-busy="true"
+  aria-label="사용자 목록 로딩 중"
+&gt;
+
+  &lt;!-- 아바타 행 (여러 번 반복) --&gt;
+  &lt;div class="skeleton-avatar"&gt;
+
+    &lt;!-- 원형 이미지 영역 (48px) --&gt;
+    &lt;div class="skeleton-avatar__image" aria-hidden="true"&gt;&lt;/div&gt;
+
+    &lt;!-- 텍스트 영역 --&gt;
+    &lt;div class="skeleton-avatar__content"&gt;
+      &lt;div class="skeleton__line" style="width:120px;"&gt;&lt;/div&gt;
+      &lt;div class="skeleton__line skeleton__line--short"
+           style="width:80px;"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+
+  &lt;/div&gt;
+
+&lt;/div&gt;
+
+&lt;!-- 코멘트형: 작은 아바타 + 긴 텍스트 --&gt;
+&lt;div class="skeleton-avatar"&gt;
+  &lt;div class="skeleton-avatar__image"
+       style="width:40px;height:40px;" aria-hidden="true"&gt;&lt;/div&gt;
+  &lt;div class="skeleton-avatar__content"&gt;
+    &lt;div class="skeleton__line" style="width:90px;"&gt;&lt;/div&gt;
+    &lt;div class="skeleton__line"&gt;&lt;/div&gt;
+    &lt;div class="skeleton__line skeleton__line--short"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</pre>
+                    </div>
+                    <div class="code-block__panel" data-code-block-panel="css" role="tabpanel" aria-expanded="false">
+                      <pre class="code-block__content">/* 아바타 스켈레톤 */
+.skeleton-avatar {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-xs) 0;
+}
+
+/* 원형 아바타 이미지 */
+.skeleton-avatar__image {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-border)       25%,
+    var(--color-bg-secondary) 50%,
+    var(--color-border)       75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* 텍스트 콘텐츠 영역 */
+.skeleton-avatar__content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding-top: var(--spacing-xs);
+}
+
+/* 목록 래퍼 */
+.skeleton-avatar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* 모션 감소: 시머 → 펄스 전환 */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-avatar__image {
+    animation: skeleton-pulse 2s ease-in-out infinite;
+    background: var(--color-bg-secondary);
+  }
+}</pre>
+                    </div>
+                  </div>
+                  <div class="code-block__footer">
+                    <button class="code-block__toggle" type="button" data-code-expand aria-expanded="false" aria-label="코드 전체 보기">View Code</button>
+                    <button class="code-block__copy" type="button" data-code-copy aria-label="코드 복사">Copy</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Card 컴포넌트 -->
+                <a href="./card.html" class="detail-footer-link" aria-label="Card 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Card</span>
+                </a>
+                <!-- 다음: Alert 컴포넌트 -->
+                <a href="./alert.html" class="detail-footer-link" aria-label="Alert 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Alert</span>
+                </a>
+              </nav>
+            </footer>
+
+          </article>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Lucide Icons CDN: data-lucide 속성 기반 아이콘 SVG 자동 렌더링 -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- CodeBlock 기능: HTML/CSS 탭 전환, View Code, 클립보드 복사 -->
+  <script src="../assets/js/components/code-block.js"></script>
+
+  <!-- 공통 유틸리티: 테마 토글, 사이드바 active 링크, CodeBlock 초기화, 아이콘 렌더링 -->
+  <script src="../assets/js/common.js"></script>
+
+</body>
+</html>

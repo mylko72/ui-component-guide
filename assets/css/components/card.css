@@ -1,1 +1,349 @@
-/* Card 컴포넌트 스타일 */
+/* ============================================
+   Card 컴포넌트 스타일
+   BEM 패턴: .card, .card__header, .card__body,
+             .card__title, .card__description, .card__footer
+   변형: .card--interactive, .card--horizontal
+   색상 변형: .card--primary, .card--success, .card--warning, .card--error
+   ============================================ */
+
+/* ─────────────────────────────────────────────
+   베이스 컨테이너
+   ───────────────────────────────────────────── */
+.card {
+  /* 레이아웃: 세로 방향 플렉스 */
+  display: flex;
+  flex-direction: column;
+
+  /* 테두리 및 배경 */
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+
+  /* 기본 그림자 (미세한 깊이감) */
+  box-shadow: var(--shadow-sm);
+
+  /* hover/interactive 변형을 위한 트랜지션 */
+  transition:
+    box-shadow 200ms ease,
+    transform 200ms ease,
+    border-color 200ms ease;
+
+  /* 넘치는 콘텐츠 처리 */
+  overflow: hidden;
+}
+
+/* ─────────────────────────────────────────────
+   헤더 영역 (선택)
+   카드 상단의 강조 영역, 이미지 또는 레이블
+   ───────────────────────────────────────────── */
+.card__header {
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+
+  /* 헤더 내부 아이템 정렬 */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* 헤더 내 이미지: 커버 방식으로 전체 채움 */
+.card__header-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+
+  /* 헤더 안에서 이미지만 단독으로 쓸 때 패딩 상쇄 */
+  margin: calc(-1 * var(--spacing-md));
+  margin-bottom: 0;
+  width: calc(100% + 2 * var(--spacing-md));
+  max-width: none;
+}
+
+/* 이미지 전용 헤더: 패딩 없이 이미지가 꽉 채우도록 */
+.card__header--image {
+  padding: 0;
+  overflow: hidden;
+}
+
+.card__header--image img,
+.card__header--image .card__cover {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+/* 색상 배경 헤더 영역 */
+.card__header--primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border-bottom-color: transparent;
+}
+
+.card__header--secondary {
+  background-color: var(--color-bg-secondary);
+  border-bottom-color: var(--color-border);
+}
+
+/* ─────────────────────────────────────────────
+   본문 영역
+   카드의 주요 콘텐츠를 담는 영역
+   ───────────────────────────────────────────── */
+.card__body {
+  padding: var(--spacing-md);
+
+  /* 가용 공간을 채워 footer가 항상 하단에 위치하도록 */
+  flex: 1;
+
+  /* 본문 내부 요소 간격 */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* ─────────────────────────────────────────────
+   제목
+   ───────────────────────────────────────────── */
+.card__title {
+  font-size: var(--font-size-lg);   /* 1.125rem / 18px */
+  font-weight: 600;
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+
+  /* 긴 제목 처리 */
+  word-break: break-word;
+}
+
+/* ─────────────────────────────────────────────
+   설명 텍스트
+   ───────────────────────────────────────────── */
+.card__description {
+  font-size: var(--font-size-sm);   /* 0.875rem / 14px */
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-xs);
+}
+
+/* ─────────────────────────────────────────────
+   배지 / 메타 정보 영역
+   ───────────────────────────────────────────── */
+.card__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  margin-top: var(--spacing-sm);
+}
+
+/* ─────────────────────────────────────────────
+   푸터 영역 (선택)
+   액션 버튼, 링크, 부가 정보 등
+   ───────────────────────────────────────────── */
+.card__footer {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-bg-secondary);
+
+  /* 버튼/링크 정렬 */
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+/* 푸터 내 버튼/링크 그룹 우측 정렬 */
+.card__footer--end {
+  justify-content: flex-end;
+}
+
+/* 푸터 내 버튼/링크 양끝 정렬 */
+.card__footer--between {
+  justify-content: space-between;
+}
+
+/* ─────────────────────────────────────────────
+   변형: .card--interactive (호버 효과)
+   마우스 호버 시 그림자 증가 + 위로 이동 효과
+   ───────────────────────────────────────────── */
+.card--interactive {
+  cursor: pointer;
+}
+
+.card--interactive:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  border-color: var(--color-border-hover);
+}
+
+.card--interactive:active {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* 포커스 링: 키보드 접근성 */
+.card--interactive:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────
+   변형: .card--horizontal (가로형)
+   이미지와 콘텐츠를 나란히 배치
+   ───────────────────────────────────────────── */
+.card--horizontal {
+  /* 가로 방향 플렉스 */
+  flex-direction: row;
+}
+
+/* 가로형 카드의 이미지 영역 */
+.card--horizontal .card__image {
+  /* 고정 너비로 이미지 크기 확보 */
+  width: 160px;
+  min-width: 160px;
+  max-width: 160px;
+  height: auto;
+
+  /* 커버 방식으로 이미지 채움 */
+  object-fit: cover;
+
+  /* 좌측 라운드 처리 (카드 border-radius 상속) */
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  display: block;
+
+  /* 이미지 하단 공백 제거 */
+  vertical-align: top;
+}
+
+/* 가로형 카드의 콘텐츠 영역 (body) */
+.card--horizontal .card__body {
+  /* 남은 가용 공간 채움 */
+  flex: 1;
+  min-width: 0; /* flex item 오버플로우 방지 */
+}
+
+/* 가로형 카드의 푸터 영역 */
+.card--horizontal .card__footer {
+  /* 가로형에서도 border-top 유지 */
+  border-top: 1px solid var(--color-border);
+}
+
+/* 가로형 카드: 이미지 플레이스홀더 (이미지가 없을 때) */
+.card--horizontal .card__image-placeholder {
+  width: 160px;
+  min-width: 160px;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+}
+
+/* ─────────────────────────────────────────────
+   색상 변형: 타입별 테두리 강조
+   ───────────────────────────────────────────── */
+
+/* primary: 파란색 계열 */
+.card--primary {
+  border-color: var(--color-primary);
+  border-left: 4px solid var(--color-primary);
+}
+
+.card--primary .card__header {
+  background-color: color-mix(in srgb, var(--color-primary) 10%, var(--color-bg));
+  border-bottom-color: color-mix(in srgb, var(--color-primary) 20%, var(--color-border));
+}
+
+/* success: 초록색 계열 */
+.card--success {
+  border-color: var(--color-success);
+  border-left: 4px solid var(--color-success);
+}
+
+.card--success .card__header {
+  background-color: color-mix(in srgb, var(--color-success) 10%, var(--color-bg));
+  border-bottom-color: color-mix(in srgb, var(--color-success) 20%, var(--color-border));
+}
+
+/* warning: 노란색 계열 */
+.card--warning {
+  border-color: var(--color-warning);
+  border-left: 4px solid var(--color-warning);
+}
+
+.card--warning .card__header {
+  background-color: color-mix(in srgb, var(--color-warning) 10%, var(--color-bg));
+  border-bottom-color: color-mix(in srgb, var(--color-warning) 20%, var(--color-border));
+}
+
+/* error: 빨간색 계열 */
+.card--error {
+  border-color: var(--color-danger);
+  border-left: 4px solid var(--color-danger);
+}
+
+.card--error .card__header {
+  background-color: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg));
+  border-bottom-color: color-mix(in srgb, var(--color-danger) 20%, var(--color-border));
+}
+
+/* ─────────────────────────────────────────────
+   Card 그리드 레이아웃 헬퍼
+   .card-grid: 반응형 카드 그리드
+   ───────────────────────────────────────────── */
+.card-grid {
+  display: grid;
+  gap: var(--spacing-md);
+
+  /* 기본: 단일 열 (모바일) */
+  grid-template-columns: 1fr;
+}
+
+/* 태블릿: 2열 */
+@media (min-width: 640px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 데스크톱: 3열 */
+@media (min-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   반응형: 모바일에서 가로형 카드 처리
+   ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+  /* 매우 작은 화면에서는 가로형도 세로로 전환 */
+  .card--horizontal {
+    flex-direction: column;
+  }
+
+  .card--horizontal .card__image,
+  .card--horizontal .card__image-placeholder {
+    width: 100%;
+    min-width: unset;
+    max-width: none;
+    height: 180px;
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   모션 감소 설정 지원 (접근성)
+   ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .card--interactive {
+    transition: none;
+  }
+
+  .card--interactive:hover {
+    transform: none;
+  }
+}

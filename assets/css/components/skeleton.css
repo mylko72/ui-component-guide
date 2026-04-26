@@ -1,1 +1,329 @@
-/* Skeleton 컴포넌트 스타일 */
+/* ============================================
+   Skeleton 컴포넌트 스타일
+   로딩 상태를 시각적으로 표현하는 플레이스홀더 컴포넌트
+   CSS @keyframes 애니메이션만 사용 (JS 불필요)
+   변형: 텍스트, 카드, 테이블, 아바타
+   ============================================ */
+
+/* ─────────────────────────────────────────────
+   시머 애니메이션 (Shimmer Animation)
+   배경 그래디언트를 좌→우로 이동시켜 광택 효과 표현
+   ───────────────────────────────────────────── */
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* 펄스 애니메이션 (모션 감소 환경 대체용)
+   단순 투명도 변화로 로딩 상태를 표현 */
+@keyframes skeleton-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   공통 시머 배경 (라이트 모드)
+   모든 로딩 막대에 공통으로 적용되는 그래디언트
+   ───────────────────────────────────────────── */
+.skeleton__line,
+.skeleton-avatar__image {
+  /* 시머 그래디언트: 밝은 회색 → 더 밝은 흰색 → 밝은 회색 */
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-border)       25%,
+    var(--color-bg-secondary) 50%,
+    var(--color-border)       75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+
+  /* 시머 애니메이션: 1.8초 주기로 무한 반복 */
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* ─────────────────────────────────────────────
+   베이스 컨테이너: .skeleton
+   여러 줄의 로딩 바를 담는 래퍼
+   ───────────────────────────────────────────── */
+.skeleton {
+  /* 세로 방향 플렉스로 줄 쌓기 */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* ─────────────────────────────────────────────
+   로딩 바: .skeleton__line
+   텍스트 줄을 모방하는 기본 로딩 막대
+   ───────────────────────────────────────────── */
+.skeleton__line {
+  /* 텍스트 한 줄 높이와 유사한 높이 */
+  height: 12px;
+
+  /* 전체 너비 */
+  width: 100%;
+
+  /* 부드러운 모서리 */
+  border-radius: var(--radius-sm);
+
+  /* 인라인 요소 하단 여백 제거 */
+  display: block;
+}
+
+/* 짧은 줄: 문단 마지막 줄 또는 보조 텍스트 표현 */
+.skeleton__line--short {
+  width: 60%;
+}
+
+/* 중간 줄: 60~100% 사이의 너비 */
+.skeleton__line--medium {
+  width: 80%;
+}
+
+/* 제목 줄: 조금 더 두꺼운 높이로 h2~h3 제목 표현 */
+.skeleton__line--title {
+  height: 20px;
+  width: 70%;
+  margin-bottom: var(--spacing-xs);
+}
+
+/* ─────────────────────────────────────────────
+   카드 스켈레톤: .skeleton-card
+   Card 컴포넌트의 로딩 상태를 표현
+   ───────────────────────────────────────────── */
+.skeleton-card {
+  /* Card 컴포넌트와 동일한 외곽선 스타일 */
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* 카드 이미지 영역: 200px 높이의 플레이스홀더 */
+.skeleton-card__header {
+  /* 이미지 커버 영역을 표현하는 단색 배경 */
+  height: 200px;
+  background-color: var(--color-bg-secondary);
+
+  /* 시머 애니메이션 직접 적용 */
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-border)       25%,
+    var(--color-bg-secondary) 50%,
+    var(--color-border)       75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* 카드 본문 영역: 텍스트 로딩 바들의 컨테이너 */
+.skeleton-card__body {
+  padding: var(--spacing-md);
+
+  /* 세로 방향 플렉스로 줄 나열 */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+/* 카드 그리드: 반응형 카드 스켈레톤 배치 */
+.skeleton-card-grid {
+  display: grid;
+  gap: var(--spacing-md);
+
+  /* 모바일: 단일 열 */
+  grid-template-columns: 1fr;
+}
+
+/* 태블릿: 2열 */
+@media (min-width: 640px) {
+  .skeleton-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* 데스크톱: 3열 */
+@media (min-width: 1024px) {
+  .skeleton-card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* ─────────────────────────────────────────────
+   테이블 스켈레톤: .skeleton-table
+   테이블 행의 로딩 상태를 표현
+   ───────────────────────────────────────────── */
+.skeleton-table {
+  /* 전체 너비로 확장 */
+  width: 100%;
+
+  /* 기본 테이블 레이아웃 */
+  border-collapse: collapse;
+}
+
+/* 테이블 행 */
+.skeleton-row {
+  /* 행 하단 구분선 */
+  border-bottom: 1px solid var(--color-border);
+}
+
+/* 마지막 행은 하단 구분선 없음 */
+.skeleton-row:last-child {
+  border-bottom: none;
+}
+
+/* 테이블 셀 */
+.skeleton-cell {
+  /* 셀 내부 여백 */
+  padding: var(--spacing-md) var(--spacing-sm);
+
+  /* 셀 내부 정렬 */
+  vertical-align: middle;
+}
+
+/* 첫 번째 셀: 보통 체크박스 또는 아이콘 영역 */
+.skeleton-cell:first-child {
+  width: 40px;
+  padding-left: var(--spacing-md);
+}
+
+/* 마지막 셀: 보통 액션 버튼 영역 */
+.skeleton-cell:last-child {
+  padding-right: var(--spacing-md);
+  text-align: right;
+}
+
+/* ─────────────────────────────────────────────
+   아바타 스켈레톤: .skeleton-avatar
+   원형 아바타 + 텍스트 조합의 로딩 상태 표현
+   ───────────────────────────────────────────── */
+.skeleton-avatar {
+  /* 가로 방향 플렉스 */
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-sm);
+
+  /* 여러 아바타 행 간격은 부모에서 관리 */
+  padding: var(--spacing-xs) 0;
+}
+
+/* 아바타 이미지 영역: 원형 */
+.skeleton-avatar__image {
+  /* 고정 크기 */
+  width: 48px;
+  height: 48px;
+
+  /* 원형 */
+  border-radius: 50%;
+
+  /* 레이아웃에서 크기 고정 */
+  flex-shrink: 0;
+}
+
+/* 아바타 텍스트 영역 */
+.skeleton-avatar__content {
+  /* 남은 공간 차지 */
+  flex: 1;
+  min-width: 0; /* flex item 오버플로우 방지 */
+
+  /* 세로 방향으로 로딩 바 나열 */
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+
+  /* 아바타 이미지와 수직 중앙 정렬 */
+  padding-top: var(--spacing-xs);
+}
+
+/* 아바타 목록: 여러 아바타 행을 담는 래퍼 */
+.skeleton-avatar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/* ─────────────────────────────────────────────
+   다크 모드 조정
+   [data-theme="dark"] 환경에서 색상 대비 확보
+   ───────────────────────────────────────────── */
+
+/* 다크 모드의 시머 그래디언트 재정의 */
+[data-theme="dark"] .skeleton__line,
+[data-theme="dark"] .skeleton-avatar__image {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    #374151                   25%,
+    var(--color-bg-secondary) 50%,
+    #374151                   75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* 다크 모드 카드 헤더 시머 재정의 */
+[data-theme="dark"] .skeleton-card__header {
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    #374151                   25%,
+    var(--color-bg-secondary) 50%,
+    #374151                   75%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 2000px 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+}
+
+/* ─────────────────────────────────────────────
+   접근성: 모션 감소 설정 지원
+   prefers-reduced-motion에서 시머 애니메이션 비활성화
+   단순 펄스 또는 정적 표시로 전환
+   ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  /* 시머 애니메이션을 비활성화하고 펄스로 교체 */
+  .skeleton__line,
+  .skeleton-avatar__image,
+  .skeleton-card__header {
+    animation: skeleton-pulse 2s ease-in-out infinite;
+    /* 그래디언트 이동 없이 단색 배경만 유지 */
+    background: var(--color-bg-secondary);
+    background-size: auto;
+  }
+
+  /* 다크 모드 + 모션 감소 */
+  [data-theme="dark"] .skeleton__line,
+  [data-theme="dark"] .skeleton-avatar__image,
+  [data-theme="dark"] .skeleton-card__header {
+    background: var(--color-bg-secondary);
+    animation: skeleton-pulse 2s ease-in-out infinite;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   반응형: 모바일 조정
+   ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+  /* 모바일에서 테이블 셀 내부 여백 축소 */
+  .skeleton-cell {
+    padding: var(--spacing-sm) var(--spacing-xs);
+  }
+
+  /* 모바일에서 짧은 줄 너비 조정 */
+  .skeleton__line--short {
+    width: 50%;
+  }
+}

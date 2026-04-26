@@ -14,10 +14,11 @@
   <meta name="description" content="Toast 컴포넌트: 기본 토스트, 위치 제어, 타입별 스타일, 자동 닫기 제어 4가지 패턴. WAI-ARIA live region 패턴, aria-live 접근성 완전 지원.">
   <title>Toast — Web UI Component Guide</title>
 
-  <!-- CSS 로드 순서: tokens → reset → common → toast (컴포넌트 전용) -->
+  <!-- CSS 로드 순서: tokens → reset → common → button → toast (컴포넌트 전용) -->
   <link rel="stylesheet" href="../assets/css/tokens.css">
   <link rel="stylesheet" href="../assets/css/reset.css">
   <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/button.css">
   <link rel="stylesheet" href="../assets/css/components/toast.css">
 </head>
 <body>
@@ -223,45 +224,49 @@
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
                   <button
                     type="button"
-                    class="btn btn--primary"
+                    data-variant="primary"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="info"
                     data-toast-message="정보 알림: 새로운 업데이트가 있습니다."
                   >
-                    <i data-lucide="info" style="width:16px;height:16px;" aria-hidden="true"></i>
+                    <i data-lucide="info" aria-hidden="true"></i>
                     Info Toast
                   </button>
 
                   <button
                     type="button"
-                    class="btn btn--success"
+                    data-variant="primary"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="success"
                     data-toast-message="저장 완료! 변경사항이 성공적으로 저장되었습니다."
                   >
-                    <i data-lucide="check-circle" style="width:16px;height:16px;" aria-hidden="true"></i>
+                    <i data-lucide="check-circle" aria-hidden="true"></i>
                     Success Toast
                   </button>
 
                   <button
                     type="button"
-                    class="btn btn--warning"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="warning"
                     data-toast-message="주의: 저장되지 않은 변경사항이 있습니다."
                   >
-                    <i data-lucide="alert-triangle" style="width:16px;height:16px;" aria-hidden="true"></i>
+                    <i data-lucide="alert-triangle" aria-hidden="true"></i>
                     Warning Toast
                   </button>
 
                   <button
                     type="button"
-                    class="btn btn--danger"
+                    data-variant="danger"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="error"
                     data-toast-message="오류 발생: 서버와의 연결이 끊어졌습니다."
                   >
-                    <i data-lucide="x-circle" style="width:16px;height:16px;" aria-hidden="true"></i>
+                    <i data-lucide="x-circle" aria-hidden="true"></i>
                     Error Toast
                   </button>
                 </div>
@@ -451,7 +456,8 @@ window.toast.error('오류 발생!');</pre>
 
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="info"
                     data-toast-message="상단 좌측 알림입니다."
@@ -462,7 +468,8 @@ window.toast.error('오류 발생!');</pre>
 
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="info"
                     data-toast-message="상단 중앙 알림입니다."
@@ -473,7 +480,8 @@ window.toast.error('오류 발생!');</pre>
 
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="info"
                     data-toast-message="상단 우측 알림입니다."
@@ -484,7 +492,8 @@ window.toast.error('오류 발생!');</pre>
 
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="info"
                     data-toast-message="하단 좌측 알림입니다."
@@ -495,7 +504,8 @@ window.toast.error('오류 발생!');</pre>
 
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="info"
                     data-toast-message="하단 중앙 알림입니다."
@@ -506,7 +516,8 @@ window.toast.error('오류 발생!');</pre>
 
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="info"
                     data-toast-message="하단 우측 알림입니다."
@@ -674,14 +685,15 @@ window.toast.success('저장 완료!', {
                   <div style="display:flex;align-items:center;gap:1rem;">
                     <button
                       type="button"
-                      class="btn btn--outline"
+                      data-variant="outline"
+                      data-size="md"
                       style="min-width:140px;"
                       data-toast-trigger
                       data-toast-type="info"
                       data-toast-message="새 버전 v2.3.0이 출시되었습니다. 업데이트를 권장합니다."
                       data-toast-position="top-right"
                     >
-                      <i data-lucide="info" style="width:14px;height:14px;" aria-hidden="true"></i>
+                      <i data-lucide="info" aria-hidden="true"></i>
                       Info
                     </button>
                     <span style="font-size:0.8125rem;color:var(--color-text-secondary);">
@@ -692,14 +704,15 @@ window.toast.success('저장 완료!', {
                   <div style="display:flex;align-items:center;gap:1rem;">
                     <button
                       type="button"
-                      class="btn btn--outline"
+                      data-variant="outline"
+                      data-size="md"
                       style="min-width:140px;"
                       data-toast-trigger
                       data-toast-type="success"
                       data-toast-message="프로필이 성공적으로 업데이트되었습니다."
                       data-toast-position="top-right"
                     >
-                      <i data-lucide="check-circle" style="width:14px;height:14px;" aria-hidden="true"></i>
+                      <i data-lucide="check-circle" aria-hidden="true"></i>
                       Success
                     </button>
                     <span style="font-size:0.8125rem;color:var(--color-text-secondary);">
@@ -710,14 +723,15 @@ window.toast.success('저장 완료!', {
                   <div style="display:flex;align-items:center;gap:1rem;">
                     <button
                       type="button"
-                      class="btn btn--outline"
+                      data-variant="outline"
+                      data-size="md"
                       style="min-width:140px;"
                       data-toast-trigger
                       data-toast-type="warning"
                       data-toast-message="세션이 5분 후 만료됩니다. 작업을 저장하세요."
                       data-toast-position="top-right"
                     >
-                      <i data-lucide="alert-triangle" style="width:14px;height:14px;" aria-hidden="true"></i>
+                      <i data-lucide="alert-triangle" aria-hidden="true"></i>
                       Warning
                     </button>
                     <span style="font-size:0.8125rem;color:var(--color-text-secondary);">
@@ -728,14 +742,15 @@ window.toast.success('저장 완료!', {
                   <div style="display:flex;align-items:center;gap:1rem;">
                     <button
                       type="button"
-                      class="btn btn--outline"
+                      data-variant="outline"
+                      data-size="md"
                       style="min-width:140px;"
                       data-toast-trigger
                       data-toast-type="error"
                       data-toast-message="결제 처리 중 오류가 발생했습니다. 다시 시도해 주세요."
                       data-toast-position="top-right"
                     >
-                      <i data-lucide="x-circle" style="width:14px;height:14px;" aria-hidden="true"></i>
+                      <i data-lucide="x-circle" aria-hidden="true"></i>
                       Error
                     </button>
                     <span style="font-size:0.8125rem;color:var(--color-text-secondary);">
@@ -878,39 +893,42 @@ window.toast.show({
                   <!-- 빠른 사라짐: 1.5초 -->
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="success"
                     data-toast-message="빠르게 사라집니다 (1.5초)"
                     data-toast-duration="1500"
                   >
-                    <i data-lucide="zap" style="width:14px;height:14px;" aria-hidden="true"></i>
+                    <i data-lucide="zap" aria-hidden="true"></i>
                     1.5초 후 닫힘
                   </button>
 
                   <!-- 기본: 3초 -->
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="info"
                     data-toast-message="기본 지속 시간입니다 (3초)"
                     data-toast-duration="3000"
                   >
-                    <i data-lucide="clock" style="width:14px;height:14px;" aria-hidden="true"></i>
+                    <i data-lucide="clock" aria-hidden="true"></i>
                     3초 후 닫힘
                   </button>
 
                   <!-- 긴 지속 시간: 7초 -->
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="warning"
                     data-toast-message="중요한 안내는 조금 더 오래 표시합니다 (7초)"
                     data-toast-duration="7000"
                   >
-                    <i data-lucide="clock" style="width:14px;height:14px;" aria-hidden="true"></i>
+                    <i data-lucide="clock" aria-hidden="true"></i>
                     7초 후 닫힘
                   </button>
 
@@ -920,13 +938,14 @@ window.toast.show({
                   -->
                   <button
                     type="button"
-                    class="btn btn--outline"
+                    data-variant="outline"
+                    data-size="md"
                     data-toast-trigger
                     data-toast-type="error"
                     data-toast-message="자동으로 닫히지 않습니다. X 버튼을 클릭하세요."
                     data-toast-duration="0"
                   >
-                    <i data-lucide="pin" style="width:14px;height:14px;" aria-hidden="true"></i>
+                    <i data-lucide="pin" aria-hidden="true"></i>
                     수동 닫기
                   </button>
 
@@ -936,20 +955,22 @@ window.toast.show({
                   -->
                   <button
                     type="button"
-                    class="btn btn--primary"
+                    data-variant="primary"
+                    data-size="md"
                     id="btn-action-toast"
                   >
-                    <i data-lucide="mouse-pointer-click" style="width:14px;height:14px;" aria-hidden="true"></i>
+                    <i data-lucide="mouse-pointer-click" aria-hidden="true"></i>
                     액션 버튼 토스트
                   </button>
 
                   <!-- 모두 닫기 버튼 -->
                   <button
                     type="button"
-                    class="btn btn--secondary"
+                    data-variant="ghost"
+                    data-size="md"
                     id="btn-dismiss-all"
                   >
-                    <i data-lucide="x" style="width:14px;height:14px;" aria-hidden="true"></i>
+                    <i data-lucide="x" aria-hidden="true"></i>
                     모두 닫기
                   </button>
 
