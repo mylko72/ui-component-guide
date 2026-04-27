@@ -11,3 +11,4 @@
 - [Tooltip 컴포넌트 패턴](reference_tooltip_component_pattern.md) — data-js-loaded로 CSS :hover 폴백 전환, disabled 버튼 래퍼 span 패턴, blur 딜레이 100ms 깜빡임 방지
 - [Dropdown 컴포넌트 패턴](reference_dropdown_component_pattern.md) — menu/menuitem 구조, 외부 클릭 attach/detach, focusout으로 포커스 이탈 감지, roving tabindex, aria-disabled 건너뜀
 - [Progress 컴포넌트 패턴](reference_progress_component_pattern.md) — CSS 변수(--progress-value) 너비 제어, _progressInstance 인스턴스 접근, aria-valuenow 동기화, indeterminate 상태
+- [Select 커스텀 컴포넌트 패턴](reference_select_component_pattern.md) — 네이티브 select 숨김 후 combobox/listbox 동적 생성, ARIA 속성 상속, Typeahead 버퍼, capture phase 외부 클릭

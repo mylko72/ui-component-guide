@@ -82,6 +82,18 @@ function initCodeBlocks() {
 }
 
 /**
+ * Select 커스텀 드롭다운 초기화
+ * - select[data-select] 요소를 커스텀 combobox UI로 강화
+ * - select.js가 로드되지 않은 경우 스킵 (네이티브 select 그대로 동작)
+ */
+function initSelects() {
+  // Select 클래스가 없으면 스킵 (select.js 미로드 상태)
+  if (typeof Select === 'undefined') return;
+
+  Select.init(document);
+}
+
+/**
  * Lucide Icons 초기화
  * - SVG 아이콘을 렌더링
  * - CDN에서 로드된 lucide 라이브러리 사용
@@ -106,6 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. CodeBlock 초기화
   initCodeBlocks();
 
-  // 4. Lucide 아이콘 렌더링
+  // 4. Select 커스텀 드롭다운 초기화 (select.js가 로드된 페이지에서만 동작)
+  initSelects();
+
+  // 5. Lucide 아이콘 렌더링
   initIcons();
 });

@@ -371,3 +371,355 @@ select[data-select]:disabled {
     transition: none;
   }
 }
+
+/* ============================================
+   커스텀 Select UI (select.js 점진적 강화)
+   .select-wrap[data-js-loaded="true"] 하위에서만 적용
+   JS 없을 때는 네이티브 select 스타일 그대로 사용
+   ============================================ */
+
+/* JS 로드 후 커스텀 래퍼 위치 기준 설정 */
+.select-wrap[data-js-loaded="true"] {
+  position: relative;
+}
+
+/* ============================================
+   커스텀 combobox 버튼
+   네이티브 select와 동일한 시각적 크기/스타일 유지
+   ============================================ */
+.select-custom__button {
+  /* 레이아웃: 너비 100%, 가로 배치 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+
+  /* 박스 모델 */
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  gap: 8px;
+
+  /* 타이포그래피 */
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 400;
+  line-height: var(--line-height-normal);
+  text-align: left;
+  color: var(--color-text);
+
+  /* 배경 */
+  background-color: var(--color-bg);
+
+  /* 최소 높이: 터치 타겟 기준 (WCAG 2.5.5) */
+  min-height: 44px;
+
+  /* 커서 */
+  cursor: pointer;
+
+  /* 전환 효과 */
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
+
+  /* 기본 outline 제거 (포커스 스타일 아래에서 별도 정의) */
+  outline: none;
+}
+
+/* 버튼 내 선택값 텍스트: 넘치면 말줄임 */
+.select-custom__value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* 화살표 아이콘: 열림 상태에 따라 회전 */
+.select-custom__arrow {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  width: 16px;
+  height: 16px;
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+/* 열림 상태: 화살표 180도 회전 */
+.select-wrap--open .select-custom__arrow {
+  transform: rotate(180deg);
+  color: var(--color-primary);
+}
+
+/* ── 버튼 크기 변형 ── */
+
+/* sm: 소형 */
+.select-custom__button[data-size="sm"] {
+  padding: 6px 10px;
+  font-size: var(--font-size-sm);
+  min-height: 32px;
+  border-radius: var(--radius-sm);
+}
+
+.select-custom__button[data-size="sm"] .select-custom__arrow {
+  width: 14px;
+  height: 14px;
+}
+
+/* lg: 대형 */
+.select-custom__button[data-size="lg"] {
+  padding: 14px 18px;
+  font-size: var(--font-size-lg);
+  min-height: 52px;
+  border-radius: var(--radius-lg);
+}
+
+.select-custom__button[data-size="lg"] .select-custom__arrow {
+  width: 18px;
+  height: 18px;
+}
+
+/* ── 버튼 호버 상태 ── */
+.select-custom__button:hover:not(:disabled) {
+  border-color: var(--color-border-hover);
+}
+
+.select-custom__button:hover:not(:disabled) .select-custom__arrow {
+  color: var(--color-text);
+}
+
+/* ── 버튼 포커스 상태 (WCAG 2.2 Focus Visible) ── */
+.select-custom__button:focus:not(:disabled) {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.select-custom__button:focus:not(:disabled) .select-custom__arrow {
+  color: var(--color-primary);
+}
+
+/* ── 버튼 에러 상태 ── */
+.select-custom__button[data-error="true"] {
+  border-color: var(--color-danger);
+  background-color: color-mix(in srgb, var(--color-danger) 6%, var(--color-bg));
+}
+
+.select-custom__button[data-error="true"] .select-custom__arrow {
+  color: var(--color-danger);
+}
+
+.select-custom__button[data-error="true"]:focus {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 0;
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* ── 버튼 성공 상태 ── */
+.select-custom__button[data-success="true"] {
+  border-color: var(--color-success);
+  background-color: color-mix(in srgb, var(--color-success) 6%, var(--color-bg));
+}
+
+.select-custom__button[data-success="true"] .select-custom__arrow {
+  color: var(--color-success);
+}
+
+.select-custom__button[data-success="true"]:focus {
+  outline: 2px solid var(--color-success);
+  outline-offset: 0;
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+/* ── 버튼 열림(open) 상태 ── */
+.select-wrap--open .select-custom__button:not([data-error="true"]):not([data-success="true"]) {
+  border-color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* ============================================
+   커스텀 listbox (드롭다운 목록)
+   ============================================ */
+.select-custom__listbox {
+  /* 절대 위치: 버튼 바로 아래 */
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  /* 박스 모델 */
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  box-sizing: border-box;
+
+  /* 시각 스타일 */
+  background-color: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  /* 최대 높이 + 스크롤 */
+  max-height: 240px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* 등장 애니메이션 */
+  animation: selectListboxOpen 0.12s ease-out;
+}
+
+/* listbox 등장 애니메이션 */
+@keyframes selectListboxOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   커스텀 option 아이템
+   ============================================ */
+.select-custom__option {
+  display: flex;
+  align-items: center;
+  padding: 8px 14px;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  transition: background-color var(--transition-fast);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* option 호버 */
+.select-custom__option:hover:not([aria-disabled="true"]) {
+  background-color: var(--color-bg-secondary);
+}
+
+/* option 활성(키보드 포커스) 상태 */
+.select-custom__option[data-active="true"] {
+  background-color: color-mix(in srgb, var(--color-primary) 12%, var(--color-bg));
+  color: var(--color-primary);
+}
+
+/* option 선택됨 상태 */
+.select-custom__option[aria-selected="true"] {
+  background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-bg));
+  color: var(--color-primary);
+  font-weight: 500;
+}
+
+/* option 선택됨 + 활성: 더 진한 강조 */
+.select-custom__option[aria-selected="true"][data-active="true"] {
+  background-color: color-mix(in srgb, var(--color-primary) 16%, var(--color-bg));
+}
+
+/* option 비활성(disabled) */
+.select-custom__option[aria-disabled="true"] {
+  color: var(--color-text-secondary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ============================================
+   optgroup 레이블
+   ============================================ */
+.select-custom__group-label {
+  padding: 6px 14px 4px;
+  font-size: var(--font-size-xs, 11px);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  cursor: default;
+  user-select: none;
+}
+
+/* 첫 번째 그룹 레이블 이외에는 위에 구분선 추가 */
+.select-custom__group-label:not(:first-child) {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ============================================
+   다크 모드 대응
+   ============================================ */
+
+/* 다크 모드: 포커스 glow */
+:root[data-theme="dark"] .select-custom__button:focus:not(:disabled) {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+/* 다크 모드: 열림 상태 glow */
+:root[data-theme="dark"] .select-wrap--open .select-custom__button:not([data-error="true"]):not([data-success="true"]) {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+}
+
+/* 다크 모드: error 포커스 glow */
+:root[data-theme="dark"] .select-custom__button[data-error="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+/* 다크 모드: success 포커스 glow */
+:root[data-theme="dark"] .select-custom__button[data-success="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+}
+
+/* 다크 모드: listbox 그림자 */
+:root[data-theme="dark"] .select-custom__listbox {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================
+   반응형: 모바일(767px 이하)
+   ============================================ */
+@media (max-width: 767px) {
+  /* 모바일: sm 크기 버튼도 44px 터치 타겟 확보 */
+  .select-custom__button[data-size="sm"] {
+    min-height: 44px;
+    padding: 10px 12px;
+    font-size: var(--font-size-base);
+  }
+
+  /* listbox: 화면 너비에 맞게 */
+  .select-custom__listbox {
+    max-height: 200px;
+  }
+}
+
+/* ============================================
+   동작 감소 설정 대응 (prefers-reduced-motion)
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .select-custom__button,
+  .select-custom__arrow,
+  .select-custom__option {
+    transition: none;
+  }
+
+  .select-custom__listbox {
+    animation: none;
+  }
+}
