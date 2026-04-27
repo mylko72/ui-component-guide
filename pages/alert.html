@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <!-- FOUC 방지: localStorage에서 테마를 읽어 즉시 data-theme 속성 적용 -->
+  <script>
+    const theme = localStorage.getItem('uig-theme');
+    const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const appliedTheme = theme || (systemDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', appliedTheme);
+  </script>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Alert 컴포넌트: Info, Success, Warning, Error 4가지 타입. 정적 HTML + 최소 JS로 닫기 버튼 기능, role=alert ARIA 패턴, 다크 모드 완전 지원.">
+  <title>Alert — Web UI Component Guide</title>
+
+  <!-- CSS 로드 순서: tokens → reset → common → alert(컴포넌트 전용) -->
+  <link rel="stylesheet" href="../assets/css/tokens.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/common.css">
+  <link rel="stylesheet" href="../assets/css/components/alert.css">
+</head>
+<body>
+
+  <!-- 접근성: 건너뛰기 링크 (키보드 사용자를 위한 본문 이동 링크) -->
+  <a href="#main" class="skip-nav">본문으로 이동</a>
+
+  <!-- ============================================
+       헤더: 로고, 가이드명, 테마 토글, GitHub 링크
+       ============================================ -->
+  <header class="header" role="banner">
+    <div class="header-container">
+
+      <!-- 로고 및 가이드명: 대시보드로 돌아가는 링크 -->
+      <div class="header-brand">
+        <a href="../index.html" class="logo" aria-label="UI Component Guide 홈으로 이동">UI</a>
+        <span class="guide-title">Web UI Component Guide</span>
+      </div>
+
+      <!-- 공간 차등 배치: 로고와 우측 컨트롤 사이 여백 -->
+      <div class="header-spacer" aria-hidden="true"></div>
+
+      <!-- 버전 배지 -->
+      <span class="version-badge" aria-label="버전 1.0">v1.0</span>
+
+      <!-- 테마 토글 버튼: dark ↔ light 전환 -->
+      <button
+        class="theme-toggle"
+        id="theme-toggle"
+        type="button"
+        aria-label="테마 전환"
+        aria-expanded="false"
+      >
+        <!-- 라이트 모드일 때 보이는 달 아이콘 -->
+        <i data-lucide="moon" class="icon-dark" aria-hidden="true"></i>
+        <!-- 다크 모드일 때 보이는 태양 아이콘 -->
+        <i data-lucide="sun" class="icon-light" aria-hidden="true"></i>
+      </button>
+
+      <!-- GitHub 링크 -->
+      <a
+        href="https://github.com"
+        class="github-link"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub로 이동 (새 탭)"
+      >
+        <i data-lucide="github" aria-hidden="true"></i>
+      </a>
+
+    </div>
+  </header>
+
+  <!-- ============================================
+       메인 컨테이너: 사이드바 + 콘텐츠 영역
+       ============================================ -->
+  <div class="main-container">
+    <main id="main" class="main" tabindex="-1">
+
+      <!-- detail-page: 사이드바 + 본문 2단 레이아웃 -->
+      <div class="detail-page">
+
+        <!-- ============================================
+             사이드바 네비게이션
+             전체 컴포넌트 목록 (현재 페이지: alert.html)
+             common.js의 initSidebarNav()가 active 클래스 자동 설정
+             ============================================ -->
+        <aside class="detail-sidebar" aria-label="컴포넌트 네비게이션">
+          <nav class="sidebar-nav" aria-label="컴포넌트 목록">
+
+            <!-- 대시보드 링크 -->
+            <div class="nav-section">
+              <a href="../index.html" class="nav-link" aria-label="대시보드로 이동">
+                대시보드
+              </a>
+            </div>
+
+            <!-- 폼 요소 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">폼 요소</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./button.html" class="nav-link" aria-label="Button 컴포넌트">Button</a>
+                </li>
+                <li>
+                  <a href="./input.html" class="nav-link" aria-label="Input 컴포넌트">Input</a>
+                </li>
+                <li>
+                  <a href="./checkbox.html" class="nav-link" aria-label="Checkbox 컴포넌트">Checkbox</a>
+                </li>
+                <li>
+                  <a href="./radio.html" class="nav-link" aria-label="Radio 컴포넌트">Radio</a>
+                </li>
+                <li>
+                  <a href="./switch.html" class="nav-link" aria-label="Switch 컴포넌트">Switch</a>
+                </li>
+                <li>
+                  <a href="./select.html" class="nav-link" aria-label="Select 컴포넌트">Select</a>
+                </li>
+                <li>
+                  <a href="./textarea.html" class="nav-link" aria-label="Textarea 컴포넌트">Textarea</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 레이아웃 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">레이아웃</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./card.html" class="nav-link" aria-label="Card 컴포넌트">Card</a>
+                </li>
+                <li>
+                  <a href="./accordion.html" class="nav-link" aria-label="Accordion 컴포넌트">Accordion</a>
+                </li>
+                <li>
+                  <a href="./tabs.html" class="nav-link" aria-label="Tabs 컴포넌트">Tabs</a>
+                </li>
+                <li>
+                  <a href="./modal.html" class="nav-link" aria-label="Modal 컴포넌트">Modal</a>
+                </li>
+                <li>
+                  <a href="./dropdown.html" class="nav-link" aria-label="Dropdown 컴포넌트">Dropdown</a>
+                </li>
+              </ul>
+            </div>
+
+            <!-- 피드백 카테고리 -->
+            <div class="nav-section">
+              <p class="nav-section-title" aria-hidden="true">피드백</p>
+              <ul class="nav-list" role="list">
+                <li>
+                  <a href="./toast.html" class="nav-link" aria-label="Toast 컴포넌트">Toast</a>
+                </li>
+                <li>
+                  <a href="./alert.html" class="nav-link" aria-label="Alert 컴포넌트">Alert</a>
+                </li>
+                <li>
+                  <a href="./badge.html" class="nav-link" aria-label="Badge 컴포넌트">Badge</a>
+                </li>
+                <li>
+                  <a href="./tooltip.html" class="nav-link" aria-label="Tooltip 컴포넌트">Tooltip</a>
+                </li>
+                <li>
+                  <a href="./progress.html" class="nav-link" aria-label="Progress 컴포넌트">Progress</a>
+                </li>
+                <li>
+                  <a href="./skeleton.html" class="nav-link" aria-label="Skeleton 컴포넌트">Skeleton</a>
+                </li>
+              </ul>
+            </div>
+
+          </nav>
+        </aside>
+
+        <!-- ============================================
+             메인 콘텐츠: Alert 컴포넌트 데모 1개 섹션
+             ============================================ -->
+        <div class="detail-main">
+          <article class="demo-page" aria-labelledby="detail-title">
+
+            <!-- 페이지 헤더: 컴포넌트 제목 및 설명 -->
+            <header class="detail-header">
+              <a href="../index.html" class="detail-back-link" aria-label="대시보드로 돌아가기">
+                <span aria-hidden="true">←</span>
+                대시보드
+              </a>
+              <h1 id="detail-title" class="detail-title">Alert</h1>
+              <p class="detail-description">
+                Alert 컴포넌트는 사용자에게 중요한 메시지, 경고, 오류 정보를 전달합니다.
+                4가지 타입(Info, Success, Warning, Error)을 지원하며,
+                <code>role="alert"</code> ARIA 패턴을 사용하여 스크린리더 사용자에게 즉시 공지됩니다.
+                닫기 버튼으로 수동 해제 가능합니다.
+              </p>
+            </header>
+
+            <!-- ============================================
+                 섹션: Alert 4가지 타입
+                 ============================================ -->
+            <section class="demo-section" id="section-basic" aria-labelledby="heading-basic">
+              <h2 id="heading-basic" class="demo-section-title">4가지 Alert 타입</h2>
+              <p class="demo-description">Info, Success, Warning, Error 4가지 상태의 Alert 컴포넌트입니다. 각 Alert은 해당하는 의미론적 역할을 수행합니다.</p>
+
+            <div class="demo-preview">
+              <!-- Info Alert -->
+              <div data-alert="info" role="alert" class="alert alert--info">
+                <div class="alert-icon">
+                  <i data-lucide="info" aria-hidden="true"></i>
+                </div>
+                <div class="alert-content">
+                  <strong class="alert-title">정보</strong>
+                  <p class="alert-message">이것은 정보 알림입니다. 사용자에게 도움이 될 만한 추가 정보를 제공합니다.</p>
+                </div>
+                <button
+                  type="button"
+                  class="alert-close"
+                  data-alert-close
+                  aria-label="닫기"
+                >
+                  <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <!-- Success Alert -->
+              <div data-alert="success" role="alert" class="alert alert--success">
+                <div class="alert-icon">
+                  <i data-lucide="check-circle" aria-hidden="true"></i>
+                </div>
+                <div class="alert-content">
+                  <strong class="alert-title">성공</strong>
+                  <p class="alert-message">작업이 성공적으로 완료되었습니다. 사용자의 요청이 처리되었습니다.</p>
+                </div>
+                <button
+                  type="button"
+                  class="alert-close"
+                  data-alert-close
+                  aria-label="닫기"
+                >
+                  <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <!-- Warning Alert -->
+              <div data-alert="warning" role="alert" class="alert alert--warning">
+                <div class="alert-icon">
+                  <i data-lucide="alert-circle" aria-hidden="true"></i>
+                </div>
+                <div class="alert-content">
+                  <strong class="alert-title">경고</strong>
+                  <p class="alert-message">주의가 필요합니다. 진행하기 전에 다시 한번 확인하시기 바랍니다.</p>
+                </div>
+                <button
+                  type="button"
+                  class="alert-close"
+                  data-alert-close
+                  aria-label="닫기"
+                >
+                  <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <!-- Error Alert -->
+              <div data-alert="error" role="alert" class="alert alert--error">
+                <div class="alert-icon">
+                  <i data-lucide="alert-triangle" aria-hidden="true"></i>
+                </div>
+                <div class="alert-content">
+                  <strong class="alert-title">오류</strong>
+                  <p class="alert-message">오류가 발생했습니다. 잠시 후 다시 시도하거나 관리자에게 문의하세요.</p>
+                </div>
+                <button
+                  type="button"
+                  class="alert-close"
+                  data-alert-close
+                  aria-label="닫기"
+                >
+                  <i data-lucide="x" aria-hidden="true"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- CodeBlock: HTML/CSS/JS 코드 예시 -->
+            <div
+              data-code-block
+              data-html='&lt;!-- role="alert": 스크린 리더에 즉시 공지 --&gt;
+&lt;div role="alert" class="alert alert--info"&gt;
+  &lt;div class="alert-icon"&gt;
+    &lt;i data-lucide="info" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;/div&gt;
+  &lt;div class="alert-content"&gt;
+    &lt;strong class="alert-title"&gt;정보&lt;/strong&gt;
+    &lt;p class="alert-message"&gt;이것은 정보 알림입니다. 사용자에게 도움이 될 만한 추가 정보를 제공합니다.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;button type="button" class="alert-close" data-alert-close aria-label="닫기"&gt;
+    &lt;i data-lucide="x" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;/button&gt;
+&lt;/div&gt;'
+              data-css='/* 기본 Alert */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border-left: 4px solid;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+}
+
+/* Info: 파란색 */
+.alert--info {
+  border-left-color: var(--color-info);
+}
+
+:root[data-theme="light"] .alert--info {
+  background-color: #dbeafe;
+  border-left-color: #3b82f6;
+  color: #1e40af;
+}
+
+:root[data-theme="dark"] .alert--info {
+  background-color: #1e3a8a;
+  border-left-color: #60a5fa;
+  color: #93c5fd;
+}
+
+/* Success: 초록색 */
+.alert--success {
+  border-left-color: var(--color-success);
+}
+
+:root[data-theme="light"] .alert--success {
+  background-color: #dcfce7;
+  border-left-color: #10b981;
+}
+
+:root[data-theme="dark"] .alert--success {
+  background-color: #064e3b;
+  border-left-color: #34d399;
+}
+
+/* 닫기 버튼 */
+.alert-close {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 0.25rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.alert-close:hover {
+  opacity: 1;
+}'
+              data-js='// Alert 컴포넌트: 닫기 버튼 기능
+class Alert {
+  static init(container = document) {
+    container.querySelectorAll("[data-alert]").forEach(el => {
+      // 중복 초기화 방지
+      if (el.dataset.initialized) return;
+      el.dataset.initialized = "true";
+
+      // 닫기 버튼 이벤트 등록
+      const closeBtn = el.querySelector("[data-alert-close]");
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+          el.remove();
+        });
+      }
+    });
+  }
+}
+
+// 페이지 로드 시 자동 초기화
+document.addEventListener("DOMContentLoaded", () => {
+  Alert.init();
+});'
+              aria-label="Alert 코드 예시"
+            >
+              <div class="code-block">
+                <div class="code-block__header" role="tablist" aria-label="코드 탭">
+                  <button
+                    class="code-block__tab active"
+                    role="tab"
+                    data-code-block-tab="html"
+                    aria-selected="true"
+                    aria-controls="cb-alert-basic-html"
+                  >HTML</button>
+                  <button
+                    class="code-block__tab"
+                    role="tab"
+                    data-code-block-tab="css"
+                    aria-selected="false"
+                    aria-controls="cb-alert-basic-css"
+                  >CSS</button>
+                  <button
+                    class="code-block__tab"
+                    role="tab"
+                    data-code-block-tab="js"
+                    aria-selected="false"
+                    aria-controls="cb-alert-basic-js"
+                  >JS</button>
+                </div>
+                <div class="code-block__panels">
+                  <div
+                    id="cb-alert-basic-html"
+                    class="code-block__panel"
+                    data-code-block-panel="html"
+                    role="tabpanel"
+                    aria-expanded="true"
+                  >
+                    <pre class="code-block__content">&lt;!-- role="alert": 스크린 리더에 즉시 공지 --&gt;
+&lt;div role="alert" class="alert alert--info"&gt;
+  &lt;div class="alert-icon"&gt;
+    &lt;i data-lucide="info" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;/div&gt;
+  &lt;div class="alert-content"&gt;
+    &lt;strong class="alert-title"&gt;정보&lt;/strong&gt;
+    &lt;p class="alert-message"&gt;이것은 정보 알림입니다.&lt;/p&gt;
+  &lt;/div&gt;
+  &lt;button type="button" class="alert-close" data-alert-close aria-label="닫기"&gt;
+    &lt;i data-lucide="x" aria-hidden="true"&gt;&lt;/i&gt;
+  &lt;/button&gt;
+&lt;/div&gt;
+
+&lt;!-- 타입: --info / --success / --warning / --error --&gt;
+&lt;div role="alert" class="alert alert--success"&gt;...&lt;/div&gt;
+&lt;div role="alert" class="alert alert--warning"&gt;...&lt;/div&gt;
+&lt;div role="alert" class="alert alert--error"&gt;...&lt;/div&gt;</pre>
+                  </div>
+                  <div
+                    id="cb-alert-basic-css"
+                    class="code-block__panel"
+                    data-code-block-panel="css"
+                    role="tabpanel"
+                    aria-expanded="false"
+                  >
+                    <pre class="code-block__content">/* 기본 Alert 스타일 */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border-left: 4px solid;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+/* 타입별 색상 */
+.alert--info { border-left-color: var(--color-info); }
+.alert--success { border-left-color: var(--color-success); }
+.alert--warning { border-left-color: var(--color-warning); }
+.alert--error { border-left-color: var(--color-danger); }
+
+/* 라이트 모드: Info */
+:root[data-theme="light"] .alert--info {
+  background-color: #dbeafe;
+  border-left-color: #3b82f6;
+  color: #1e40af;
+}
+
+/* 다크 모드: Info */
+:root[data-theme="dark"] .alert--info {
+  background-color: #1e3a8a;
+  border-left-color: #60a5fa;
+  color: #93c5fd;
+}
+
+/* 닫기 버튼 */
+.alert-close {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 0.25rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast);
+}
+
+.alert-close:hover {
+  opacity: 1;
+}</pre>
+                  </div>
+                  <div
+                    id="cb-alert-basic-js"
+                    class="code-block__panel"
+                    data-code-block-panel="js"
+                    role="tabpanel"
+                    aria-expanded="false"
+                  >
+                    <pre class="code-block__content">// Alert 컴포넌트: 닫기 버튼 기능
+class Alert {
+  static init(container = document) {
+    container.querySelectorAll('[data-alert]').forEach(el => {
+      // 중복 초기화 방지
+      if (el.dataset.initialized) return;
+      el.dataset.initialized = 'true';
+
+      // 닫기 버튼 이벤트 등록
+      const closeBtn = el.querySelector('[data-alert-close]');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+          el.remove();
+        });
+      }
+    });
+  }
+}
+
+// 페이지 로드 시 자동 초기화
+document.addEventListener('DOMContentLoaded', () => {
+  Alert.init();
+});</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            </section>
+
+          </article>
+        </div>
+
+    </main>
+  </div>
+
+  <!-- ============================================
+       스크립트
+       ============================================ -->
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <!-- 공통 유틸리티 (테마 토글, 사이드바, CodeBlock 초기화, 아이콘) -->
+  <script src="../assets/js/common.js"></script>
+  <!-- CodeBlock 기능 (탭 전환, 확장/축소, 복사) -->
+  <script src="../assets/js/components/code-block.js"></script>
+  <!-- Alert 닫기 버튼 기능 -->
+  <script src="../assets/js/components/alert.js"></script>
+
+</body>
+</html>

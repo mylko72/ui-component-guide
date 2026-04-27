@@ -1,1 +1,208 @@
-/* Alert 컴포넌트 스타일 */
+/* ============================================
+   Alert 컴포넌트 스타일
+   Info, Success, Warning, Error 4가지 타입
+   ============================================ */
+
+/* 기본 Alert 스타일 */
+.alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border-left: 4px solid;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+/* Info 알림 */
+.alert--info {
+  border-left-color: var(--color-info);
+  background-color: var(--color-bg-secondary);
+}
+
+:root[data-theme="light"] .alert--info {
+  background-color: #dbeafe;
+  border-left-color: #3b82f6;
+  color: #1e40af;
+}
+
+:root[data-theme="dark"] .alert--info {
+  background-color: #1e3a8a;
+  border-left-color: #60a5fa;
+  color: #93c5fd;
+}
+
+/* Success 알림 */
+.alert--success {
+  border-left-color: var(--color-success);
+  background-color: var(--color-bg-secondary);
+}
+
+:root[data-theme="light"] .alert--success {
+  background-color: #dcfce7;
+  border-left-color: #10b981;
+  color: #065f46;
+}
+
+:root[data-theme="dark"] .alert--success {
+  background-color: #064e3b;
+  border-left-color: #34d399;
+  color: #a7f3d0;
+}
+
+/* Warning 알림 */
+.alert--warning {
+  border-left-color: var(--color-warning);
+  background-color: var(--color-bg-secondary);
+}
+
+:root[data-theme="light"] .alert--warning {
+  background-color: #fef3c7;
+  border-left-color: #f59e0b;
+  color: #92400e;
+}
+
+:root[data-theme="dark"] .alert--warning {
+  background-color: #78350f;
+  border-left-color: #fbbf24;
+  color: #fef3c7;
+}
+
+/* Error 알림 */
+.alert--error {
+  border-left-color: var(--color-danger);
+  background-color: var(--color-bg-secondary);
+}
+
+:root[data-theme="light"] .alert--error {
+  background-color: #fee2e2;
+  border-left-color: #ef4444;
+  color: #7f1d1d;
+}
+
+:root[data-theme="dark"] .alert--error {
+  background-color: #7f1d1d;
+  border-left-color: #f87171;
+  color: #fecaca;
+}
+
+/* Alert 아이콘 */
+.alert-icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.125rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-icon i {
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke-width: 2;
+}
+
+/* Alert 콘텐츠 */
+.alert-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* Alert 제목 */
+.alert-title {
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-tight);
+}
+
+/* Alert 메시지 */
+.alert-message {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+  margin: 0;
+}
+
+/* Alert 닫기 버튼 */
+.alert-close {
+  margin-left: auto;
+  flex-shrink: 0;
+  padding: 0.25rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: inherit;
+  opacity: 0.7;
+  transition: opacity var(--transition-fast), background-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alert-close:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="dark"] .alert-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.alert-close:focus-visible {
+  outline: 2px solid;
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.alert-close i {
+  width: 1.25rem;
+  height: 1.25rem;
+  stroke-width: 2;
+}
+
+/* 반응형: 모바일 */
+@media (max-width: 640px) {
+  .alert {
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-xs);
+  }
+
+  .alert-icon {
+    width: 1rem;
+    height: 1rem;
+    margin-top: 0.25rem;
+  }
+
+  .alert-icon i {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .alert-close {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .alert-close i {
+    width: 1rem;
+    height: 1rem;
+  }
+}
+
+/* 접근성: 포커스 표시 */
+.alert:focus-within {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+:root[data-theme="dark"] .alert:focus-within {
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
