@@ -526,11 +526,42 @@ document.addEventListener('DOMContentLoaded', () => {
   Alert.init();
 });</pre>
                   </div>
+                  <div class="code-block__footer">
+                    <button
+                      class="code-block__toggle"
+                      type="button"
+                      data-code-expand
+                      aria-expanded="false"
+                      aria-label="코드 전체 보기"
+                    >View Code</button>
+                    <button
+                      class="code-block__copy"
+                      type="button"
+                      data-code-copy
+                      aria-label="코드 복사"
+                    >Copy</button>
+                  </div>
                 </div>
               </div>
             </div>
 
             </section>
+
+            <!-- 페이지 하단 네비게이션: 이전/다음 컴포넌트 이동 -->
+            <footer class="detail-footer" role="contentinfo">
+              <nav class="detail-footer-nav" aria-label="컴포넌트 페이지 이동">
+                <!-- 이전: Badge 컴포넌트 -->
+                <a href="./badge.html" class="detail-footer-link" aria-label="Badge 컴포넌트로 이동">
+                  <span class="detail-footer-label">이전</span>
+                  <span>Badge</span>
+                </a>
+                <!-- 다음: Tooltip 컴포넌트 -->
+                <a href="./tooltip.html" class="detail-footer-link" aria-label="Tooltip 컴포넌트로 이동">
+                  <span class="detail-footer-label">다음</span>
+                  <span>Tooltip</span>
+                </a>
+              </nav>
+            </footer>
 
           </article>
         </div>
